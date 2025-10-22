@@ -50,25 +50,58 @@
   padding: 1rem 1.2rem;
   text-decoration: none;
   color: #333;
-  border-radius: 10px;
+  border-radius: 10px 0px 10px 10px;
   transition: all 0.3s ease;
   font-weight: 500;
   font-size: 0.95rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.nav-item:hover::before {
+  left: 100%;
 }
 
 .nav-item:hover {
-  background-color: #f8f9fa;
+  background-color: #333;
+  color: #FFD700;
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .nav-item.active {
   background-color: #333;
   color: white;
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.nav-item.active:hover {
+  background-color: #333;
+  color: white;
+  transform: translateX(8px);
 }
 
 .nav-item i {
   width: 22px;
   text-align: center;
   font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.nav-item:hover i {
+  transform: scale(1.1) rotate(5deg);
 }
 
 .about-section {
@@ -89,17 +122,43 @@
   gap: 0.6rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
   font-size: 0.95rem;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.about-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.about-button:hover::before {
+  left: 100%;
 }
 
 .about-button:hover {
-  background-color: #e6c200;
+  background-color: #333;
+  color: #FFD700;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
 .about-button i {
   font-size: 1.2rem;
+  transition: all 0.3s ease;
+}
+
+.about-button:hover i {
+  transform: scale(1.1) rotate(10deg);
 }
 
 /* Tablettes */
