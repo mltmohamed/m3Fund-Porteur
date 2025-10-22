@@ -75,12 +75,81 @@
           {{ project.status }}
         </div>
         <div class="card-actions">
-          <button class="action-btn info-btn">
+          <button class="action-btn info-btn" (click)="openProjectModal(project)">
             <i class="fas fa-info"></i>
           </button>
           <button class="action-btn edit-btn">
             <i class="fas fa-pencil-alt"></i>
           </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de détail du projet -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" *ngIf="selectedProject">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <button class="close-btn" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+        <h2 class="modal-title">{{ selectedProject.title }}</h2>
+        <div class="modal-category" [class]="selectedProject.sector.toLowerCase()">
+          {{ selectedProject.sector }}
+        </div>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-label">Date de création</div>
+          <div class="modal-value">{{ selectedProject.creationDate }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label">Statut</div>
+          <div class="modal-value">{{ selectedProject.statusDetail }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label">Nombre de collaborateur</div>
+          <div class="modal-value">{{ selectedProject.collaboratorCount }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label">Nombre de campagne effectué</div>
+          <div class="modal-value">{{ selectedProject.campaignCount }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label modal-label-bold">Résumé du projet</div>
+          <div class="modal-value">{{ selectedProject.projectSummary }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label">Budget cible</div>
+          <div class="modal-value modal-value-bold">{{ selectedProject.targetBudget }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label">Part Offerte</div>
+          <div class="modal-value modal-value-bold">{{ selectedProject.shareOffered }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label">Valeur nette</div>
+          <div class="modal-value modal-value-bold">{{ selectedProject.netValue }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label">Fonds récoltés</div>
+          <div class="modal-value modal-value-bold">{{ selectedProject.fundsRaised }}</div>
+        </div>
+        
+        <div class="modal-row">
+          <div class="modal-label modal-label-bold">Description du projet</div>
+          <div class="modal-value">{{ selectedProject.projectDescription }}</div>
         </div>
       </div>
     </div>
