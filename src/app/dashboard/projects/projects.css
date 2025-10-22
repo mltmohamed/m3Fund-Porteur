@@ -1,5 +1,5 @@
 .projects-section {
-  margin-bottom: 4rem;
+  margin-bottom: 2rem;
 }
 
 .section-header {
@@ -34,14 +34,14 @@
 
 .projects-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
 }
 
 .project-card {
   background-color: white;
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: 1.2rem;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -129,14 +129,71 @@
   font-weight: 600;
 }
 
+/* Tablettes */
+@media (max-width: 1024px) {
+  .projects-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.2rem;
+  }
+  
+  .project-card {
+    padding: 1rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.3rem;
+  }
+}
+
+/* Mobiles */
 @media (max-width: 768px) {
   .projects-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
   .section-header {
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
+  }
+  
+  .section-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .project-card {
+    padding: 1rem;
+  }
+  
+  .card-content h3 {
+    font-size: 1.1rem;
+  }
+  
+  .amount {
+    font-size: 1rem;
+  }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+  .projects-grid {
+    gap: 0.8rem;
+  }
+  
+  .project-card {
+    padding: 0.8rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.1rem;
+  }
+  
+  .card-content h3 {
+    font-size: 1rem;
+  }
+  
+  .amount {
+    font-size: 0.9rem;
   }
 }

@@ -1,5 +1,5 @@
 .campaigns-section {
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 }
 
 .section-header {
@@ -42,14 +42,14 @@
 
 .campaigns-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
 }
 
 .campaign-card {
   background-color: white;
   border-radius: 12px;
-  padding: 1.2rem;
+  padding: 1rem;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -142,14 +142,76 @@
   font-weight: 600;
 }
 
+/* Tablettes */
+@media (max-width: 1024px) {
+  .campaigns-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  
+  .campaign-card {
+    padding: 1rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.3rem;
+  }
+}
+
+/* Mobiles */
 @media (max-width: 768px) {
   .campaigns-grid {
     grid-template-columns: 1fr;
+    gap: 0.8rem;
   }
   
   .section-header {
     flex-direction: column;
     gap: 1rem;
     align-items: flex-start;
+  }
+  
+  .section-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .campaign-card {
+    padding: 0.8rem;
+  }
+  
+  .campaign-card h3 {
+    font-size: 0.9rem;
+  }
+  
+  .amount {
+    font-size: 0.8rem;
+  }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+  .campaigns-grid {
+    gap: 0.6rem;
+  }
+  
+  .campaign-card {
+    padding: 0.6rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1.1rem;
+  }
+  
+  .campaign-card h3 {
+    font-size: 0.8rem;
+  }
+  
+  .amount {
+    font-size: 0.7rem;
+  }
+  
+  .action-btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
   }
 }

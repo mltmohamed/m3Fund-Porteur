@@ -2,10 +2,12 @@
   width: 250px;
   background-color: white;
   padding: 2rem 1.5rem;
+  padding-bottom: 2.5rem;
   display: flex;
   flex-direction: column;
   box-shadow: 2px 0 8px rgba(0,0,0,0.1);
-  min-height: 100vh;
+  height: calc(100vh - 35px);
+  border-bottom-left-radius: 35px;
 }
 
 .logo {
@@ -76,7 +78,7 @@
   color: #333;
   border: none;
   padding: 1rem 1.2rem;
-  border-radius: 10px;
+  border-radius: 0 10px 10px 0;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -84,6 +86,8 @@
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-size: 0.95rem;
+  margin-left: -1.5rem;
+  padding-left: 1.5rem;
 }
 
 .about-button:hover {
@@ -92,4 +96,84 @@
 
 .about-button i {
   font-size: 1.2rem;
+}
+
+/* Tablettes */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
+    padding: 1.5rem 1rem;
+  }
+  
+  .logo {
+    font-size: 1.3rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .nav-item {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobiles */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    flex-direction: row;
+    padding: 1rem;
+    height: auto;
+    border-radius: 0;
+  }
+  
+  .nav-menu {
+    flex-direction: row;
+    flex: 1;
+    justify-content: space-around;
+    gap: 0.2rem;
+  }
+  
+  .nav-item {
+    flex-direction: column;
+    padding: 0.5rem;
+    text-align: center;
+    gap: 0.3rem;
+  }
+  
+  .nav-item span {
+    font-size: 0.7rem;
+  }
+  
+  .nav-item i {
+    font-size: 1rem;
+  }
+  
+  .about-section {
+    margin-top: 0;
+  }
+  
+  .about-button {
+    padding: 0.8rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+  .sidebar {
+    padding: 0.8rem;
+  }
+  
+  .nav-item {
+    padding: 0.4rem;
+  }
+  
+  .nav-item span {
+    font-size: 0.6rem;
+  }
+  
+  .about-button {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.7rem;
+  }
 }

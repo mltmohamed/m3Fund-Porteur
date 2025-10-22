@@ -6,6 +6,7 @@
   justify-content: space-between;
   gap: 1.2rem;
   width: 100%;
+  border-top-left-radius: 35px;
 }
 
 .campaign-btn {
@@ -48,14 +49,29 @@
   gap: 1rem;
 }
 
-.header-icons i {
-  color: white;
-  font-size: 1.2rem;
+.notification-bell {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.notification-bell:hover {
+  border-color: #FFD700;
+}
+
+.notification-bell i {
+  color: white;
+  font-size: 1.1rem;
   transition: color 0.3s ease;
 }
 
-.header-icons i:hover {
+.notification-bell:hover i {
   color: #FFD700;
 }
 
@@ -77,4 +93,75 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Tablettes */
+@media (max-width: 1024px) {
+  .header {
+    padding: 1rem 1.5rem;
+    gap: 1rem;
+  }
+  
+  .campaign-btn,
+  .new-project-btn {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+  }
+  
+  .new-project-btn {
+    max-width: 180px;
+  }
+}
+
+/* Mobiles */
+@media (max-width: 768px) {
+  .header {
+    padding: 1rem;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+  }
+  
+  .campaign-btn,
+  .new-project-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .new-project-btn {
+    max-width: 150px;
+  }
+  
+  .header-icons {
+    gap: 0.8rem;
+  }
+  
+  .notification-bell,
+  .profile-pic {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+/* Petits mobiles */
+@media (max-width: 480px) {
+  .header {
+    padding: 0.8rem;
+    gap: 0.6rem;
+  }
+  
+  .campaign-btn,
+  .new-project-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.7rem;
+  }
+  
+  .new-project-btn {
+    max-width: 120px;
+  }
+  
+  .notification-bell,
+  .profile-pic {
+    width: 30px;
+    height: 30px;
+  }
 }
