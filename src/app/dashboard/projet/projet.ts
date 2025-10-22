@@ -13,6 +13,7 @@ export class Projet {
   selectedStatus: string = '';
   selectedSector: string = '';
   showModal: boolean = false;
+  showEditModal: boolean = false;
   selectedProject: any = null;
 
   // Données des cartes de résumé
@@ -163,5 +164,20 @@ export class Projet {
   closeModal() {
     this.showModal = false;
     this.selectedProject = null;
+  }
+
+  openEditModal(project: any) {
+    this.selectedProject = project;
+    this.showEditModal = true;
+  }
+
+  closeEditModal() {
+    this.showEditModal = false;
+    this.selectedProject = null;
+  }
+
+  onSubmitEdit() {
+    console.log('Modification soumise pour:', this.selectedProject);
+    this.closeEditModal();
   }
 }

@@ -78,7 +78,7 @@
           <button class="action-btn info-btn" (click)="openProjectModal(project)">
             <i class="fas fa-info"></i>
           </button>
-          <button class="action-btn edit-btn">
+          <button class="action-btn edit-btn" (click)="openEditModal(project)">
             <i class="fas fa-pencil-alt"></i>
           </button>
         </div>
@@ -152,6 +152,113 @@
           <div class="modal-value">{{ selectedProject.projectDescription }}</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal de modification du projet -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedProject">
+      <!-- En-tête du modal -->
+      <div class="edit-modal-header">
+        <button class="back-btn" (click)="closeEditModal()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2 class="edit-modal-title">Que voulez vous modifier ?</h2>
+      </div>
+      
+      <p class="edit-modal-subtitle">veuillez remplir les champs ci-dessous pour modification</p>
+
+      <!-- Formulaire de modification -->
+      <form class="edit-form" (ngSubmit)="onSubmitEdit()">
+        <div class="form-columns">
+          <!-- Colonne gauche -->
+          <div class="form-column">
+            <div class="form-group">
+              <label for="projectName">Nom du Projet</label>
+              <input 
+                type="text" 
+                id="projectName" 
+                class="form-input" 
+                [value]="selectedProject.title"
+                placeholder="Nom du projet"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="targetBudget">Budget cible</label>
+              <input 
+                type="text" 
+                id="targetBudget" 
+                class="form-input" 
+                [value]="selectedProject.targetBudget"
+                placeholder="Budget cible"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="shareOffered">Part offerte</label>
+              <input 
+                type="text" 
+                id="shareOffered" 
+                class="form-input" 
+                [value]="selectedProject.shareOffered"
+                placeholder="Part offerte"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="projectDescription">Description du projet</label>
+              <textarea 
+                id="projectDescription" 
+                class="form-textarea" 
+                rows="4"
+                placeholder="Description du projet"
+              >{{ selectedProject.projectDescription }}</textarea>
+            </div>
+          </div>
+
+          <!-- Colonne droite -->
+          <div class="form-column">
+            <div class="form-group">
+              <label for="projectSummary">Résumé du projet</label>
+              <textarea 
+                id="projectSummary" 
+                class="form-textarea" 
+                rows="4"
+                placeholder="Résumé du projet"
+              >{{ selectedProject.projectSummary }}</textarea>
+            </div>
+            
+            <div class="form-group">
+              <label>Mise à jour le business Plan du projet ?</label>
+              <div class="file-upload">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Sélectionner un fichier</span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="endDate">Date Fin</label>
+              <div class="date-input-container">
+                <i class="fas fa-calendar-alt"></i>
+                <input 
+                  type="date" 
+                  id="endDate" 
+                  class="form-input date-input" 
+                  placeholder="Date de fin"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <div class="form-submit">
+          <button type="submit" class="submit-btn">
+            Soumettre la modification
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
