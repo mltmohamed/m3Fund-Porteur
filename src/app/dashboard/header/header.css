@@ -5,8 +5,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.2rem;
-  width: 100%;
+  width: calc(100% - 79px);
   border-top-left-radius: 35px;
+  position: relative;
+
 }
 
 .campaign-btn {
