@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -8,5 +8,11 @@ import { RouterLink } from '@angular/router';
   styleUrl: './sidebar.css'
 })
 export class Sidebar {
+  @Output() viewChange = new EventEmitter<string>();
+  currentView: string = 'dashboard';
 
+  setView(view: string) {
+    this.currentView = view;
+    this.viewChange.emit(view);
+  }
 }

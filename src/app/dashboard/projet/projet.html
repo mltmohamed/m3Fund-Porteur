@@ -1,0 +1,88 @@
+<div class="projet-container">
+  <!-- Cartes de résumé -->
+  <div class="summary-cards">
+    <div class="summary-card" *ngFor="let card of summaryCards">
+      <div class="card-icon">
+        <i [class]="card.icon"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ card.value }}</div>
+        <div class="card-title">{{ card.title }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre de recherche et filtres -->
+  <div class="search-filters">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Rechercher des projets ..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+      >
+    </div>
+    <div class="filters">
+      <select [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+        <option *ngFor="let option of statusOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+      <select [(ngModel)]="selectedSector" (change)="onSectorChange()">
+        <option *ngFor="let option of sectorOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Grille des projets -->
+  <div class="projects-grid">
+    <div class="project-card" *ngFor="let project of projects">
+      <!-- En-tête de la carte -->
+      <div class="card-header">
+        <div class="funds-info">{{ project.funds }}</div>
+        <div class="sector-badge" [class]="project.sector.toLowerCase()">
+          {{ project.sector }}
+        </div>
+      </div>
+
+      <!-- Barre de progression -->
+      <div class="progress-section">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="project.progress"></div>
+        </div>
+        <div class="progress-info">
+          <div class="collaborators">
+            <i class="fas fa-users"></i>
+            {{ project.collaborators }}
+          </div>
+          <div class="percentage">{{ project.progress }}%</div>
+        </div>
+      </div>
+
+      <!-- Contenu principal -->
+      <div class="card-content">
+        <h3 class="project-title">{{ project.title }}</h3>
+        <p class="project-description">{{ project.description }}</p>
+      </div>
+
+      <!-- Actions et statut -->
+      <div class="card-footer">
+        <div class="status-badge" [class]="project.status.toLowerCase().replace(' ', '-')">
+          <i [class]="project.statusIcon"></i>
+          {{ project.status }}
+        </div>
+        <div class="card-actions">
+          <button class="action-btn info-btn">
+            <i class="fas fa-info"></i>
+          </button>
+          <button class="action-btn edit-btn">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

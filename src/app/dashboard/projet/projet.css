@@ -1,0 +1,364 @@
+.projet-container {
+  padding: 2rem;
+  background-color: #F0F8F9;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Cartes de résumé */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.summary-card {
+  background-color: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-icon {
+  width: 50px;
+  height: 50px;
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.card-content {
+  flex: 1;
+}
+
+.card-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.3rem;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Barre de recherche et filtres */
+.search-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-bar {
+  flex: 1;
+  min-width: 300px;
+  position: relative;
+}
+
+.search-bar i {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.5rem;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: #06A664;
+  box-shadow: 0 0 0 3px rgba(6, 166, 100, 0.1);
+}
+
+.filters {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.filters select {
+  padding: 0.8rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  background-color: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 150px;
+}
+
+.filters select:focus {
+  outline: none;
+  border-color: #06A664;
+  box-shadow: 0 0 0 3px rgba(6, 166, 100, 0.1);
+}
+
+/* Grille des projets */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.project-card {
+  background-color: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.project-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* En-tête de la carte */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.funds-info {
+  color: #FFD700;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.sector-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: white;
+}
+
+.sector-badge.sante {
+  background-color: #ff6b9d;
+}
+
+.sector-badge.education {
+  background-color: #4ecdc4;
+}
+
+/* Section de progression */
+.progress-section {
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #4CAF50;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.collaborators {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.collaborators i {
+  color: #4CAF50;
+}
+
+.percentage {
+  font-weight: bold;
+  color: #4CAF50;
+}
+
+/* Contenu principal */
+.card-content {
+  margin-bottom: 1.5rem;
+}
+
+.project-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 0.5rem;
+  line-height: 1.3;
+}
+
+.project-description {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Pied de carte */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-badge.en-cours {
+  background-color: #ff6b9d;
+  color: white;
+}
+
+.status-badge.validé {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.card-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+}
+
+.info-btn {
+  background-color: #333;
+  color: white;
+}
+
+.info-btn:hover {
+  background-color: #555;
+  transform: scale(1.1);
+}
+
+.edit-btn {
+  background-color: #333;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #555;
+  transform: scale(1.1);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .projet-container {
+    padding: 1.5rem;
+  }
+  
+  .summary-cards {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+  }
+  
+  .projects-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .projet-container {
+    padding: 1rem;
+  }
+  
+  .search-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-bar {
+    min-width: auto;
+  }
+  
+  .filters {
+    justify-content: space-between;
+  }
+  
+  .filters select {
+    min-width: auto;
+    flex: 1;
+  }
+  
+  .summary-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .projects-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-value {
+    font-size: 1.5rem;
+  }
+  
+  .project-card {
+    padding: 1rem;
+  }
+}

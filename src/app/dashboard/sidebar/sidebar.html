@@ -4,23 +4,23 @@
   </div>
   
   <nav class="nav-menu">
-    <a href="#" class="nav-item active">
+    <a href="#" class="nav-item" [class.active]="currentView === 'dashboard'" (click)="setView('dashboard'); $event.preventDefault()">
       <i class="fas fa-th-large"></i>
       <span>Dashboard</span>
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" [class.active]="currentView === 'projet'" (click)="setView('projet'); $event.preventDefault()">
       <i class="fas fa-lightbulb"></i>
       <span>Projet</span>
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" [class.active]="currentView === 'message'" (click)="setView('message'); $event.preventDefault()">
       <i class="fas fa-envelope"></i>
       <span>Message</span>
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" [class.active]="currentView === 'fonds'" (click)="setView('fonds'); $event.preventDefault()">
       <i class="fas fa-dollar-sign"></i>
       <span>Fonds</span>
     </a>
-    <a href="#" class="nav-item">
+    <a href="#" class="nav-item" [class.active]="currentView === 'parametres'" (click)="setView('parametres'); $event.preventDefault()">
       <i class="fas fa-cog"></i>
       <span>Paramètres</span>
     </a>
