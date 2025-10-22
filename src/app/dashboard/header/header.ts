@@ -63,4 +63,11 @@ export class Header {
   goToProfil() {
     this.viewChange.emit('profil');
   }
+
+  logout() {
+    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+      // Redirection vers la page de connexion
+      window.location.href = '/';
+    }
+  }
 }
