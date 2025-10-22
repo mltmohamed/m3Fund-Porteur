@@ -1,15 +1,12 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'app-header',
-  imports: [CommonModule],
-  templateUrl: './header.html',
-  styleUrl: './header.css'
+  selector: 'app-notification-modal',
+  imports: [],
+  templateUrl: './notification-modal.html',
+  styleUrl: './notification-modal.css'
 })
-export class Header {
-  showNotifications = false;
-
+export class NotificationModal {
   notifications = [
     {
       sender: 'admin campagne',
@@ -27,8 +24,4 @@ export class Header {
       time: '30 min'
     }
   ];
-
-  toggleNotifications() {
-    this.showNotifications = !this.showNotifications;
-  }
 }

@@ -1,0 +1,9 @@
+<div class="notification-modal">
+  <div class="notification-item" *ngFor="let notification of notifications">
+    <div class="notification-content">
+      <div class="sender">{{ notification.sender }}</div>
+      <div class="message">{{ notification.message }}</div>
+    </div>
+    <div class="timestamp">{{ notification.time }}</div>
+  </div>
+</div>

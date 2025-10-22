@@ -2,8 +2,19 @@
   <button class="campaign-btn">Campagne</button>
   <button class="new-project-btn">Nouveau projet +</button>
   <div class="header-icons">
-    <div class="notification-bell">
-      <i class="fas fa-bell"></i>
+    <div class="notification-container">
+      <div class="notification-bell" (click)="toggleNotifications()">
+        <i class="fas fa-bell"></i>
+      </div>
+      <div class="notification-modal" *ngIf="showNotifications">
+        <div class="notification-item" *ngFor="let notification of notifications">
+          <div class="notification-content">
+            <div class="sender">{{ notification.sender }}</div>
+            <div class="message">{{ notification.message }}</div>
+          </div>
+          <div class="timestamp">{{ notification.time }}</div>
+        </div>
+      </div>
     </div>
     <div class="profile-pic">
       <img src="/profil.jpg" alt="Profile">
