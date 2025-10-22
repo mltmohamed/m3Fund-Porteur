@@ -1,0 +1,105 @@
+<div class="fonds-container">
+  <!-- Barre de recherche et filtres -->
+  <div class="search-filters">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input 
+        type="text" 
+        placeholder="Rechercher des transactions ..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+      >
+    </div>
+    <div class="filters">
+      <select [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+        <option *ngFor="let option of statusOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+      <select [(ngModel)]="selectedPeriod" (change)="onPeriodChange()">
+        <option *ngFor="let option of periodOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Liste des transactions -->
+  <div class="transactions-container">
+    <div class="transaction-item" *ngFor="let transaction of transactions">
+      <div class="transaction-content">
+        <div class="payment-method">
+          <span class="method-text">{{ transaction.paymentMethod }}</span>
+        </div>
+        
+        <div class="status-section">
+          <div class="status-icon" [class]="getStatusClass(transaction.status)">
+            <i [class]="getStatusIcon(transaction.status)"></i>
+          </div>
+        </div>
+        
+        <div class="project-info">
+          <span class="project-name">{{ transaction.project }}</span>
+        </div>
+        
+        <div class="transaction-actions">
+          <button class="info-btn" (click)="openTransactionModal(transaction)">
+            <i class="fas fa-info"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de détail de transaction -->
+  <div class="modal-overlay" *ngIf="showTransactionModal" (click)="closeTransactionModal()">
+    <div class="transaction-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedTransaction">
+      <!-- En-tête du modal -->
+      <div class="transaction-modal-header">
+        <button class="close-btn" (click)="closeTransactionModal()">
+          <i class="fas fa-times"></i>
+        </button>
+        <h2 class="transaction-modal-title">{{ selectedTransaction.project.split(' ').slice(0, -1).join(' ') }}</h2>
+        <div class="transaction-modal-category sante">
+          SANTE
+        </div>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="transaction-modal-body">
+        <div class="transaction-modal-row">
+          <div class="transaction-modal-label">Date</div>
+          <div class="transaction-modal-value">{{ selectedTransaction.transactionDate }}</div>
+        </div>
+        
+        <div class="transaction-modal-row">
+          <div class="transaction-modal-label">Statut</div>
+          <div class="transaction-modal-value">{{ selectedTransaction.transactionStatus }}</div>
+        </div>
+        
+        <div class="transaction-modal-row">
+          <div class="transaction-modal-label">Moyen de paiement</div>
+          <div class="transaction-modal-value">{{ selectedTransaction.paymentMethodDetail }}</div>
+        </div>
+        
+        <div class="transaction-modal-row">
+          <div class="transaction-modal-label">Numéro du destinateur</div>
+          <div class="transaction-modal-value">{{ selectedTransaction.recipientNumber }}</div>
+        </div>
+        
+        <div class="transaction-modal-row">
+          <div class="transaction-modal-label">Raison de la transaction</div>
+          <div class="transaction-modal-value">{{ selectedTransaction.transactionReason }}</div>
+        </div>
+      </div>
+
+      <!-- Bouton de téléchargement -->
+      <div class="transaction-modal-footer">
+        <button class="download-btn" (click)="downloadReport()">
+          <i class="fas fa-download"></i>
+          Télécharger le rapport
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

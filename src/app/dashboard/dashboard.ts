@@ -5,10 +5,12 @@ import { Header } from './header/header';
 import { Projects } from './projects/projects';
 import { Campaigns } from './campaigns/campaigns';
 import { Projet } from './projet/projet';
+import { Fonds } from './fonds/fonds';
+import { NouveauProjet } from './nouveau-projet/nouveau-projet';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, Sidebar, Header, Projects, Campaigns, Projet],
+  imports: [CommonModule, Sidebar, Header, Projects, Campaigns, Projet, Fonds, NouveauProjet],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

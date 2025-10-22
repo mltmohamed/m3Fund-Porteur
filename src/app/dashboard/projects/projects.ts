@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-projects',
@@ -7,5 +7,9 @@ import { Component } from '@angular/core';
   styleUrl: './projects.css'
 })
 export class Projects {
+  @Output() viewChange = new EventEmitter<string>();
 
+  goToProjects() {
+    this.viewChange.emit('projet');
+  }
 }

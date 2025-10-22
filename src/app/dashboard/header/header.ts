@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
   styleUrl: './header.css'
 })
 export class Header {
+  @Output() viewChange = new EventEmitter<string>();
   showNotifications = false;
 
   notifications = [
@@ -30,5 +31,9 @@ export class Header {
 
   toggleNotifications() {
     this.showNotifications = !this.showNotifications;
+  }
+
+  goToNewProject() {
+    this.viewChange.emit('nouveau-projet');
   }
 }

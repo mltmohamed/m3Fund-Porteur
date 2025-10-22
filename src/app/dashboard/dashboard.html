@@ -2,12 +2,14 @@
   <app-sidebar (viewChange)="setView($event)"></app-sidebar>
   
   <div class="main-content">
-    <app-header></app-header>
+    <app-header (viewChange)="setView($event)"></app-header>
     
     <div class="content-area">
-      <app-projects *ngIf="currentView === 'dashboard'"></app-projects>
+      <app-projects *ngIf="currentView === 'dashboard'" (viewChange)="setView($event)"></app-projects>
       <app-campaigns *ngIf="currentView === 'dashboard'"></app-campaigns>
       <app-projet *ngIf="currentView === 'projet'"></app-projet>
+      <app-fonds *ngIf="currentView === 'fonds'"></app-fonds>
+      <app-nouveau-projet *ngIf="currentView === 'nouveau-projet'"></app-nouveau-projet>
     </div>
   </div>
 </div>
