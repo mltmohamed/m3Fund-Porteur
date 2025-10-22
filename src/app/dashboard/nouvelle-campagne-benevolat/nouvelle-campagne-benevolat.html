@@ -1,0 +1,92 @@
+<div class="nouvelle-campagne-benevolat-container">
+  <div class="form-card">
+    <h1 class="form-title">Créer une nouvelle campagne</h1>
+    <p class="form-subtitle">Bienvenu ! Prêt à lancer votre campagne ? remplissez les champs ci-dessus.</p>
+
+    <form class="campaign-form" (ngSubmit)="onSubmit()">
+      <div class="form-fields">
+        <div class="form-group">
+          <label for="selectedProject">Le projet concerné</label>
+          <div class="select-container">
+            <select 
+              id="selectedProject" 
+              class="form-select" 
+              [(ngModel)]="selectedProject"
+              name="selectedProject"
+            >
+              <option *ngFor="let option of projectOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="whatLookingFor">Qu'est ce que vous rechercher?</label>
+          <div class="select-container">
+            <select 
+              id="whatLookingFor" 
+              class="form-select" 
+              [(ngModel)]="whatLookingFor"
+              name="whatLookingFor"
+            >
+              <option *ngFor="let option of whatLookingForOptions" [value]="option.value">
+                {{ option.label }}
+              </option>
+            </select>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="startDate">Date de debut</label>
+          <div class="date-input-container">
+            <i class="fas fa-calendar-alt"></i>
+            <input 
+              type="date" 
+              id="startDate" 
+              class="form-input date-input" 
+              [(ngModel)]="startDate"
+              name="startDate"
+            >
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="endDate">Date Fin</label>
+          <div class="date-input-container">
+            <i class="fas fa-calendar-alt"></i>
+            <input 
+              type="date" 
+              id="endDate" 
+              class="form-input date-input" 
+              [(ngModel)]="endDate"
+              name="endDate"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone de description -->
+      <div class="form-group full-width">
+        <label for="campaignDescription">Décrivez ce que vous recherchez après la campagne</label>
+        <textarea 
+          id="campaignDescription" 
+          class="form-textarea" 
+          rows="6"
+          [(ngModel)]="campaignDescription"
+          name="campaignDescription"
+          placeholder="Décrivez ce que vous recherchez après la campagne..."
+        ></textarea>
+      </div>
+
+      <!-- Bouton de soumission -->
+      <div class="form-submit">
+        <button type="submit" class="submit-btn">
+          Soumettre
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

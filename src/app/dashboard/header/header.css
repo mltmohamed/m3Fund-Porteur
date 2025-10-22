@@ -302,3 +302,248 @@
     height: 30px;
   }
 }
+
+/* Modal de sélection de campagne */
+.campaign-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(5px);
+  transition: all 0.3s ease;
+}
+
+.campaign-modal-overlay:hover {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+
+.campaign-modal-content {
+  background-color: white;
+  border-radius: 15px;
+  max-width: 600px;
+  width: 90%;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+  position: relative;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.campaign-modal-content:hover {
+  transform: scale(1.02);
+  box-shadow: 0 20px 40px rgba(6, 166, 100, 0.2);
+  border-color: rgba(6, 166, 100, 0.3);
+}
+
+.campaign-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #666;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.back-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.back-btn:hover::before {
+  left: 100%;
+}
+
+.back-btn:hover {
+  background-color: #06A664;
+  color: white;
+  transform: scale(1.2) rotate(-10deg);
+  box-shadow: 0 4px 12px rgba(6, 166, 100, 0.3);
+}
+
+.campaign-modal-title {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.campaign-modal-content:hover .campaign-modal-title {
+  color: #06A664;
+  transform: scale(1.05);
+  text-shadow: 0 2px 4px rgba(6, 166, 100, 0.2);
+}
+
+.campaign-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.campaign-card {
+  background-color: white;
+  border: 2px solid #f0f0f0;
+  border-radius: 15px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.campaign-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(6, 166, 100, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.campaign-card:hover::before {
+  left: 100%;
+}
+
+.campaign-card:hover {
+  border-color: #06A664;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(6, 166, 100, 0.2);
+}
+
+.campaign-icon {
+  margin-bottom: 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.campaign-icon i {
+  font-size: 2rem;
+  color: #666;
+  transition: all 0.3s ease;
+}
+
+.campaign-card:hover .campaign-icon i {
+  color: #06A664;
+  transform: scale(1.1);
+}
+
+.campaign-icon .fas.fa-arrow-up {
+  font-size: 1.2rem;
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+  transform: rotate(45deg);
+}
+
+.campaign-card:hover .campaign-icon .fas.fa-arrow-up {
+  color: #06A664;
+  transform: rotate(45deg) scale(1.2);
+}
+
+.campaign-icon .fas.fa-dollar-sign {
+  font-size: 1.2rem;
+  position: absolute;
+  top: -0.5rem;
+  right: -0.5rem;
+}
+
+.campaign-card:hover .campaign-icon .fas.fa-dollar-sign {
+  color: #06A664;
+  transform: scale(1.2);
+}
+
+.campaign-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+  transition: all 0.3s ease;
+}
+
+.campaign-card:hover .campaign-title {
+  color: #06A664;
+  transform: scale(1.05);
+  font-weight: 700;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Responsive modal de campagne */
+@media (max-width: 768px) {
+  .campaign-modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+  
+  .campaign-options {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .campaign-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .campaign-modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .campaign-title {
+    font-size: 1rem;
+  }
+  
+  .campaign-icon i {
+    font-size: 1.5rem;
+  }
+}

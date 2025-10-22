@@ -1,0 +1,478 @@
+<div class="campagnes-container">
+  <!-- Cartes de résumé -->
+  <div class="summary-cards">
+    <div class="summary-card" *ngFor="let card of summaryCards">
+      <div class="card-icon">
+        <i [class]="card.icon"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ card.value }}</div>
+        <div class="card-title">{{ card.title }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barre de recherche et filtres -->
+  <div class="search-filters">
+    <div class="search-bar">
+      <i class="fas fa-search"></i>
+      <input
+        type="text"
+        placeholder="Rechercher des campagnes..."
+        [(ngModel)]="searchTerm"
+        (input)="onSearch()"
+      >
+    </div>
+    <div class="filters">
+      <select [(ngModel)]="selectedProject" (change)="onProjectChange()">
+        <option *ngFor="let option of projectOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+      <select [(ngModel)]="selectedStatus" (change)="onStatusChange()">
+        <option *ngFor="let option of statusOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+    <button class="new-campaign-btn" (click)="toggleCampaignModal()">Nouveau +</button>
+  </div>
+
+  <!-- Grille des campagnes -->
+  <div class="campaigns-grid">
+    <div class="campaign-card" *ngFor="let campaign of campaigns">
+      <div class="card-header">
+        <span class="funds-info">{{ campaign.funds }}</span>
+        <span class="sector-badge" [class]="campaign.sector.toLowerCase()">{{ campaign.sector }}</span>
+      </div>
+      <div class="progress-section">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="campaign.progress"></div>
+        </div>
+        <div class="progress-info">
+          <div class="collaborators">
+            <i class="fas fa-users"></i>
+            <span>{{ campaign.collaborators }}</span>
+          </div>
+          <span class="percentage">{{ campaign.progress }}%</span>
+        </div>
+      </div>
+      <div class="card-content">
+        <h3 class="campaign-title">{{ campaign.title }}</h3>
+      </div>
+      <div class="card-footer">
+        <div class="status-badges">
+          <div class="status-badge" [class]="campaign.status.toLowerCase().replace(' ', '-')">
+            <i [class]="campaign.statusIcon"></i>
+            {{ campaign.status }}
+          </div>
+          <div class="type-badge">
+            <i [class]="campaign.typeIcon"></i>
+            {{ campaign.type }}
+          </div>
+        </div>
+        <div class="end-date">{{ campaign.endDate }}</div>
+        <div class="card-actions">
+          <button class="action-btn info-btn" (click)="openCampaignModal(campaign)">
+            <i class="fas fa-info"></i>
+          </button>
+          <button class="action-btn edit-btn" (click)="campaign.type === 'Don' ? openEditDonModal(campaign) : campaign.type === 'Benevolat' ? openEditBenevolatModal(campaign) : openEditModal(campaign)">
+            <i class="fas fa-pencil-alt"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de détail de la campagne -->
+  <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <button class="close-btn" (click)="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+        <h2 class="modal-title">{{ selectedCampaign.title }}</h2>
+        <div class="modal-category" [class]="selectedCampaign.sector.toLowerCase()">
+          {{ selectedCampaign.sector }}
+        </div>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <div class="modal-row">
+          <div class="modal-label">Date de création</div>
+          <div class="modal-value">{{ selectedCampaign.creationDate }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label">Statut</div>
+          <div class="modal-value">{{ selectedCampaign.statusDetail }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label">Nombre de collaborateur</div>
+          <div class="modal-value">{{ selectedCampaign.collaboratorCount }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label">Nombre de campagne effectué</div>
+          <div class="modal-value">{{ selectedCampaign.campaignCount }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label modal-label-bold">Résumé de la campagne</div>
+          <div class="modal-value">{{ selectedCampaign.campaignSummary }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label">Budget cible</div>
+          <div class="modal-value modal-value-bold">{{ selectedCampaign.targetBudget }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label">Part Offerte</div>
+          <div class="modal-value modal-value-bold">{{ selectedCampaign.shareOffered }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label">Valeur nette</div>
+          <div class="modal-value modal-value-bold">{{ selectedCampaign.netValue }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label">Fonds récoltés</div>
+          <div class="modal-value modal-value-bold">{{ selectedCampaign.fundsRaised }}</div>
+        </div>
+
+        <div class="modal-row">
+          <div class="modal-label modal-label-bold">Description de la campagne</div>
+          <div class="modal-value">{{ selectedCampaign.campaignDescription }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de modification de la campagne -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign">
+      <!-- En-tête du modal -->
+      <div class="edit-modal-header">
+        <button class="back-btn" (click)="closeEditModal()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2 class="edit-modal-title">Que voulez vous modifier ?</h2>
+      </div>
+
+      <p class="edit-modal-subtitle">veuillez remplir les champs ci-dessous pour modification</p>
+
+      <!-- Formulaire de modification -->
+      <form class="edit-form" (ngSubmit)="onSubmitEdit()">
+        <div class="form-columns">
+          <!-- Colonne gauche -->
+          <div class="form-column">
+            <div class="form-group">
+              <label for="campaignName">Nom de la Campagne</label>
+              <input
+                type="text"
+                id="campaignName"
+                class="form-input"
+                [value]="selectedCampaign.title"
+                placeholder="Nom de la campagne"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="targetBudget">Budget cible</label>
+              <input
+                type="text"
+                id="targetBudget"
+                class="form-input"
+                [value]="selectedCampaign.targetBudget"
+                placeholder="Budget cible"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="shareOffered">Part offerte</label>
+              <input
+                type="text"
+                id="shareOffered"
+                class="form-input"
+                [value]="selectedCampaign.shareOffered"
+                placeholder="Part offerte"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="campaignDescription">Description de la campagne</label>
+              <textarea
+                id="campaignDescription"
+                class="form-textarea"
+                rows="4"
+                placeholder="Description de la campagne"
+              >{{ selectedCampaign.campaignDescription }}</textarea>
+            </div>
+          </div>
+
+          <!-- Colonne droite -->
+          <div class="form-column">
+            <div class="form-group">
+              <label for="campaignSummary">Résumé de la campagne</label>
+              <textarea
+                id="campaignSummary"
+                class="form-textarea"
+                rows="4"
+                placeholder="Résumé de la campagne"
+              >{{ selectedCampaign.campaignSummary }}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Mise à jour le business Plan de la campagne ?</label>
+              <div class="file-upload">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Sélectionner un fichier</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="endDate">Date Fin</label>
+              <div class="date-input-container">
+                <i class="fas fa-calendar-alt"></i>
+                <input
+                  type="date"
+                  id="endDate"
+                  class="form-input date-input"
+                  placeholder="Date de fin"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <div class="form-submit">
+          <button type="submit" class="submit-btn">
+            Soumettre la modification
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de modification pour campagne de DON -->
+  <div class="modal-overlay" *ngIf="showEditDonModal" (click)="closeEditDonModal()">
+    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign">
+      <!-- En-tête du modal -->
+      <div class="edit-modal-header">
+        <button class="back-btn" (click)="closeEditDonModal()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2 class="edit-modal-title">Modifier la campagne de don</h2>
+      </div>
+
+      <p class="edit-modal-subtitle">Modifiez les informations de votre campagne de don</p>
+
+      <!-- Formulaire de modification pour DON -->
+      <form class="edit-form" (ngSubmit)="onSubmitEditDon()">
+        <div class="form-columns">
+          <!-- Colonne gauche -->
+          <div class="form-column">
+            <div class="form-group">
+              <label for="campaignName">Nom de la Campagne</label>
+              <input
+                type="text"
+                id="campaignName"
+                class="form-input"
+                [value]="selectedCampaign.title"
+                placeholder="Nom de la campagne"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="targetBudget">Montant cible</label>
+              <input
+                type="text"
+                id="targetBudget"
+                class="form-input"
+                [value]="selectedCampaign.targetBudget"
+                placeholder="Montant cible"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="campaignDescription">Description de la campagne</label>
+              <textarea
+                id="campaignDescription"
+                class="form-textarea"
+                rows="4"
+                placeholder="Description de la campagne"
+              >{{ selectedCampaign.campaignDescription }}</textarea>
+            </div>
+          </div>
+
+          <!-- Colonne droite -->
+          <div class="form-column">
+            <div class="form-group">
+              <label for="campaignSummary">Résumé de la campagne</label>
+              <textarea
+                id="campaignSummary"
+                class="form-textarea"
+                rows="4"
+                placeholder="Résumé de la campagne"
+              >{{ selectedCampaign.campaignSummary }}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="endDate">Date de fin</label>
+              <div class="date-input-container">
+                <i class="fas fa-calendar-alt"></i>
+                <input
+                  type="date"
+                  id="endDate"
+                  class="form-input date-input"
+                  placeholder="Date de fin"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <div class="form-submit">
+          <button type="submit" class="submit-btn">
+            Soumettre la modification
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de modification pour campagne de BÉNÉVOLAT -->
+  <div class="modal-overlay" *ngIf="showEditBenevolatModal" (click)="closeEditBenevolatModal()">
+    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign">
+      <!-- En-tête du modal -->
+      <div class="edit-modal-header">
+        <button class="back-btn" (click)="closeEditBenevolatModal()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2 class="edit-modal-title">Modifier la campagne de bénévolat</h2>
+      </div>
+
+      <p class="edit-modal-subtitle">Modifiez les informations de votre campagne de bénévolat</p>
+
+      <!-- Formulaire de modification pour BÉNÉVOLAT -->
+      <form class="edit-form" (ngSubmit)="onSubmitEditBenevolat()">
+        <div class="form-columns">
+          <!-- Colonne gauche -->
+          <div class="form-column">
+            <div class="form-group">
+              <label for="campaignName">Nom de la Campagne</label>
+              <input
+                type="text"
+                id="campaignName"
+                class="form-input"
+                [value]="selectedCampaign.title"
+                placeholder="Nom de la campagne"
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="skillsNeeded">Compétences recherchées</label>
+              <div class="select-container">
+                <select id="skillsNeeded" class="form-select">
+                  <option value="developpeurs">Développeurs</option>
+                  <option value="designers">Designers</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="communication">Communication</option>
+                  <option value="finance">Finance</option>
+                  <option value="juridique">Juridique</option>
+                  <option value="autres">Autres</option>
+                </select>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="campaignDescription">Description de la campagne</label>
+              <textarea
+                id="campaignDescription"
+                class="form-textarea"
+                rows="4"
+                placeholder="Description de la campagne"
+              >{{ selectedCampaign.campaignDescription }}</textarea>
+            </div>
+          </div>
+
+          <!-- Colonne droite -->
+          <div class="form-column">
+            <div class="form-group">
+              <label for="campaignSummary">Résumé de la campagne</label>
+              <textarea
+                id="campaignSummary"
+                class="form-textarea"
+                rows="4"
+                placeholder="Résumé de la campagne"
+              >{{ selectedCampaign.campaignSummary }}</textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="endDate">Date de fin</label>
+              <div class="date-input-container">
+                <i class="fas fa-calendar-alt"></i>
+                <input
+                  type="date"
+                  id="endDate"
+                  class="form-input date-input"
+                  placeholder="Date de fin"
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bouton de soumission -->
+        <div class="form-submit">
+          <button type="submit" class="submit-btn">
+            Soumettre la modification
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal de sélection de type de campagne -->
+  <div class="campaign-modal-overlay" *ngIf="showCampaignModal" (click)="closeCampaignModal()">
+    <div class="campaign-modal-content" (click)="$event.stopPropagation()">
+      <!-- En-tête du modal -->
+      <div class="campaign-modal-header">
+        <button class="back-btn" (click)="closeCampaignModal()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2 class="campaign-modal-title">Quelle genre de campagne voulez vous faire ?</h2>
+      </div>
+
+      <!-- Options de campagne -->
+      <div class="campaign-options">
+        <div class="campaign-card" (click)="selectCampaignType('investissement')">
+          <div class="campaign-icon">
+            <i class="fas fa-chart-bar"></i>
+            <i class="fas fa-arrow-up"></i>
+          </div>
+          <h3 class="campaign-title">investissement</h3>
+        </div>
+
+        <div class="campaign-card" (click)="selectCampaignType('don')">
+          <div class="campaign-icon">
+            <i class="fas fa-hand-holding"></i>
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <h3 class="campaign-title">Don</h3>
+        </div>
+
+        <div class="campaign-card" (click)="selectCampaignType('benevolat')">
+          <div class="campaign-icon">
+            <i class="fas fa-hand-holding-heart"></i>
+          </div>
+          <h3 class="campaign-title">Bénévolat</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

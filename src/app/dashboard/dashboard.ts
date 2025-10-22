@@ -7,10 +7,17 @@ import { Campaigns } from './campaigns/campaigns';
 import { Projet } from './projet/projet';
 import { Fonds } from './fonds/fonds';
 import { NouveauProjet } from './nouveau-projet/nouveau-projet';
+import { NouvelleCampagne } from './nouvelle-campagne/nouvelle-campagne';
+import { NouvelleCampagneDon } from './nouvelle-campagne-don/nouvelle-campagne-don';
+import { NouvelleCampagneBenevolat } from './nouvelle-campagne-benevolat/nouvelle-campagne-benevolat';
+import { Campagnes } from './campagnes/campagnes';
+import { Profil } from './profil/profil';
+import { Parametres } from './parametres/parametres';
+import { Message } from './message/message';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, Sidebar, Header, Projects, Campaigns, Projet, Fonds, NouveauProjet],
+  imports: [CommonModule, Sidebar, Header, Projects, Campaigns, Projet, Fonds, NouveauProjet, NouvelleCampagne, NouvelleCampagneDon, NouvelleCampagneBenevolat, Campagnes, Profil, Parametres, Message],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

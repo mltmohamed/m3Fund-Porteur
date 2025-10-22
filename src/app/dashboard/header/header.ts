@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 export class Header {
   @Output() viewChange = new EventEmitter<string>();
   showNotifications = false;
+  showCampaignModal = false;
 
   notifications = [
     {
@@ -35,5 +36,31 @@ export class Header {
 
   goToNewProject() {
     this.viewChange.emit('nouveau-projet');
+  }
+
+  toggleCampaignModal() {
+    this.showCampaignModal = !this.showCampaignModal;
+  }
+
+  closeCampaignModal() {
+    this.showCampaignModal = false;
+  }
+
+  selectCampaignType(type: string) {
+    console.log('Type de campagne sélectionné:', type);
+    this.closeCampaignModal();
+
+    // Navigation vers la page appropriée selon le type
+    if (type === 'investissement') {
+      this.viewChange.emit('nouvelle-campagne');
+    } else if (type === 'don') {
+      this.viewChange.emit('nouvelle-campagne-don');
+    } else if (type === 'benevolat') {
+      this.viewChange.emit('nouvelle-campagne-benevolat');
+    }
+  }
+
+  goToProfil() {
+    this.viewChange.emit('profil');
   }
 }

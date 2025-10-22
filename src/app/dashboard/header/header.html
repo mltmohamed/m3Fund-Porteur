@@ -1,5 +1,5 @@
 <div class="header">
-  <button class="campaign-btn">Campagne</button>
+  <button class="campaign-btn" (click)="toggleCampaignModal()">Campagne</button>
   <button class="new-project-btn" (click)="goToNewProject()">Nouveau projet +</button>
   <div class="header-icons">
     <div class="notification-container">
@@ -16,8 +16,47 @@
         </div>
       </div>
     </div>
-    <div class="profile-pic">
-      <img src="/profil.jpg" alt="Profile">
+          <div class="profile-pic" (click)="goToProfil()">
+            <img src="/profil.jpg" alt="Profile">
+          </div>
+  </div>
+
+  <!-- Modal de sélection de campagne -->
+  <div class="campaign-modal-overlay" *ngIf="showCampaignModal" (click)="closeCampaignModal()">
+    <div class="campaign-modal-content" (click)="$event.stopPropagation()">
+      <!-- En-tête du modal -->
+      <div class="campaign-modal-header">
+        <button class="back-btn" (click)="closeCampaignModal()">
+          <i class="fas fa-arrow-left"></i>
+        </button>
+        <h2 class="campaign-modal-title">Quelle genre de campagne voulez vous faire ?</h2>
+      </div>
+
+      <!-- Options de campagne -->
+      <div class="campaign-options">
+        <div class="campaign-card" (click)="selectCampaignType('investissement')">
+          <div class="campaign-icon">
+            <i class="fas fa-chart-bar"></i>
+            <i class="fas fa-arrow-up"></i>
+          </div>
+          <h3 class="campaign-title">investissement</h3>
+        </div>
+
+        <div class="campaign-card" (click)="selectCampaignType('don')">
+          <div class="campaign-icon">
+            <i class="fas fa-hand-holding"></i>
+            <i class="fas fa-dollar-sign"></i>
+          </div>
+          <h3 class="campaign-title">Don</h3>
+        </div>
+
+        <div class="campaign-card" (click)="selectCampaignType('benevolat')">
+          <div class="campaign-icon">
+            <i class="fas fa-hand-holding-heart"></i>
+          </div>
+          <h3 class="campaign-title">Bénévolat</h3>
+        </div>
+      </div>
     </div>
   </div>
 </div>

@@ -1,0 +1,97 @@
+<div class="profil-container">
+  <div class="profil-card">
+    <!-- Section image de profil -->
+    <div class="profile-image-section">
+      <div class="profile-image-container">
+        <img src="/profil.jpg" alt="Photo de profil" class="profile-image">
+        <button class="change-image-btn" (click)="onImageChange()">
+          <i class="fas fa-camera"></i>
+        </button>
+      </div>
+      <h2 class="profile-title">Mettons à jour votre profile</h2>
+    </div>
+
+    <!-- Formulaire de modification -->
+    <form class="profil-form" (ngSubmit)="onSubmit()">
+      <div class="form-columns">
+        <!-- Colonne gauche -->
+        <div class="form-column">
+          <div class="form-group">
+            <label for="nom">Nom</label>
+            <input
+              type="text"
+              id="nom"
+              class="form-input"
+              [(ngModel)]="nom"
+              name="nom"
+              placeholder="Votre nom"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="telephone">Numéro de téléphone</label>
+            <input
+              type="tel"
+              id="telephone"
+              class="form-input"
+              [(ngModel)]="telephone"
+              name="telephone"
+              placeholder="Votre numéro de téléphone"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="motDePasse">Confirmer par le mot de passe</label>
+            <input
+              type="password"
+              id="motDePasse"
+              class="form-input"
+              [(ngModel)]="motDePasse"
+              name="motDePasse"
+              placeholder="Votre mot de passe"
+            >
+          </div>
+        </div>
+
+        <!-- Colonne droite -->
+        <div class="form-column">
+          <div class="form-group">
+            <label for="prenom">Prénom</label>
+            <input
+              type="text"
+              id="prenom"
+              class="form-input"
+              [(ngModel)]="prenom"
+              name="prenom"
+              placeholder="Votre prénom"
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              class="form-input"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="Votre email"
+            >
+          </div>
+
+          <div class="form-group">
+            <a href="#" class="forgot-password-link">Mot de passe oublié ?</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bouton de soumission -->
+      <div class="form-submit">
+        <button type="submit" class="submit-btn">
+          Soumettre la modification
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

@@ -1,0 +1,41 @@
+<div class="parametres-container">
+  <div class="parametres-card">
+    <h1 class="parametres-title">Thèmes</h1>
+    <p class="parametres-subtitle">Choisissez votre style</p>
+
+    <div class="theme-options">
+      <!-- Mode Clair -->
+      <div class="theme-card" [class.selected]="selectedTheme === 'light'" (click)="selectTheme('light')">
+        <div class="theme-preview light-preview">
+          <div class="preview-content">
+            <div class="preview-header"></div>
+            <div class="preview-sidebar"></div>
+            <div class="preview-main"></div>
+          </div>
+        </div>
+        <div class="theme-label">
+          <i class="fas fa-check" *ngIf="selectedTheme === 'light'"></i>
+          <i class="far fa-circle" *ngIf="selectedTheme !== 'light'"></i>
+          <span>Mode Clair</span>
+        </div>
+      </div>
+
+      <!-- Mode Sombre -->
+      <div class="theme-card" [class.selected]="selectedTheme === 'dark'" (click)="selectTheme('dark')">
+        <div class="theme-preview dark-preview">
+          <div class="preview-content">
+            <div class="preview-header"></div>
+            <div class="preview-sidebar"></div>
+            <div class="preview-main"></div>
+          </div>
+        </div>
+        <div class="theme-label">
+          <i class="fas fa-check" *ngIf="selectedTheme === 'dark'"></i>
+          <i class="far fa-circle" *ngIf="selectedTheme !== 'dark'"></i>
+          <span>Mode Sombre</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

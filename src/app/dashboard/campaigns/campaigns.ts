@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-campaigns',
@@ -7,5 +7,9 @@ import { Component } from '@angular/core';
   styleUrl: './campaigns.css'
 })
 export class Campaigns {
+  @Output() viewChange = new EventEmitter<string>();
 
+  goToCampaigns() {
+    this.viewChange.emit('campagnes');
+  }
 }

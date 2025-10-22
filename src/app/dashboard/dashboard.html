@@ -6,10 +6,17 @@
     
     <div class="content-area">
       <app-projects *ngIf="currentView === 'dashboard'" (viewChange)="setView($event)"></app-projects>
-      <app-campaigns *ngIf="currentView === 'dashboard'"></app-campaigns>
+      <app-campaigns *ngIf="currentView === 'dashboard'" (viewChange)="setView($event)"></app-campaigns>
       <app-projet *ngIf="currentView === 'projet'"></app-projet>
       <app-fonds *ngIf="currentView === 'fonds'"></app-fonds>
       <app-nouveau-projet *ngIf="currentView === 'nouveau-projet'"></app-nouveau-projet>
+      <app-nouvelle-campagne *ngIf="currentView === 'nouvelle-campagne'"></app-nouvelle-campagne>
+      <app-nouvelle-campagne-don *ngIf="currentView === 'nouvelle-campagne-don'"></app-nouvelle-campagne-don>
+      <app-nouvelle-campagne-benevolat *ngIf="currentView === 'nouvelle-campagne-benevolat'"></app-nouvelle-campagne-benevolat>
+      <app-campagnes *ngIf="currentView === 'campagnes'"></app-campagnes>
+      <app-profil *ngIf="currentView === 'profil'"></app-profil>
+      <app-parametres *ngIf="currentView === 'parametres'"></app-parametres>
+      <app-message *ngIf="currentView === 'message'"></app-message>
     </div>
   </div>
 </div>
