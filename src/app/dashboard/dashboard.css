@@ -38,8 +38,9 @@ html {
   right: 0;
   bottom: 0;
   padding: 2rem 2rem;
-  background-color: #06A664;
+  background-color: #f1e0e0;
   border-bottom-left-radius: 35px;
+  
   overflow-y: auto;
   overflow-x: hidden;
 }
