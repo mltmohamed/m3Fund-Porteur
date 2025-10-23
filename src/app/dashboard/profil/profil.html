@@ -1,70 +1,117 @@
 <div class="profil-container">
-  <div class="profil-card">
+  <!-- Messages d'erreur et de succès -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+    <button (click)="clearError()" class="close-btn" title="Fermer">×</button>
+  </div>
+  
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+    <button (click)="clearSuccess()" class="close-btn" title="Fermer">×</button>
+  </div>
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Chargement du profil...</p>
+    </div>
+  </div>
+
+  <div class="profil-card" *ngIf="!isLoading">
     <!-- Section image de profil -->
     <div class="profile-image-section">
       <div class="profile-image-container">
-        <img src="/profil.jpg" alt="Photo de profil" class="profile-image">
-        <button class="change-image-btn" (click)="onImageChange()">
+        <img [src]="profileImageUrl || 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiByeD0iNTAiIGZpbGw9IiNmM2Y0ZjYiLz4KPHN2ZyB4PSIyNSIgeT0iMjUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNMjAgMjF2LTJhNCA0IDAgMCAwLTQtNEg4YTQgNCAwIDAgMC00IDR2MiIgc3Ryb2tlPSIjOTk5IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8Y2lyY2xlIGN4PSIxMiIgY3k9IjciIHI9IjQiIHN0cm9rZT0iIzk5OSIgc3Ryb2tlLXdpZHRoPSIyIi8+Cjwvc3ZnPgo8L3N2Zz4K'" alt="Photo de profil" class="profile-image">
+        <input
+          type="file"
+          id="profile-photo"
+          (change)="onImageChange($event)"
+          accept="image/*"
+          style="display: none;">
+        <button class="change-image-btn" (click)="triggerFileInput()">
           <i class="fas fa-camera"></i>
         </button>
       </div>
-      <h2 class="profile-title">Mettons à jour votre profile</h2>
+      <h2 class="profile-title">Mettons à jour votre profil</h2>
+      <div *ngIf="userProfile" class="profile-info">
+        <span class="user-type">
+          <i [class]="profileService.getUserTypeIcon(userProfile.userType)"></i>
+          {{ profileService.getUserTypeLabel(userProfile.userType) }}
+        </span>
+        <span class="member-since">Membre depuis {{ userProfile.createdAt | date:'MMM yyyy' }}</span>
+      </div>
     </div>
 
     <!-- Formulaire de modification -->
-    <form class="profil-form" (ngSubmit)="onSubmit()">
+    <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profil-form">
       <div class="form-columns">
         <!-- Colonne gauche -->
         <div class="form-column">
           <div class="form-group">
-            <label for="nom">Nom</label>
+            <label for="firstName">Prénom</label>
             <input
               type="text"
-              id="nom"
+              id="firstName"
+              formControlName="firstName"
               class="form-input"
-              [(ngModel)]="nom"
-              name="nom"
-              placeholder="Votre nom"
+              [class.error]="firstName?.invalid && firstName?.touched"
+              placeholder="Votre prénom"
             >
+            <div *ngIf="firstName?.invalid && firstName?.touched" class="error-text">
+              <span *ngIf="firstName?.errors?.['required']">Le prénom est requis</span>
+              <span *ngIf="firstName?.errors?.['minlength']">Le prénom doit contenir au moins 2 caractères</span>
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="telephone">Numéro de téléphone</label>
+            <label for="phone">Numéro de téléphone</label>
             <input
               type="tel"
-              id="telephone"
+              id="phone"
+              formControlName="phone"
               class="form-input"
-              [(ngModel)]="telephone"
-              name="telephone"
+              [class.error]="phone?.invalid && phone?.touched"
               placeholder="Votre numéro de téléphone"
             >
+            <div *ngIf="phone?.invalid && phone?.touched" class="error-text">
+              <span *ngIf="phone?.errors?.['required']">Le numéro de téléphone est requis</span>
+              <span *ngIf="phone?.errors?.['pattern']">Format de téléphone invalide</span>
+            </div>
           </div>
 
           <div class="form-group">
-            <label for="motDePasse">Confirmer par le mot de passe</label>
+            <label for="currentPassword">Confirmer par le mot de passe</label>
             <input
               type="password"
-              id="motDePasse"
+              id="currentPassword"
+              formControlName="currentPassword"
               class="form-input"
-              [(ngModel)]="motDePasse"
-              name="motDePasse"
-              placeholder="Votre mot de passe"
+              [class.error]="currentPassword?.invalid && currentPassword?.touched"
+              placeholder="Votre mot de passe actuel"
             >
+            <div *ngIf="currentPassword?.invalid && currentPassword?.touched" class="error-text">
+              <span *ngIf="currentPassword?.errors?.['required']">Le mot de passe est requis</span>
+            </div>
           </div>
         </div>
 
         <!-- Colonne droite -->
         <div class="form-column">
           <div class="form-group">
-            <label for="prenom">Prénom</label>
+            <label for="lastName">Nom</label>
             <input
               type="text"
-              id="prenom"
+              id="lastName"
+              formControlName="lastName"
               class="form-input"
-              [(ngModel)]="prenom"
-              name="prenom"
-              placeholder="Votre prénom"
+              [class.error]="lastName?.invalid && lastName?.touched"
+              placeholder="Votre nom"
             >
+            <div *ngIf="lastName?.invalid && lastName?.touched" class="error-text">
+              <span *ngIf="lastName?.errors?.['required']">Le nom est requis</span>
+              <span *ngIf="lastName?.errors?.['minlength']">Le nom doit contenir au moins 2 caractères</span>
+            </div>
           </div>
 
           <div class="form-group">
@@ -72,26 +119,106 @@
             <input
               type="email"
               id="email"
+              formControlName="email"
               class="form-input"
-              [(ngModel)]="email"
-              name="email"
-              placeholder="Votre email"
+              [class.error]="email?.invalid && email?.touched"
+              placeholder="Votre adresse email"
             >
+            <div *ngIf="email?.invalid && email?.touched" class="error-text">
+              <span *ngIf="email?.errors?.['required']">L'email est requis</span>
+              <span *ngIf="email?.errors?.['email']">Format d'email invalide</span>
+            </div>
           </div>
 
           <div class="form-group">
-            <a href="#" class="forgot-password-link">Mot de passe oublié ?</a>
+            <label for="address">Adresse</label>
+            <input
+              type="text"
+              id="address"
+              formControlName="address"
+              class="form-input"
+              [class.error]="address?.invalid && address?.touched"
+              placeholder="Votre adresse"
+            >
+            <div *ngIf="address?.invalid && address?.touched" class="error-text">
+              <span *ngIf="address?.errors?.['required']">L'adresse est requise</span>
+              <span *ngIf="address?.errors?.['minlength']">L'adresse doit contenir au moins 5 caractères</span>
+            </div>
           </div>
         </div>
       </div>
 
       <!-- Bouton de soumission -->
-      <div class="form-submit">
-        <button type="submit" class="submit-btn">
-          Soumettre la modification
+      <div class="form-actions">
+        <button 
+          type="submit" 
+          class="submit-btn"
+          [disabled]="isUpdating || profileForm.invalid">
+          <span *ngIf="!isUpdating">Mettre à jour</span>
+          <span *ngIf="isUpdating">Mise à jour en cours...</span>
         </button>
       </div>
     </form>
+
+    <!-- Section changement de mot de passe -->
+    <div class="password-section">
+      <h3>Changer le mot de passe</h3>
+      <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="password-form">
+        <div class="form-group">
+          <label for="currentPasswordChange">Mot de passe actuel</label>
+          <input
+            type="password"
+            id="currentPasswordChange"
+            formControlName="currentPassword"
+            class="form-input"
+            [class.error]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
+            placeholder="Votre mot de passe actuel"
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="newPassword">Nouveau mot de passe</label>
+          <input
+            type="password"
+            id="newPassword"
+            formControlName="newPassword"
+            class="form-input"
+            [class.error]="newPassword?.invalid && newPassword?.touched"
+            placeholder="Nouveau mot de passe"
+          >
+          <div *ngIf="newPassword?.invalid && newPassword?.touched" class="error-text">
+            <span *ngIf="newPassword?.errors?.['required']">Le nouveau mot de passe est requis</span>
+            <span *ngIf="newPassword?.errors?.['minlength']">Le mot de passe doit contenir au moins 8 caractères</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirmer le nouveau mot de passe</label>
+          <input
+            type="password"
+            id="confirmPassword"
+            formControlName="confirmPassword"
+            class="form-input"
+            [class.error]="confirmPassword?.invalid && confirmPassword?.touched"
+            placeholder="Confirmer le nouveau mot de passe"
+          >
+          <div *ngIf="confirmPassword?.invalid && confirmPassword?.touched" class="error-text">
+            <span *ngIf="confirmPassword?.errors?.['required']">La confirmation est requise</span>
+            <span *ngIf="confirmPassword?.errors?.['passwordMismatch']">Les mots de passe ne correspondent pas</span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="submit-btn secondary"
+            [disabled]="isChangingPassword || passwordForm.invalid">
+            <span *ngIf="!isChangingPassword">Changer le mot de passe</span>
+            <span *ngIf="isChangingPassword">Changement en cours...</span>
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
