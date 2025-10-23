@@ -77,6 +77,33 @@
   align-items: center;
 }
 
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
 .retry-btn {
   background-color: #dc2626;
   color: white;
@@ -90,6 +117,81 @@
 
 .retry-btn:hover {
   background-color: #b91c1c;
+}
+
+/* Message spécifique pour "aucun projet trouvé" */
+.error-message:has-text("Aucun projet trouvé") {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-color: #fde68a;
+}
+
+.error-message:has-text("Aucun projet trouvé") .retry-btn {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.error-message:has-text("Aucun projet trouvé") .retry-btn:hover {
+  background-color: #d97706;
+}
+
+/* Message quand aucun projet */
+.no-projects {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: white;
+  border-radius: 15px;
+  margin: 1rem 0;
+}
+
+.no-projects-content {
+  text-align: center;
+  color: #666;
+}
+
+.no-projects-content i {
+  font-size: 2.5rem;
+  color: #ccc;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.no-projects-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.3rem;
+  color: #333;
+}
+
+.no-projects-content p {
+  margin: 0 0 1.5rem 0;
+  font-size: 0.9rem;
+}
+
+.create-btn {
+  background-color: #3B82F6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.create-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.create-btn i {
+  font-size: 0.8rem;
 }
 
 .section-header h2 {

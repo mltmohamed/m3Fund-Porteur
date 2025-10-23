@@ -20,51 +20,46 @@
 
   <!-- Message d'erreur -->
   <div *ngIf="errorMessage && !isLoading" class="error-message">
-    {{ errorMessage }}
+    <div class="error-content">
+      <span>{{ errorMessage }}</span>
+      <button (click)="clearError()" class="close-btn" title="Fermer">×</button>
+    </div>
     <button (click)="refreshStats()" class="retry-btn">Réessayer</button>
   </div>
   
-  <div class="projects-grid" *ngIf="!isLoading">
-    <div class="project-card">
-      <div class="card-header">
-        <span class="amount">250,000 FCFA récoltés</span>
-        <span class="category-badge">SANTE</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: 31%"></div>
-      </div>
-      <div class="card-content">
-        <div class="collaborators">
-          <i class="fas fa-users"></i>
-          <span>21 Collaborateurs</span>
-        </div>
-        <h3>Plateforme de télémédecine</h3>
-        <p>Application mobile pour consultations médicales à distance avec suivi des patients.</p>
-        <div class="dates">
-          <span class="date">Debut: 09/10/2025</span>
-          <span class="date">Fin: 09/12/2025</span>
-        </div>
-      </div>
+  <!-- Message quand aucun projet -->
+  <div *ngIf="!isLoading && !hasProjects && !errorMessage" class="no-projects">
+    <div class="no-projects-content">
+      <i class="fas fa-folder-open"></i>
+      <h3>Aucun projet trouvé</h3>
+      <p>Il n'y a actuellement aucun projet à afficher.</p>
+      <button (click)="goToProjects()" class="create-btn">
+        <i class="fas fa-plus"></i>
+        Créer un projet
+      </button>
     </div>
+  </div>
 
-    <div class="project-card">
+  <!-- Grille des projets réels -->
+  <div class="projects-grid" *ngIf="!isLoading && hasProjects">
+    <div class="project-card" *ngFor="let project of projects">
       <div class="card-header">
-        <span class="amount">7,100,000 FCFA récoltés</span>
-        <span class="category-badge">Education</span>
+        <span class="amount">{{ project.funds }}</span>
+        <span class="category-badge" [class]="project.sector.toLowerCase()">{{ project.sector }}</span>
       </div>
       <div class="progress-bar">
-        <div class="progress-fill" style="width: 67%"></div>
+        <div class="progress-fill" [style.width.%]="project.progress"></div>
       </div>
       <div class="card-content">
         <div class="collaborators">
           <i class="fas fa-users"></i>
-          <span>210 Collaborateurs</span>
+          <span>{{ project.collaborators }}</span>
         </div>
-        <h3>Conctruction d'une Ecole</h3>
-        <p>Construction d'une école avec dispositifs intégrés pour le suivi pédagogique administratif des élèves.</p>
+        <h3>{{ project.title }}</h3>
+        <p>{{ project.description }}</p>
         <div class="dates">
-          <span class="date">Debut: 01/01/2025</span>
-          <span class="date">Fin: 31/12/2025</span>
+          <span class="date">Créé: {{ project.creationDate }}</span>
+          <span class="date">Statut: {{ project.status }}</span>
         </div>
       </div>
     </div>
