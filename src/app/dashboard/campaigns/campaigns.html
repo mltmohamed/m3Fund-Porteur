@@ -1,10 +1,30 @@
 <section class="campaigns-section">
   <div class="section-header">
     <h2>Mes campagnes en cours</h2>
-    <button class="see-all-btn green" (click)="goToCampaigns()">Voir Tout ></button>
+    <div class="header-actions">
+      <button *ngIf="campaignStats" class="stats-btn" [style.color]="campaignStats.color">
+        <i [class]="campaignStats.icon"></i>
+        {{ campaignStats.value }} campagnes
+      </button>
+      <button class="see-all-btn green" (click)="goToCampaigns()">Voir Tout ></button>
+    </div>
+  </div>
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Chargement des campagnes...</p>
+    </div>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    {{ errorMessage }}
+    <button (click)="refreshStats()" class="retry-btn">Réessayer</button>
   </div>
   
-  <div class="campaigns-grid">
+  <div class="campaigns-grid" *ngIf="!isLoading">
     <div class="campaign-card">
       <h3>Plateforme de télémédecine</h3>
       <div class="campaign-info">

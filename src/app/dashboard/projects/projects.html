@@ -1,10 +1,30 @@
 <section class="projects-section">
   <div class="section-header">
     <h2>Mes Projets actifs</h2>
-    <button class="see-all-btn" (click)="goToProjects()">Voir Tout ></button>
+    <div class="header-actions">
+      <button *ngIf="projectStats" class="stats-btn" [style.color]="projectStats.color">
+        <i [class]="projectStats.icon"></i>
+        {{ projectStats.value }} projets
+      </button>
+      <button class="see-all-btn" (click)="goToProjects()">Voir Tout ></button>
+    </div>
+  </div>
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Chargement des projets...</p>
+    </div>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    {{ errorMessage }}
+    <button (click)="refreshStats()" class="retry-btn">Réessayer</button>
   </div>
   
-  <div class="projects-grid">
+  <div class="projects-grid" *ngIf="!isLoading">
     <div class="project-card">
       <div class="card-header">
         <span class="amount">250,000 FCFA récoltés</span>

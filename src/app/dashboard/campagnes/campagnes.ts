@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CampaignService } from '../../services/campaign.service';
+import { Campaign, CampaignSummary, CampaignResponse } from '../../interfaces/campaign.interface';
 
 @Component({
   selector: 'app-campagnes',
@@ -8,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './campagnes.html',
   styleUrl: './campagnes.css'
 })
-export class Campagnes {
+export class Campagnes implements OnInit {
   searchTerm: string = '';
   selectedProject: string = '';
   selectedStatus: string = '';
@@ -17,34 +19,80 @@ export class Campagnes {
   showEditDonModal: boolean = false;
   showEditBenevolatModal: boolean = false;
   showCampaignModal: boolean = false;
-  selectedCampaign: any = null;
+  selectedCampaign: Campaign | null = null;
+  isLoading = false;
+  errorMessage = '';
 
   // Données des cartes de résumé
-  summaryCards = [
-    {
-      title: 'Nombre de Campagne',
-      value: '09',
-      icon: 'fas fa-bullhorn'
-    },
-    {
-      title: 'En Cours',
-      value: '06',
-      icon: 'fas fa-circle-notch'
-    },
-    {
-      title: 'Non validés',
-      value: '02',
-      icon: 'fas fa-times'
-    },
-    {
-      title: 'Clôturés',
-      value: '01',
-      icon: 'fas fa-times-circle'
-    }
-  ];
+  summaryCards: CampaignSummary[] = [];
 
   // Données des campagnes
-  campaigns = [
+  campaigns: Campaign[] = [];
+
+  constructor(private campaignService: CampaignService) {}
+
+  ngOnInit() {
+    this.loadCampaigns();
+    this.loadCampaignSummary();
+  }
+
+  // Charger les campagnes depuis le backend
+  loadCampaigns() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.campaignService.getCampaigns().subscribe({
+      next: (backendCampaigns: CampaignResponse[]) => {
+        this.campaigns = backendCampaigns.map(campaign => 
+          this.campaignService.transformCampaignData(campaign)
+        );
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Erreur lors du chargement des campagnes';
+        this.isLoading = false;
+        console.error('Erreur:', error);
+      }
+    });
+  }
+
+  // Charger les statistiques des campagnes
+  loadCampaignSummary() {
+    this.campaignService.getCampaignSummary().subscribe({
+      next: (backendSummary) => {
+        this.summaryCards = this.campaignService.transformSummaryData(backendSummary);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des statistiques:', error);
+        // Utiliser les données par défaut en cas d'erreur
+        this.summaryCards = [
+          {
+            title: 'Nombre de Campagne',
+            value: '0',
+            icon: 'fas fa-bullhorn'
+          },
+          {
+            title: 'En Cours',
+            value: '0',
+            icon: 'fas fa-circle-notch'
+          },
+          {
+            title: 'Non validés',
+            value: '0',
+            icon: 'fas fa-times'
+          },
+          {
+            title: 'Clôturés',
+            value: '0',
+            icon: 'fas fa-times-circle'
+          }
+        ];
+      }
+    });
+  }
+
+  // Données statiques pour les tests (à supprimer après intégration)
+  staticCampaigns = [
     {
       title: 'Plateforme de télémédecine',
       funds: '250,000 FCFA récoltés',
@@ -202,18 +250,61 @@ export class Campagnes {
   ];
 
   onSearch() {
-    console.log('Recherche:', this.searchTerm);
+    if (this.searchTerm.trim()) {
+      this.campaignService.searchCampaigns(this.searchTerm).subscribe({
+        next: (backendCampaigns: CampaignResponse[]) => {
+          this.campaigns = backendCampaigns.map(campaign => 
+            this.campaignService.transformCampaignData(campaign)
+          );
+        },
+        error: (error) => {
+          this.errorMessage = 'Erreur lors de la recherche';
+          console.error('Erreur:', error);
+        }
+      });
+    } else {
+      this.loadCampaigns();
+    }
   }
 
   onProjectChange() {
-    console.log('Projet sélectionné:', this.selectedProject);
+    if (this.selectedProject) {
+      const projectId = parseInt(this.selectedProject);
+      this.campaignService.filterCampaignsByProject(projectId).subscribe({
+        next: (backendCampaigns: CampaignResponse[]) => {
+          this.campaigns = backendCampaigns.map(campaign => 
+            this.campaignService.transformCampaignData(campaign)
+          );
+        },
+        error: (error) => {
+          this.errorMessage = 'Erreur lors du filtrage par projet';
+          console.error('Erreur:', error);
+        }
+      });
+    } else {
+      this.loadCampaigns();
+    }
   }
 
   onStatusChange() {
-    console.log('Statut sélectionné:', this.selectedStatus);
+    if (this.selectedStatus) {
+      this.campaignService.filterCampaignsByStatus(this.selectedStatus).subscribe({
+        next: (backendCampaigns: CampaignResponse[]) => {
+          this.campaigns = backendCampaigns.map(campaign => 
+            this.campaignService.transformCampaignData(campaign)
+          );
+        },
+        error: (error) => {
+          this.errorMessage = 'Erreur lors du filtrage par statut';
+          console.error('Erreur:', error);
+        }
+      });
+    } else {
+      this.loadCampaigns();
+    }
   }
 
-  openCampaignModal(campaign: any) {
+  openCampaignModal(campaign: Campaign) {
     this.selectedCampaign = campaign;
     this.showModal = true;
   }
@@ -223,7 +314,7 @@ export class Campagnes {
     this.selectedCampaign = null;
   }
 
-  openEditModal(campaign: any) {
+  openEditModal(campaign: Campaign) {
     this.selectedCampaign = campaign;
     this.showEditModal = true;
   }
@@ -234,11 +325,14 @@ export class Campagnes {
   }
 
   onSubmitEdit() {
-    console.log('Modification soumise pour:', this.selectedCampaign);
-    this.closeEditModal();
+    if (this.selectedCampaign) {
+      // Ici vous pouvez implémenter la logique de mise à jour
+      console.log('Modification soumise pour:', this.selectedCampaign);
+      this.closeEditModal();
+    }
   }
 
-  openEditDonModal(campaign: any) {
+  openEditDonModal(campaign: Campaign) {
     this.selectedCampaign = campaign;
     this.showEditDonModal = true;
   }
@@ -249,11 +343,13 @@ export class Campagnes {
   }
 
   onSubmitEditDon() {
-    console.log('Modification campagne don soumise pour:', this.selectedCampaign);
-    this.closeEditDonModal();
+    if (this.selectedCampaign) {
+      console.log('Modification campagne don soumise pour:', this.selectedCampaign);
+      this.closeEditDonModal();
+    }
   }
 
-  openEditBenevolatModal(campaign: any) {
+  openEditBenevolatModal(campaign: Campaign) {
     this.selectedCampaign = campaign;
     this.showEditBenevolatModal = true;
   }
@@ -264,8 +360,10 @@ export class Campagnes {
   }
 
   onSubmitEditBenevolat() {
-    console.log('Modification campagne bénévolat soumise pour:', this.selectedCampaign);
-    this.closeEditBenevolatModal();
+    if (this.selectedCampaign) {
+      console.log('Modification campagne bénévolat soumise pour:', this.selectedCampaign);
+      this.closeEditBenevolatModal();
+    }
   }
 
   toggleCampaignModal() {
@@ -291,5 +389,16 @@ export class Campagnes {
       // Redirection vers nouvelle campagne bénévolat
       window.location.href = '/dashboard?view=nouvelle-campagne-benevolat';
     }
+  }
+
+  // Méthode pour recharger les campagnes
+  refreshCampaigns() {
+    this.loadCampaigns();
+    this.loadCampaignSummary();
+  }
+
+  // Méthode pour gérer les erreurs
+  clearError() {
+    this.errorMessage = '';
   }
 }

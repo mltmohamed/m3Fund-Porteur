@@ -37,8 +37,35 @@
     </div>
   </div>
 
+  <!-- Messages d'erreur -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+    <button (click)="clearError()" class="close-error">×</button>
+  </div>
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Chargement des projets...</p>
+    </div>
+  </div>
+
+  <!-- Message quand aucun projet -->
+  <div *ngIf="!isLoading && projects.length === 0" class="no-projects">
+    <div class="no-projects-content">
+      <i class="fas fa-folder-open"></i>
+      <h3>Aucun projet trouvé</h3>
+      <p>Il n'y a actuellement aucun projet à afficher.</p>
+      <button (click)="refreshProjects()" class="refresh-btn">
+        <i class="fas fa-refresh"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
   <!-- Grille des projets -->
-  <div class="projects-grid">
+  <div class="projects-grid" *ngIf="!isLoading && projects.length > 0">
     <div class="project-card" *ngFor="let project of projects">
       <!-- En-tête de la carte -->
       <div class="card-header">

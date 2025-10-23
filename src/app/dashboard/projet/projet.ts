@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ProjectService } from '../../services/project.service';
+import { Project, ProjectSummary, ProjectResponse } from '../../interfaces/project.interface';
 
 @Component({
   selector: 'app-projet',
@@ -8,40 +10,86 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './projet.html',
   styleUrl: './projet.css'
 })
-export class Projet {
+export class Projet implements OnInit {
   searchTerm: string = '';
   selectedStatus: string = '';
   selectedSector: string = '';
   showModal: boolean = false;
   showEditModal: boolean = false;
-  selectedProject: any = null;
+  selectedProject: Project | null = null;
+  isLoading = false;
+  errorMessage = '';
 
   // Données des cartes de résumé
-  summaryCards = [
-    {
-      title: 'Nombre de projets',
-      value: '09',
-      icon: 'fas fa-bars'
-    },
-    {
-      title: 'En Cours',
-      value: '03',
-      icon: 'fas fa-circle-notch'
-    },
-    {
-      title: 'Non validés',
-      value: '05',
-      icon: 'fas fa-times'
-    },
-    {
-      title: 'Clôturés',
-      value: '01',
-      icon: 'fas fa-times-circle'
-    }
-  ];
+  summaryCards: ProjectSummary[] = [];
 
   // Données des projets
-  projects = [
+  projects: Project[] = [];
+
+  constructor(private projectService: ProjectService) {}
+
+  ngOnInit() {
+    this.loadProjects();
+    this.loadProjectSummary();
+  }
+
+  // Charger les projets depuis le backend
+  loadProjects() {
+    this.isLoading = true;
+    this.errorMessage = '';
+    
+    this.projectService.getProjects().subscribe({
+      next: (backendProjects: ProjectResponse[]) => {
+        this.projects = backendProjects.map(project => 
+          this.projectService.transformProjectData(project)
+        );
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Erreur lors du chargement des projets';
+        this.isLoading = false;
+        console.error('Erreur:', error);
+      }
+    });
+  }
+
+  // Charger les statistiques des projets
+  loadProjectSummary() {
+    this.projectService.getProjectSummary().subscribe({
+      next: (backendSummary) => {
+        this.summaryCards = this.projectService.transformSummaryData(backendSummary);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des statistiques:', error);
+        // Utiliser les données par défaut en cas d'erreur
+        this.summaryCards = [
+          {
+            title: 'Nombre de projets',
+            value: '0',
+            icon: 'fas fa-bars'
+          },
+          {
+            title: 'En Cours',
+            value: '0',
+            icon: 'fas fa-circle-notch'
+          },
+          {
+            title: 'Non validés',
+            value: '0',
+            icon: 'fas fa-times'
+          },
+          {
+            title: 'Clôturés',
+            value: '0',
+            icon: 'fas fa-times-circle'
+          }
+        ];
+      }
+    });
+  }
+
+  // Données statiques pour les tests (à supprimer après intégration)
+  staticProjects = [
     {
       title: 'Plateforme de télémédecine',
       description: 'Application mobile pour consultations médicales à distance avec suivi des patients.',
@@ -145,18 +193,60 @@ export class Projet {
   ];
 
   onSearch() {
-    console.log('Recherche:', this.searchTerm);
+    if (this.searchTerm.trim()) {
+      this.projectService.searchProjects(this.searchTerm).subscribe({
+        next: (backendProjects: ProjectResponse[]) => {
+          this.projects = backendProjects.map(project => 
+            this.projectService.transformProjectData(project)
+          );
+        },
+        error: (error) => {
+          this.errorMessage = 'Erreur lors de la recherche';
+          console.error('Erreur:', error);
+        }
+      });
+    } else {
+      this.loadProjects();
+    }
   }
 
   onStatusChange() {
-    console.log('Statut sélectionné:', this.selectedStatus);
+    if (this.selectedStatus) {
+      this.projectService.filterProjectsByStatus(this.selectedStatus).subscribe({
+        next: (backendProjects: ProjectResponse[]) => {
+          this.projects = backendProjects.map(project => 
+            this.projectService.transformProjectData(project)
+          );
+        },
+        error: (error) => {
+          this.errorMessage = 'Erreur lors du filtrage par statut';
+          console.error('Erreur:', error);
+        }
+      });
+    } else {
+      this.loadProjects();
+    }
   }
 
   onSectorChange() {
-    console.log('Secteur sélectionné:', this.selectedSector);
+    if (this.selectedSector) {
+      this.projectService.filterProjectsBySector(this.selectedSector).subscribe({
+        next: (backendProjects: ProjectResponse[]) => {
+          this.projects = backendProjects.map(project => 
+            this.projectService.transformProjectData(project)
+          );
+        },
+        error: (error) => {
+          this.errorMessage = 'Erreur lors du filtrage par secteur';
+          console.error('Erreur:', error);
+        }
+      });
+    } else {
+      this.loadProjects();
+    }
   }
 
-  openProjectModal(project: any) {
+  openProjectModal(project: Project) {
     this.selectedProject = project;
     this.showModal = true;
   }
@@ -166,7 +256,7 @@ export class Projet {
     this.selectedProject = null;
   }
 
-  openEditModal(project: any) {
+  openEditModal(project: Project) {
     this.selectedProject = project;
     this.showEditModal = true;
   }
@@ -177,7 +267,21 @@ export class Projet {
   }
 
   onSubmitEdit() {
-    console.log('Modification soumise pour:', this.selectedProject);
-    this.closeEditModal();
+    if (this.selectedProject) {
+      // Ici vous pouvez implémenter la logique de mise à jour
+      console.log('Modification soumise pour:', this.selectedProject);
+      this.closeEditModal();
+    }
+  }
+
+  // Méthode pour recharger les projets
+  refreshProjects() {
+    this.loadProjects();
+    this.loadProjectSummary();
+  }
+
+  // Méthode pour gérer les erreurs
+  clearError() {
+    this.errorMessage = '';
   }
 }

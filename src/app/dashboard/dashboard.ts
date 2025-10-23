@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Sidebar } from './sidebar/sidebar';
 import { Header } from './header/header';
@@ -14,6 +14,8 @@ import { Campagnes } from './campagnes/campagnes';
 import { Profil } from './profil/profil';
 import { Parametres } from './parametres/parametres';
 import { Message } from './message/message';
+import { DashboardService } from '../services/dashboard.service';
+import { DashboardData, DashboardSummary } from '../interfaces/dashboard.interface';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,10 +23,49 @@ import { Message } from './message/message';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class Dashboard {
+export class Dashboard implements OnInit {
   currentView: string = 'dashboard';
+  isLoading = false;
+  errorMessage = '';
+  dashboardData: DashboardData | null = null;
+  summaryCards: DashboardSummary[] = [];
+
+  constructor(private dashboardService: DashboardService) {}
+
+  ngOnInit() {
+    this.loadDashboardData();
+  }
+
+  loadDashboardData() {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.dashboardService.getDashboardData().subscribe({
+      next: (data) => {
+        this.dashboardData = data;
+        this.summaryCards = this.dashboardService.transformStatsToSummary(data.stats);
+        this.isLoading = false;
+      },
+      error: (error) => {
+        this.errorMessage = 'Erreur lors du chargement du dashboard';
+        this.isLoading = false;
+        console.error('Erreur:', error);
+        // Utiliser les données par défaut
+        this.dashboardData = this.dashboardService.getDefaultDashboardData();
+        this.summaryCards = this.dashboardService.getDefaultSummaryCards();
+      }
+    });
+  }
 
   setView(view: string) {
     this.currentView = view;
+  }
+
+  refreshDashboard() {
+    this.loadDashboardData();
+  }
+
+  clearError() {
+    this.errorMessage = '';
   }
 }

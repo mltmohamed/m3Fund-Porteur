@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-notification-modal',
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './notification-modal.html',
   styleUrl: './notification-modal.css'
 })

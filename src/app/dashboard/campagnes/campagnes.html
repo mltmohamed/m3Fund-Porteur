@@ -34,8 +34,35 @@
     <button class="new-campaign-btn" (click)="toggleCampaignModal()">Nouveau +</button>
   </div>
 
+  <!-- Messages d'erreur -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+    <button (click)="clearError()" class="close-error">×</button>
+  </div>
+
+  <!-- État de chargement -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Chargement des campagnes...</p>
+    </div>
+  </div>
+
+  <!-- Message quand aucune campagne -->
+  <div *ngIf="!isLoading && campaigns.length === 0" class="no-campaigns">
+    <div class="no-campaigns-content">
+      <i class="fas fa-bullhorn"></i>
+      <h3>Aucune campagne trouvée</h3>
+      <p>Il n'y a actuellement aucune campagne à afficher.</p>
+      <button (click)="refreshCampaigns()" class="refresh-btn">
+        <i class="fas fa-refresh"></i>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
   <!-- Grille des campagnes -->
-  <div class="campaigns-grid">
+  <div class="campaigns-grid" *ngIf="!isLoading && campaigns.length > 0">
     <div class="campaign-card" *ngFor="let campaign of campaigns">
       <div class="card-header">
         <span class="funds-info">{{ campaign.funds }}</span>

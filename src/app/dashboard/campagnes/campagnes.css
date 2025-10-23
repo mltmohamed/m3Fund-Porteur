@@ -5,6 +5,125 @@
   box-sizing: border-box;
 }
 
+/* Messages d'erreur */
+.error-message {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border: 1px solid #fecaca;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-error {
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-error:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+  border-radius: 50%;
+}
+
+/* État de chargement */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  background-color: white;
+  border-radius: 15px;
+  margin: 2rem 0;
+}
+
+.loading-spinner {
+  text-align: center;
+  color: #06A664;
+}
+
+.loading-spinner i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.loading-spinner p {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+/* Message quand aucune campagne */
+.no-campaigns {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  background-color: white;
+  border-radius: 15px;
+  margin: 2rem 0;
+}
+
+.no-campaigns-content {
+  text-align: center;
+  color: #666;
+}
+
+.no-campaigns-content i {
+  font-size: 3rem;
+  color: #ccc;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.no-campaigns-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.no-campaigns-content p {
+  margin: 0 0 1.5rem 0;
+  font-size: 1rem;
+}
+
+.refresh-btn {
+  background-color: #06A664;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(6, 166, 100, 0.3);
+}
+
+.refresh-btn i {
+  font-size: 0.9rem;
+}
+
 /* Cartes de résumé */
 .summary-cards {
   display: grid;

@@ -8,17 +8,24 @@
       <h1 class="login-title">Connexion</h1>
       <p class="welcome-text">Heureux de vous revoir !</p>
       
-      <form (ngSubmit)="onSubmit()" class="form">
+      <!-- Message d'erreur -->
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+      
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="form">
         <div class="form-group">
           <label for="email">Email</label>
           <input 
             type="email" 
             id="email" 
-            [(ngModel)]="email" 
-            name="email"
+            formControlName="email"
             class="form-input"
-            required
-          >
+            [class.error]="email?.invalid && email?.touched">
+          <div *ngIf="email?.invalid && email?.touched" class="error-text">
+            <span *ngIf="email?.errors?.['required']">L'email est requis</span>
+            <span *ngIf="email?.errors?.['email']">Format d'email invalide</span>
+          </div>
         </div>
         
         <div class="form-group">
@@ -26,11 +33,13 @@
           <input 
             type="password" 
             id="password" 
-            [(ngModel)]="password" 
-            name="password"
+            formControlName="password"
             class="form-input"
-            required
-          >
+            [class.error]="password?.invalid && password?.touched">
+          <div *ngIf="password?.invalid && password?.touched" class="error-text">
+            <span *ngIf="password?.errors?.['required']">Le mot de passe est requis</span>
+            <span *ngIf="password?.errors?.['minlength']">Le mot de passe doit contenir au moins 8 caractères</span>
+          </div>
         </div>
         
         <div class="form-links">
@@ -38,7 +47,13 @@
           <a routerLink="/homepage" class="no-account">Vous n'avez encore un compte ?</a>
         </div>
         
-        <button type="submit" class="login-button">Se connecter</button>
+        <button 
+          type="submit" 
+          class="login-button" 
+          [disabled]="isLoading || loginForm.invalid">
+          <span *ngIf="!isLoading">Se connecter</span>
+          <span *ngIf="isLoading">Connexion en cours...</span>
+        </button>
       </form>
     </div>
   </div>

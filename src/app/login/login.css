@@ -131,6 +131,35 @@
   background-color: #e6940a;
 }
 
+/* Messages d'erreur */
+.error-message {
+  background-color: #fee2e2;
+  color: #dc2626;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border: 1px solid #fecaca;
+  font-size: 0.9rem;
+}
+
+/* Styles pour les erreurs de validation */
+.form-input.error {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.1);
+}
+
+.error-text {
+  color: #dc2626;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+
+/* Bouton désactivé */
+.login-button:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
 @media (max-width: 768px) {
   .login-frame {
     padding: 2rem 1.5rem;
