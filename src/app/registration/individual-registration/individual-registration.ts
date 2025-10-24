@@ -31,14 +31,14 @@ export class IndividualRegistrationComponent {
     this.registrationForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(2)]],
       lastName: ['', [Validators.required, Validators.minLength(2)]],
-      phone: ['', [Validators.required, Validators.pattern(/^[+]?[0-9\s\-\(\)]{8,}$/)]],
+      phone: ['', [Validators.required, Validators.pattern(/^\+[1-9]\d{1,3}[- ]?\d{6,14}$/)]],
       email: ['', [Validators.required, Validators.email]],
       address: ['', [Validators.required, Validators.minLength(5)]],
-      annualIncome: [0, [Validators.required, Validators.min(0)]],
-      password: ['', [Validators.required, Validators.minLength(8)]],
+      annualIncome: [0, [Validators.required, Validators.min(0.01)]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&]).+$/)]],
       confirmPassword: ['', [Validators.required]],
-      biometricCard: [null],
-      residenceCertificate: [null],
+      biometricCard: [null, [Validators.required]],
+      residenceCertificate: [null, [Validators.required]],
       bankStatement: [null],
       profilePhoto: [null]
     }, { validators: this.passwordMatchValidator });
@@ -157,4 +157,6 @@ export class IndividualRegistrationComponent {
   get annualIncome() { return this.registrationForm.get('annualIncome'); }
   get password() { return this.registrationForm.get('password'); }
   get confirmPassword() { return this.registrationForm.get('confirmPassword'); }
+  get biometricCard() { return this.registrationForm.get('biometricCard'); }
+  get residenceCertificate() { return this.registrationForm.get('residenceCertificate'); }
 }

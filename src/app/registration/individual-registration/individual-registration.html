@@ -57,7 +57,7 @@
                 [class.error]="phone?.invalid && phone?.touched">
               <div *ngIf="phone?.invalid && phone?.touched" class="error-text">
                 <span *ngIf="phone?.errors?.['required']">Le numéro de téléphone est requis</span>
-                <span *ngIf="phone?.errors?.['pattern']">Format de téléphone invalide</span>
+                <span *ngIf="phone?.errors?.['pattern']">Le numéro de téléphone doit inclure l'indicatif international (ex: +223 71234567)</span>
               </div>
             </div>
   
@@ -90,7 +90,7 @@
             </div>
   
             <div class="form-group">
-              <label for="carte-biometrique">Carte Biométrique</label>
+              <label for="carte-biometrique">Carte Biométrique *</label>
               <div class="file-input-container">
                 <input 
                   type="file" 
@@ -105,10 +105,13 @@
                   </button>
                 </div>
               </div>
+              <div *ngIf="biometricCard?.invalid && biometricCard?.touched" class="error-text">
+                <span *ngIf="biometricCard?.errors?.['required']">La carte biométrique est obligatoire</span>
+              </div>
             </div>
   
             <div class="form-group">
-              <label for="certificat-residence">Certificat de residence</label>
+              <label for="certificat-residence">Certificat de residence *</label>
               <div class="file-input-container">
                 <input 
                   type="file" 
@@ -122,6 +125,9 @@
                     <i class="fas fa-upload"></i>
                   </button>
                 </div>
+              </div>
+              <div *ngIf="residenceCertificate?.invalid && residenceCertificate?.touched" class="error-text">
+                <span *ngIf="residenceCertificate?.errors?.['required']">Le certificat de résidence est obligatoire</span>
               </div>
             </div>
           </div>
@@ -172,6 +178,7 @@
               <div *ngIf="password?.invalid && password?.touched" class="error-text">
                 <span *ngIf="password?.errors?.['required']">Le mot de passe est requis</span>
                 <span *ngIf="password?.errors?.['minlength']">Le mot de passe doit contenir au moins 8 caractères</span>
+                <span *ngIf="password?.errors?.['pattern']">Le mot de passe doit contenir au moins une majuscule, une minuscule, un chiffre et un caractère spécial</span>
               </div>
             </div>
   
