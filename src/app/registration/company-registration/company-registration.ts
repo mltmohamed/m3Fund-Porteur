@@ -16,6 +16,11 @@ export class CompanyRegistrationComponent {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  
+  // Variables pour les noms de fichiers
+  rccmFileName = '';
+  bankStatementFileName = '';
+  profilePhotoPreview = '';
 
   constructor(
     private fb: FormBuilder,
@@ -30,7 +35,8 @@ export class CompanyRegistrationComponent {
       rccm: [null, [Validators.required]],
       bankStatement: [null],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]]
+      confirmPassword: ['', [Validators.required]],
+      profilePhoto: [null]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -50,6 +56,32 @@ export class CompanyRegistrationComponent {
     const file = event.target.files[0];
     if (file) {
       this.registrationForm.get(fieldName)?.setValue(file);
+      
+      // Mettre à jour le nom du fichier affiché
+      switch (fieldName) {
+        case 'rccm':
+          this.rccmFileName = file.name;
+          break;
+        case 'bankStatement':
+          this.bankStatementFileName = file.name;
+          break;
+        case 'profilePhoto':
+          // Créer une prévisualisation de l'image
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            this.profilePhotoPreview = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          break;
+      }
+    }
+  }
+
+  // Déclencher la sélection de fichier
+  triggerFileInput(inputId: string) {
+    const fileInput = document.getElementById(inputId) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
     }
   }
 

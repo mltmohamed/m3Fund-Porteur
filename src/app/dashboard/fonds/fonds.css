@@ -85,6 +85,44 @@
   transform: translateY(-2px);
 }
 
+.refresh-btn {
+  padding: 0.8rem 1rem;
+  border: 1px solid #06A664;
+  border-radius: 25px;
+  background-color: white;
+  color: #06A664;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background-color: #06A664;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(6, 166, 100, 0.3);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.refresh-btn i {
+  transition: all 0.3s ease;
+}
+
+.refresh-btn:hover:not(:disabled) i {
+  transform: rotate(180deg);
+}
+
 /* Conteneur des transactions */
 .transactions-container {
   background-color: white;
@@ -643,6 +681,122 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* Indicateurs de chargement et d'erreur */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loading-spinner {
+  text-align: center;
+  color: #06A664;
+}
+
+.loading-spinner i {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+.loading-spinner p {
+  font-size: 1rem;
+  color: #666;
+  margin: 0;
+}
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+  text-align: center;
+  color: #f44336;
+  max-width: 400px;
+}
+
+.error-message i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #f44336;
+}
+
+.error-message p {
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+  color: #666;
+}
+
+.retry-btn {
+  background-color: #06A664;
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 auto;
+}
+
+.retry-btn:hover {
+  background-color: #059862;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(6, 166, 100, 0.3);
+}
+
+.retry-btn i {
+  transition: all 0.3s ease;
+}
+
+.retry-btn:hover i {
+  transform: rotate(180deg);
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Message quand aucune transaction */
+.no-transactions {
+  text-align: center;
+  padding: 3rem;
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #666;
+}
+
+.no-transactions i {
+  font-size: 3rem;
+  color: #ddd;
+  margin-bottom: 1rem;
+}
+
+.no-transactions p {
+  font-size: 1.1rem;
+  margin: 0;
 }
 
 /* Responsive modal de transaction */

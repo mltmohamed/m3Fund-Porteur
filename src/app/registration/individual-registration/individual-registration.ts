@@ -16,6 +16,12 @@ export class IndividualRegistrationComponent {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  
+  // Variables pour les noms de fichiers
+  biometricCardFileName = '';
+  residenceCertificateFileName = '';
+  bankStatementFileName = '';
+  profilePhotoPreview = '';
 
   constructor(
     private fb: FormBuilder,
@@ -55,6 +61,35 @@ export class IndividualRegistrationComponent {
     const file = event.target.files[0];
     if (file) {
       this.registrationForm.patchValue({ [fieldName]: file });
+      
+      // Mettre à jour le nom du fichier affiché
+      switch (fieldName) {
+        case 'biometricCard':
+          this.biometricCardFileName = file.name;
+          break;
+        case 'residenceCertificate':
+          this.residenceCertificateFileName = file.name;
+          break;
+        case 'bankStatement':
+          this.bankStatementFileName = file.name;
+          break;
+        case 'profilePhoto':
+          // Créer une prévisualisation de l'image
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            this.profilePhotoPreview = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          break;
+      }
+    }
+  }
+
+  // Déclencher la sélection de fichier
+  triggerFileInput(inputId: string) {
+    const fileInput = document.getElementById(inputId) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
     }
   }
 
@@ -112,13 +147,6 @@ export class IndividualRegistrationComponent {
     this.router.navigate(['/homepage']);
   }
 
-  // Déclencher l'input file pour la photo de profil
-  triggerFileInput() {
-    const fileInput = document.getElementById('photo-profil') as HTMLInputElement;
-    if (fileInput) {
-      fileInput.click();
-    }
-  }
 
   // Getters pour faciliter l'accès aux contrôles du formulaire
   get firstName() { return this.registrationForm.get('firstName'); }

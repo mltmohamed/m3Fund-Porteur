@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { FondsService, Transaction } from '../../services/fonds.service';
 
 @Component({
   selector: 'app-fonds',
@@ -8,16 +9,23 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './fonds.html',
   styleUrl: './fonds.css'
 })
-export class Fonds {
+export class Fonds implements OnInit {
   searchTerm: string = '';
   selectedStatus: string = '';
   selectedPeriod: string = '';
   showTransactionModal: boolean = false;
   selectedTransaction: any = null;
+  loading: boolean = false;
+  error: string = '';
 
   // Données des transactions
-  transactions = [
+  transactions: Transaction[] = [];
+  filteredTransactions: Transaction[] = [];
+
+  // Données de test (à supprimer après intégration)
+  mockTransactions: Transaction[] = [
     {
+      id: 1,
       paymentMethod: 'Orange Money +22372****72',
       status: 'success',
       statusIcon: 'fas fa-check-circle',
@@ -33,6 +41,7 @@ export class Fonds {
       transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
     },
     {
+      id: 2,
       paymentMethod: 'Carte Bancaire *******9802',
       status: 'pending',
       statusIcon: 'fas fa-hourglass-half',
@@ -48,6 +57,7 @@ export class Fonds {
       transactionReason: 'Construction d\'une école avec dispositifs intégrés pour le suivi pédagogique administratif des élèves.'
     },
     {
+      id: 3,
       paymentMethod: 'Orange Money +22372****72',
       status: 'failed',
       statusIcon: 'fas fa-times',
@@ -63,6 +73,7 @@ export class Fonds {
       transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
     },
     {
+      id: 4,
       paymentMethod: 'Orange Money +22372****72',
       status: 'failed',
       statusIcon: 'fas fa-times',
@@ -78,6 +89,33 @@ export class Fonds {
       transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
     }
   ];
+
+  constructor(private fondsService: FondsService) {}
+
+  ngOnInit() {
+    this.loadTransactions();
+  }
+
+  loadTransactions() {
+    this.loading = true;
+    this.error = '';
+    
+    this.fondsService.getMyGifts().subscribe({
+      next: (gifts) => {
+        this.transactions = this.fondsService.transformGiftsToTransactions(gifts);
+        this.filteredTransactions = [...this.transactions];
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des transactions:', error);
+        this.error = 'Erreur lors du chargement des transactions';
+        // Utiliser les données de test en cas d'erreur
+        this.transactions = this.mockTransactions;
+        this.filteredTransactions = [...this.transactions];
+        this.loading = false;
+      }
+    });
+  }
 
   statusOptions = [
     { value: '', label: 'Tous les statuts' },
@@ -95,15 +133,60 @@ export class Fonds {
   ];
 
   onSearch() {
-    console.log('Recherche:', this.searchTerm);
+    this.applyFilters();
   }
 
   onStatusChange() {
-    console.log('Statut sélectionné:', this.selectedStatus);
+    this.applyFilters();
   }
 
   onPeriodChange() {
-    console.log('Période sélectionnée:', this.selectedPeriod);
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    let filtered = [...this.transactions];
+
+    // Filtre par terme de recherche
+    if (this.searchTerm.trim()) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(transaction => 
+        transaction.project.toLowerCase().includes(searchLower) ||
+        transaction.paymentMethod.toLowerCase().includes(searchLower) ||
+        transaction.transactionReason.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Filtre par statut
+    if (this.selectedStatus) {
+      filtered = filtered.filter(transaction => transaction.status === this.selectedStatus);
+    }
+
+    // Filtre par période
+    if (this.selectedPeriod) {
+      const now = new Date();
+      filtered = filtered.filter(transaction => {
+        const transactionDate = new Date(transaction.date);
+        
+        switch (this.selectedPeriod) {
+          case 'today':
+            return transactionDate.toDateString() === now.toDateString();
+          case 'week':
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            return transactionDate >= weekAgo;
+          case 'month':
+            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            return transactionDate >= monthAgo;
+          case 'year':
+            const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+            return transactionDate >= yearAgo;
+          default:
+            return true;
+        }
+      });
+    }
+
+    this.filteredTransactions = filtered;
   }
 
   getStatusClass(status: string) {
@@ -137,5 +220,9 @@ export class Fonds {
   downloadReport() {
     console.log('Téléchargement du rapport pour:', this.selectedTransaction);
     // Ici vous pouvez implémenter la logique de téléchargement
+  }
+
+  refreshTransactions() {
+    this.loadTransactions();
   }
 }

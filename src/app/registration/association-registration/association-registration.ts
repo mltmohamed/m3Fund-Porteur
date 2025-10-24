@@ -16,6 +16,11 @@ export class AssociationRegistration {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  
+  // Variables pour les noms de fichiers
+  associationStatusFileName = '';
+  bankStatementFileName = '';
+  profilePhotoPreview = '';
 
   constructor(
     private fb: FormBuilder,
@@ -30,7 +35,8 @@ export class AssociationRegistration {
       associationStatus: [null, [Validators.required]],
       bankStatement: [null],
       password: ['', [Validators.required, Validators.minLength(8)]],
-      confirmPassword: ['', [Validators.required]]
+      confirmPassword: ['', [Validators.required]],
+      profilePhoto: [null]
     }, { validators: this.passwordMatchValidator });
   }
 
@@ -52,6 +58,32 @@ export class AssociationRegistration {
     const file = event.target.files[0];
     if (file) {
       this.registrationForm.get(fieldName)?.setValue(file);
+      
+      // Mettre à jour le nom du fichier affiché
+      switch (fieldName) {
+        case 'associationStatus':
+          this.associationStatusFileName = file.name;
+          break;
+        case 'bankStatement':
+          this.bankStatementFileName = file.name;
+          break;
+        case 'profilePhoto':
+          // Créer une prévisualisation de l'image
+          const reader = new FileReader();
+          reader.onload = (e: any) => {
+            this.profilePhotoPreview = e.target.result;
+          };
+          reader.readAsDataURL(file);
+          break;
+      }
+    }
+  }
+
+  // Déclencher la sélection de fichier
+  triggerFileInput(inputId: string) {
+    const fileInput = document.getElementById(inputId) as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
     }
   }
 

@@ -21,12 +21,42 @@
           {{ option.label }}
         </option>
       </select>
+      <button class="refresh-btn" (click)="refreshTransactions()" [disabled]="loading">
+        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
+        Actualiser
+      </button>
     </div>
   </div>
 
+  <!-- Indicateur de chargement -->
+  <div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Chargement des transactions...</p>
+    </div>
+  </div>
+
+  <!-- Message d'erreur -->
+  <div class="error-container" *ngIf="error && !loading">
+    <div class="error-message">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>{{ error }}</p>
+      <button class="retry-btn" (click)="loadTransactions()">
+        <i class="fas fa-redo"></i>
+        Réessayer
+      </button>
+    </div>
+  </div>
+
+  <!-- Message quand aucune transaction -->
+  <div class="no-transactions" *ngIf="!loading && !error && filteredTransactions.length === 0">
+    <i class="fas fa-receipt"></i>
+    <p>Aucune transaction trouvée</p>
+  </div>
+
   <!-- Liste des transactions -->
-  <div class="transactions-container">
-    <div class="transaction-item" *ngFor="let transaction of transactions">
+  <div class="transactions-container" *ngIf="!loading && filteredTransactions.length > 0">
+    <div class="transaction-item" *ngFor="let transaction of filteredTransactions">
       <div class="transaction-content">
         <div class="payment-method">
           <span class="method-text">{{ transaction.paymentMethod }}</span>
