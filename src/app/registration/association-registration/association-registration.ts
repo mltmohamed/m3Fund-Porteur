@@ -32,6 +32,8 @@ export class AssociationRegistration {
       phone: ['', [Validators.required, Validators.pattern(/^[+]?[0-9\s\-\(\)]{8,}$/)]],
       email: ['', [Validators.required, Validators.email]],
       address: ['', [Validators.required, Validators.minLength(5)]],
+      annualIncome: [0, [Validators.required, Validators.min(0)]],
+      shareCapital: [0, [Validators.required, Validators.min(0)]],
       associationStatus: [null, [Validators.required]],
       bankStatement: [null],
       password: ['', [Validators.required, Validators.minLength(8)]],
@@ -99,6 +101,8 @@ export class AssociationRegistration {
         phone: this.registrationForm.value.phone,
         email: this.registrationForm.value.email,
         address: this.registrationForm.value.address,
+        annualIncome: this.registrationForm.value.annualIncome,
+        shareCapital: this.registrationForm.value.shareCapital,
         associationStatus: this.registrationForm.value.associationStatus,
         bankStatement: this.registrationForm.value.bankStatement,
         password: this.registrationForm.value.password,
@@ -141,6 +145,8 @@ export class AssociationRegistration {
   get phone() { return this.registrationForm.get('phone'); }
   get email() { return this.registrationForm.get('email'); }
   get address() { return this.registrationForm.get('address'); }
+  get annualIncome() { return this.registrationForm.get('annualIncome'); }
+  get shareCapital() { return this.registrationForm.get('shareCapital'); }
   get associationStatus() { return this.registrationForm.get('associationStatus'); }
   get bankStatement() { return this.registrationForm.get('bankStatement'); }
   get password() { return this.registrationForm.get('password'); }

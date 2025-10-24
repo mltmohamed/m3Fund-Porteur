@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 import {
   LoginRequest,
   LoginResponse,
@@ -18,7 +19,7 @@ import {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly API_URL = 'http://localhost:8080/api'; // Ajustez selon votre configuration
+  private readonly API_URL = environment.apiUrl;
   private readonly TOKEN_KEY = 'access_token';
   private readonly REFRESH_TOKEN_KEY = 'refresh_token';
   
@@ -50,7 +51,6 @@ export class AuthService {
     formData.append('address', data.address);
     formData.append('annualIncome', data.annualIncome.toString());
     formData.append('password', data.password);
-    formData.append('confirmPassword', data.confirmPassword);
     
     // Ajouter les fichiers si présents
     if (data.biometricCard) {
@@ -63,7 +63,7 @@ export class AuthService {
       formData.append('bankStatement', data.bankStatement);
     }
     if (data.profilePhoto) {
-      formData.append('profilePhoto', data.profilePhoto);
+      formData.append('profilePicture', data.profilePhoto);
     }
 
     return this.http.post<IndividualRegistrationResponse>(
@@ -76,12 +76,13 @@ export class AuthService {
     const formData = new FormData();
     
     // Ajouter les champs texte
-    formData.append('associationName', data.associationName);
+    formData.append('entityName', data.associationName);
     formData.append('phone', data.phone);
     formData.append('email', data.email);
     formData.append('address', data.address);
     formData.append('password', data.password);
-    formData.append('confirmPassword', data.confirmPassword);
+    formData.append('annualIncome', data.annualIncome.toString());
+    formData.append('shareCapital', data.shareCapital.toString());
     
     // Ajouter les fichiers si présents
     if (data.associationStatus) {
@@ -101,12 +102,13 @@ export class AuthService {
     const formData = new FormData();
     
     // Ajouter les champs texte
-    formData.append('companyName', data.companyName);
+    formData.append('entityName', data.companyName);
     formData.append('phone', data.phone);
     formData.append('email', data.email);
     formData.append('address', data.address);
     formData.append('password', data.password);
-    formData.append('confirmPassword', data.confirmPassword);
+    formData.append('annualIncome', data.annualIncome.toString());
+    formData.append('shareCapital', data.shareCapital.toString());
     
     // Ajouter les fichiers si présents
     if (data.rccm) {
@@ -117,7 +119,7 @@ export class AuthService {
     }
 
     return this.http.post<CompanyRegistrationResponse>(
-      `${this.API_URL}/auth/register/project-owners/company`, 
+      `${this.API_URL}/auth/register/project-owners/organization`, 
       formData
     );
   }

@@ -41,6 +41,8 @@ export interface CompanyRegistrationRequest {
   phone: string;
   email: string;
   address: string;
+  annualIncome: number;
+  shareCapital: number;
   rccm: File | null;
   bankStatement: File | null;
   password: string;
@@ -63,6 +65,8 @@ export interface AssociationRegistrationRequest {
   phone: string;
   email: string;
   address: string;
+  annualIncome: number;
+  shareCapital: number;
   associationStatus: File | null;
   bankStatement: File | null;
   password: string;
