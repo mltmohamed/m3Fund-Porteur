@@ -13,13 +13,13 @@ import {
   providedIn: 'root'
 })
 export class ProjectService {
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = 'http://localhost:7878/api/v1';
 
   constructor(private http: HttpClient) {}
 
   // Récupérer tous les projets
   getProjects(): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects`);
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects`);
   }
 
   // Récupérer un projet par ID

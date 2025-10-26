@@ -17,7 +17,10 @@
       </div>
     </div>
     <div class="profile-pic" (click)="goToProfil()">
-      <img src="/profil.jpg" alt="Profile">
+      <img [src]="profileImageUrl" [alt]="'Photo de profil'" [class.loading]="isLoading">
+      <div *ngIf="isLoading" class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+      </div>
     </div>
     <div class="logout-btn" (click)="logout()" title="Se déconnecter">
       <i class="fas fa-sign-out-alt"></i>

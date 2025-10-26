@@ -7,13 +7,14 @@ import { UserProfile, ProfileUpdateRequest, PasswordChangeRequest, ProfileRespon
   providedIn: 'root'
 })
 export class ProfileService {
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = 'http://localhost:7878/api/v1';
 
   constructor(private http: HttpClient) {}
 
   // Récupérer le profil de l'utilisateur connecté
   getCurrentProfile(): Observable<ProfileResponse> {
-    return this.http.get<ProfileResponse>(`${this.API_URL}/profile`);
+    console.log('Récupération du profil depuis:', `${this.API_URL}/users/me`);
+    return this.http.get<ProfileResponse>(`${this.API_URL}/users/me`);
   }
 
   // Mettre à jour le profil
@@ -28,37 +29,53 @@ export class ProfileService {
     if (profileData.profilePhoto) formData.append('profilePhoto', profileData.profilePhoto);
     if (profileData.currentPassword) formData.append('currentPassword', profileData.currentPassword);
 
-    return this.http.put<ProfileResponse>(`${this.API_URL}/profile`, formData);
+    return this.http.put<ProfileResponse>(`${this.API_URL}/users/me`, formData);
   }
 
   // Changer le mot de passe
   changePassword(passwordData: PasswordChangeRequest): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/profile/change-password`, passwordData);
+    return this.http.post<any>(`${this.API_URL}/users/me/change-password`, passwordData);
   }
 
   // Récupérer les statistiques du profil
   getProfileStats(): Observable<ProfileStats> {
-    return this.http.get<ProfileStats>(`${this.API_URL}/profile/stats`);
+    // Pour l'instant, retourner des statistiques par défaut
+    return new Observable(observer => {
+      observer.next({
+        totalProjects: 0,
+        totalCampaigns: 0,
+        totalFunds: 0,
+        memberSince: new Date().toISOString(),
+        lastLogin: new Date().toISOString()
+      });
+      observer.complete();
+    });
   }
 
   // Supprimer le compte
   deleteAccount(): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/profile`);
+    return this.http.delete<void>(`${this.API_URL}/users/me`);
   }
 
   // Transformer les données du backend en format frontend
   transformProfileData(backendProfile: ProfileResponse): UserProfile {
+    // Le backend peut utiliser profilePhoto, profilePicture ou profilePictureUrl
+    const photoUrl = backendProfile.profilePhoto || 
+                     backendProfile.profilePicture || 
+                     backendProfile.profilePictureUrl;
+    
     return {
       id: backendProfile.id,
       firstName: backendProfile.firstName,
       lastName: backendProfile.lastName,
+      entityName: backendProfile.entityName,
       email: backendProfile.email,
       phone: backendProfile.phone,
       address: backendProfile.address,
-      profilePhoto: backendProfile.profilePhoto,
+      profilePhoto: photoUrl,
       userType: backendProfile.userType as 'INDIVIDUAL' | 'COMPANY' | 'ASSOCIATION',
-      createdAt: backendProfile.createdAt,
-      updatedAt: backendProfile.updatedAt
+      createdAt: backendProfile.createdAt || '',
+      updatedAt: backendProfile.updatedAt || ''
     };
   }
 

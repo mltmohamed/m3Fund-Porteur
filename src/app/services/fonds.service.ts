@@ -44,7 +44,7 @@ export class FondsService {
   constructor(private http: HttpClient) {}
 
   getMyGifts(): Observable<GiftResponse[]> {
-    return this.http.get<GiftResponse[]>(`${this.apiUrl}/projects/campaigns/my-gifts`);
+    return this.http.get<GiftResponse[]>(`${this.apiUrl}/contributors/rewards-won`);
   }
 
   // Méthode pour transformer les données du backend en format frontend

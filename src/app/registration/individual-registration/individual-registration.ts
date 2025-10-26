@@ -118,15 +118,25 @@ export class IndividualRegistrationComponent {
       this.authService.registerIndividual(formData).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.successMessage = 'Inscription réussie ! Vous pouvez maintenant vous connecter.';
+          this.successMessage = 'Inscription réussie ! Votre compte est en attente de validation. Vous recevrez un email une fois votre compte validé.';
           setTimeout(() => {
             this.router.navigate(['/connexion']);
-          }, 2000);
+          }, 3000);
         },
         error: (error) => {
           this.isLoading = false;
-          this.errorMessage = error.error?.message || 'Une erreur est survenue lors de l\'inscription.';
           console.error('Erreur d\'inscription:', error);
+          
+          // Gestion des erreurs spécifiques
+          if (error.status === 400) {
+            this.errorMessage = error.error?.message || 'Les données fournies sont invalides.';
+          } else if (error.status === 409) {
+            this.errorMessage = 'Cet email ou ce numéro de téléphone est déjà utilisé.';
+          } else if (error.status === 500) {
+            this.errorMessage = 'Une erreur serveur est survenue. Veuillez réessayer plus tard.';
+          } else {
+            this.errorMessage = error.error?.message || 'Une erreur est survenue lors de l\'inscription.';
+          }
         }
       });
     } else {

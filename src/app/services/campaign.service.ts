@@ -13,13 +13,13 @@ import {
   providedIn: 'root'
 })
 export class CampaignService {
-  private readonly API_URL = 'http://localhost:8080/api';
+  private readonly API_URL = 'http://localhost:7878/api/v1';
 
   constructor(private http: HttpClient) {}
 
   // Récupérer toutes les campagnes
   getCampaigns(): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns`);
   }
 
   // Récupérer une campagne par ID

@@ -45,11 +45,12 @@ export class Projects implements OnInit {
         }
         
         this.isLoading = false;
+        console.log('Statistiques des projets chargées:', stats);
       },
       error: (error) => {
+        console.error('Erreur lors du chargement des statistiques:', error);
         this.errorMessage = 'Erreur lors du chargement des statistiques';
         this.isLoading = false;
-        console.error('Erreur:', error);
         // Utiliser les données par défaut
         this.projectStats = {
           title: 'Total Projets',

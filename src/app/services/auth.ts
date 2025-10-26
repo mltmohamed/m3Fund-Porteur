@@ -66,10 +66,16 @@ export class AuthService {
       formData.append('profilePicture', data.profilePhoto);
     }
 
-    return this.http.post<IndividualRegistrationResponse>(
-      `${this.API_URL}/auth/register/project-owners/individual`, 
-      formData
-    );
+    const url = `${this.API_URL}/auth/register/project-owners/individual`;
+    console.log('Envoi de la requête d\'inscription à:', url);
+    console.log('FormData keys:', Array.from(formData.keys()));
+    
+    // Vérifier chaque fichier
+    for (let pair of formData.entries()) {
+      console.log(`${pair[0]}:`, pair[1] instanceof File ? `${(pair[1] as File).name} (${(pair[1] as File).size} bytes)` : pair[1]);
+    }
+
+    return this.http.post<IndividualRegistrationResponse>(url, formData);
   }
 
   registerAssociation(data: AssociationRegistrationRequest): Observable<AssociationRegistrationResponse> {

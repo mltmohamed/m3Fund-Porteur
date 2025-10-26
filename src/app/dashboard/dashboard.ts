@@ -45,11 +45,12 @@ export class Dashboard implements OnInit {
         this.dashboardData = data;
         this.summaryCards = this.dashboardService.transformStatsToSummary(data.stats);
         this.isLoading = false;
+        console.log('Données du dashboard chargées:', data);
       },
       error: (error) => {
-        this.errorMessage = 'Erreur lors du chargement du dashboard';
+        console.error('Erreur lors du chargement du dashboard:', error);
+        this.errorMessage = 'Erreur lors du chargement des données';
         this.isLoading = false;
-        console.error('Erreur:', error);
         // Utiliser les données par défaut
         this.dashboardData = this.dashboardService.getDefaultDashboardData();
         this.summaryCards = this.dashboardService.getDefaultSummaryCards();
@@ -59,6 +60,9 @@ export class Dashboard implements OnInit {
 
   setView(view: string) {
     this.currentView = view;
+    // Émettre l'événement de changement de vue
+    const event = new CustomEvent('viewChanged', { detail: view });
+    document.dispatchEvent(event);
   }
 
   refreshDashboard() {

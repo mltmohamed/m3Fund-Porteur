@@ -222,3 +222,56 @@
   </div>
 </div>
 
+<!-- Modal de confirmation de mot de passe -->
+<app-password-confirm-modal 
+  [isVisible]="showPasswordModal"
+  (confirmed)="onPasswordConfirmed($event)"
+  (cancelled)="onPasswordCancelled()">
+</app-password-confirm-modal>
+
+<!-- Modal de succès -->
+<div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeSuccessModal()">
+  <div class="modal-content success-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header success-header">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <button class="close-btn" (click)="closeSuccessModal()">×</button>
+    </div>
+    
+    <div class="modal-body success-body">
+      <h3>Succès !</h3>
+      <p>{{ successModalMessage }}</p>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn btn-confirm" (click)="closeSuccessModal()">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal d'erreur -->
+<div class="modal-overlay" *ngIf="showErrorModal" (click)="closeErrorModal()">
+  <div class="modal-content error-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header error-header">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <button class="close-btn" (click)="closeErrorModal()">×</button>
+    </div>
+    
+    <div class="modal-body error-body">
+      <h3>Erreur</h3>
+      <p>{{ errorModalMessage }}</p>
+      
+      <div class="modal-actions">
+        <button type="button" class="btn btn-error" (click)="closeErrorModal()">
+          OK
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

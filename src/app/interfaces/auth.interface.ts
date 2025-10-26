@@ -25,8 +25,8 @@ export interface IndividualRegistrationRequest {
 
 export interface IndividualRegistrationResponse {
   id: number;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
   phone: string;
   email: string;
   address: string;

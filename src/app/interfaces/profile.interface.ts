@@ -1,7 +1,8 @@
 export interface UserProfile {
   id: number;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
+  entityName?: string;
   email: string;
   phone: string;
   address: string;
@@ -29,12 +30,15 @@ export interface PasswordChangeRequest {
 
 export interface ProfileResponse {
   id: number;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
+  entityName?: string;
   email: string;
   phone: string;
   address: string;
   profilePhoto?: string;
+  profilePicture?: string;  // Le backend peut utiliser profilePicture
+  profilePictureUrl?: string;  // Le backend peut aussi utiliser profilePictureUrl
   userType: string;
   createdAt: string;
   updatedAt: string;
