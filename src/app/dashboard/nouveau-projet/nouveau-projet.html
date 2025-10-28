@@ -3,6 +3,17 @@
     <h1 class="form-title">Créer un nouveau projet</h1>
     <p class="form-subtitle">Bienvenu ! Prêt à créer votre projet ? veuillez remplir les champs ci-dessous.</p>
 
+    <!-- Messages d'erreur et de succès -->
+    <div *ngIf="errorMessage" class="error-message" (click)="clearError()">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+    
+    <div *ngIf="successMessage" class="success-message" (click)="clearSuccess()">
+      <i class="fas fa-check-circle"></i>
+      {{ successMessage }}
+    </div>
+
     <form class="project-form" (ngSubmit)="onSubmit()">
       <div class="form-columns">
         <!-- Colonne gauche -->
@@ -39,7 +50,7 @@
               class="form-input" 
               [(ngModel)]="projectLink"
               name="projectLink"
-              placeholder="https://..."
+              placeholder="https://monsite.com ou monsite.com"
             >
           </div>
           
@@ -47,7 +58,8 @@
             <label>Une vidéo pitch?</label>
             <div class="file-upload" (click)="onVideoSelect()">
               <i class="fas fa-upload"></i>
-              <span>Sélectionner une vidéo</span>
+              <span *ngIf="!selectedVideo">Sélectionner une vidéo</span>
+              <span *ngIf="selectedVideo" class="file-selected">{{ selectedVideo.name }}</span>
             </div>
           </div>
           
@@ -99,7 +111,8 @@
             <label>Des images du projet à partager?</label>
             <div class="file-upload" (click)="onImagesSelect()">
               <i class="fas fa-upload"></i>
-              <span>Sélectionner des images</span>
+              <span *ngIf="selectedImages.length === 0">Sélectionner des images</span>
+              <span *ngIf="selectedImages.length > 0" class="file-selected">{{ selectedImages.length }} image(s) sélectionnée(s)</span>
             </div>
           </div>
           
@@ -107,7 +120,8 @@
             <label>Le Business Plan du projet</label>
             <div class="file-upload" (click)="onBusinessPlanSelect()">
               <i class="fas fa-upload"></i>
-              <span>Sélectionner un fichier</span>
+              <span *ngIf="!selectedBusinessPlan">Sélectionner un fichier</span>
+              <span *ngIf="selectedBusinessPlan" class="file-selected">{{ selectedBusinessPlan.name }}</span>
             </div>
           </div>
           
@@ -143,11 +157,39 @@
 
       <!-- Bouton de soumission -->
       <div class="form-submit">
-        <button type="submit" class="submit-btn">
-          Soumettre le projet
+        <button type="submit" class="submit-btn" [disabled]="isLoading">
+          <i *ngIf="isLoading" class="fas fa-spinner fa-spin"></i>
+          <span *ngIf="!isLoading">Soumettre le projet</span>
+          <span *ngIf="isLoading">Création en cours...</span>
         </button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Modal de succès -->
+<div *ngIf="showSuccessModal" class="modal-overlay" (click)="closeSuccessModal()">
+  <div class="success-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2>Projet créé avec succès !</h2>
+    </div>
+    
+    <div class="modal-body">
+      <p>Votre projet a été créé avec succès et sera examiné par nos équipes.</p>
+      <p>Vous recevrez une notification une fois la validation terminée.</p>
+    </div>
+    
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" (click)="closeSuccessModal()">
+        Créer un autre projet
+      </button>
+      <button type="button" class="btn-primary" (click)="goToProjects()">
+        Voir mes projets
+      </button>
+    </div>
   </div>
 </div>
 

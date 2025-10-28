@@ -90,8 +90,8 @@
           <i class="fas fa-times"></i>
         </button>
         <h2 class="transaction-modal-title">{{ selectedTransaction.project.split(' ').slice(0, -1).join(' ') }}</h2>
-        <div class="transaction-modal-category sante">
-          SANTE
+        <div class="transaction-modal-category" [class]="(selectedTransaction.projectDomain || 'sante').toLowerCase()">
+          {{ selectedTransaction.projectDomain || 'SANTE' }}
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { 
   Project, 
   ProjectSummary, 
+  ProjectStats,
   ProjectCreateRequest, 
   ProjectUpdateRequest, 
   ProjectResponse 
@@ -29,12 +30,87 @@ export class ProjectService {
 
   // Créer un nouveau projet
   createProject(projectData: ProjectCreateRequest): Observable<ProjectResponse> {
-    return this.http.post<ProjectResponse>(`${this.API_URL}/projects`, projectData);
+    const formData = new FormData();
+    
+    // Ajouter les champs texte
+    formData.append('name', projectData.name);
+    formData.append('resume', projectData.resume);
+    formData.append('description', projectData.description);
+    formData.append('domain', projectData.domain);
+    formData.append('objective', projectData.objective);
+    formData.append('websiteLink', projectData.websiteLink);
+    formData.append('launchedAt', projectData.launchedAt);
+    
+    // Ajouter les fichiers
+    if (projectData.images && projectData.images.length > 0) {
+      projectData.images.forEach(image => {
+        formData.append('images', image);
+      });
+    }
+    
+    if (projectData.video) {
+      formData.append('video', projectData.video);
+    }
+    
+    if (projectData.businessPlan) {
+      formData.append('businessPlan', projectData.businessPlan);
+    }
+    
+    console.log('Envoi de la requête de création de projet...');
+    console.log('FormData keys:', Array.from(formData.keys()));
+    
+    return this.http.post<ProjectResponse>(`${this.API_URL}/projects`, formData);
   }
 
   // Mettre à jour un projet
-  updateProject(projectData: ProjectUpdateRequest): Observable<ProjectResponse> {
-    return this.http.put<ProjectResponse>(`${this.API_URL}/projects/${projectData.id}`, projectData);
+  updateProject(projectId: number, projectData: ProjectUpdateRequest): Observable<ProjectResponse> {
+    const formData = new FormData();
+    
+    // Ajouter les champs texte si présents et non vides
+    if (projectData.name && projectData.name.trim()) {
+      formData.append('name', projectData.name.trim());
+    }
+    if (projectData.resume && projectData.resume.trim()) {
+      formData.append('resume', projectData.resume.trim());
+    }
+    if (projectData.description && projectData.description.trim()) {
+      formData.append('description', projectData.description.trim());
+    }
+    if (projectData.domain && projectData.domain.trim()) {
+      formData.append('domain', projectData.domain.trim());
+    }
+    if (projectData.objective && projectData.objective.trim()) {
+      formData.append('objective', projectData.objective.trim());
+    }
+    if (projectData.websiteLink && projectData.websiteLink.trim()) {
+      formData.append('websiteLink', projectData.websiteLink.trim());
+    }
+    if (projectData.launchedAt) {
+      formData.append('launchedAt', projectData.launchedAt);
+    }
+    
+    // Ajouter les fichiers UNIQUEMENT s'ils sont présents et valides
+    if (projectData.images && projectData.images.length > 0) {
+      // Filtrer les fichiers vides ou invalides
+      const validImages = projectData.images.filter(img => img && img.size > 0);
+      if (validImages.length > 0) {
+        validImages.forEach(image => {
+          formData.append('images', image);
+        });
+      }
+    }
+    
+    if (projectData.video && projectData.video.size > 0) {
+      formData.append('video', projectData.video);
+    }
+    
+    if (projectData.businessPlan && projectData.businessPlan.size > 0) {
+      formData.append('businessPlan', projectData.businessPlan);
+    }
+    
+    console.log('FormData envoyé pour update:', Array.from(formData.keys()));
+    
+    return this.http.put<ProjectResponse>(`${this.API_URL}/projects/${projectId}`, formData);
   }
 
   // Supprimer un projet
@@ -42,52 +118,104 @@ export class ProjectService {
     return this.http.delete<void>(`${this.API_URL}/projects/${id}`);
   }
 
-  // Récupérer les statistiques des projets
+  // Récupérer tous les projets de l'utilisateur connecté
+  getMyProjects(): Observable<ProjectResponse[]> {
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects`);
+  }
+
+  // Récupérer les projets validés de l'utilisateur connecté
+  getMyValidatedProjects(): Observable<ProjectResponse[]> {
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/validated`);
+  }
+
+  // Récupérer les statistiques des projets depuis le backend
+  getProjectStats(): Observable<ProjectStats> {
+    return this.http.get<ProjectStats>(`${this.API_URL}/public/projects/stats`);
+  }
+
+  // Ancienne méthode (à garder pour compatibilité si nécessaire)
   getProjectSummary(): Observable<ProjectSummary[]> {
     return this.http.get<ProjectSummary[]>(`${this.API_URL}/projects/summary`);
   }
 
   // Rechercher des projets
   searchProjects(searchTerm: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/search?q=${encodeURIComponent(searchTerm)}`);
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/search?q=${encodeURIComponent(searchTerm)}`);
   }
 
-  // Filtrer les projets par statut
+  // Filtrer les projets par statut (validated ou pending)
   filterProjectsByStatus(status: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/status/${status}`);
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/${status}`);
   }
 
-  // Filtrer les projets par secteur
+  // Filtrer les projets par secteur/domaine
   filterProjectsBySector(sector: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/sector/${sector}`);
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/domain/${sector}`);
+  }
+
+  // Récupérer les projets validés
+  getValidatedProjects(): Observable<ProjectResponse[]> {
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/validated`);
+  }
+
+  // Récupérer les projets en attente
+  getPendingProjects(): Observable<ProjectResponse[]> {
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/pending`);
   }
 
   // Transformer les données du backend en format frontend
   transformProjectData(backendProject: ProjectResponse): Project {
+    const status = backendProject.isValidated ? 'APPROVED' : 'PENDING';
     return {
       id: backendProject.id,
-      title: backendProject.title,
-      description: backendProject.description,
-      funds: `${backendProject.fundsRaised.toLocaleString()} FCFA récoltés`,
-      sector: backendProject.sector,
-      collaborators: `${backendProject.collaboratorCount} Collaborateurs`,
-      progress: backendProject.progress,
-      status: this.getStatusLabel(backendProject.status),
-      statusIcon: this.getStatusIcon(backendProject.status),
+      title: backendProject.name,
+      description: backendProject.resume || backendProject.description,
+      funds: '0 FCFA récoltés', // Sera calculé via les campagnes
+      sector: this.getDomainLabel(backendProject.domain),
+      collaborators: '0 Collaborateurs', // Sera calculé via les campagnes
+      progress: 0, // Sera calculé via les campagnes
+      status: this.getStatusLabel(status),
+      statusIcon: this.getStatusIcon(status),
       creationDate: new Date(backendProject.createdAt).toLocaleDateString('fr-FR'),
-      statusDetail: backendProject.status.toUpperCase(),
-      collaboratorCount: backendProject.collaboratorCount.toString(),
-      campaignCount: backendProject.campaignCount.toString(),
-      projectSummary: backendProject.description,
-      targetBudget: `${backendProject.targetBudget.toLocaleString()} FCFA`,
-      shareOffered: `${backendProject.shareOffered}%`,
-      netValue: `${backendProject.netValue.toLocaleString()} FCFA`,
-      fundsRaised: `${backendProject.fundsRaised.toLocaleString()} FCFA`,
-      projectDescription: backendProject.projectDescription
+      statusDetail: status,
+      collaboratorCount: '0',
+      campaignCount: '0',
+      projectSummary: backendProject.resume,
+      targetBudget: '0 FCFA',
+      shareOffered: '0%',
+      netValue: '0 FCFA',
+      fundsRaised: '0 FCFA',
+      projectDescription: backendProject.description
     };
   }
 
-  // Transformer les données de résumé du backend
+  // Transformer les données de statistiques du backend en cartes de résumé
+  transformStatsToSummary(stats: ProjectStats): ProjectSummary[] {
+    return [
+      {
+        title: 'Nombre de projets',
+        value: stats.totalProjects.toString(),
+        icon: 'fas fa-bars'
+      },
+      {
+        title: 'En Cours',
+        value: stats.projectsWithActiveCampaigns.toString(),
+        icon: 'fas fa-circle-notch'
+      },
+      {
+        title: 'Validés',
+        value: stats.validatedProjects.toString(),
+        icon: 'fas fa-check'
+      },
+      {
+        title: 'Non validés',
+        value: stats.pendingProjects.toString(),
+        icon: 'fas fa-clock'
+      }
+    ];
+  }
+
+  // Transformer les données de résumé du backend (ancienne méthode)
   transformSummaryData(backendSummary: any[]): ProjectSummary[] {
     return [
       {
@@ -133,5 +261,22 @@ export class ProjectService {
       'REJECTED': 'fas fa-times'
     };
     return iconMap[status] || 'fas fa-question';
+  }
+
+  getDomainLabel(domain: string): string {
+    const domainMap: { [key: string]: string } = {
+      'AGRICULTURE': 'Agriculture',
+      'BREEDING': 'Élevage',
+      'EDUCATION': 'Éducation',
+      'HEALTH': 'Santé',
+      'MINE': 'Mine',
+      'CULTURE': 'Culture',
+      'ENVIRONMENT': 'Environnement',
+      'COMPUTER_SCIENCE': 'Informatique',
+      'SOLIDARITY': 'Solidarité',
+      'SHOPPING': 'Commerce',
+      'SOCIAL': 'Social'
+    };
+    return domainMap[domain] || domain;
   }
 }

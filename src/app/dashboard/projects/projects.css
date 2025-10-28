@@ -271,12 +271,56 @@
 }
 
 .category-badge {
-  background-color: #4CAF50;
   color: white;
   padding: 0.4rem 1rem;
   border-radius: 25px;
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+/* Styles pour tous les secteurs */
+.category-badge.agriculture {
+  background-color: #22c55e;
+}
+
+.category-badge.élevage {
+  background-color: #a855f7;
+}
+
+.category-badge.éducation {
+  background-color: #4ecdc4;
+}
+
+.category-badge.santé {
+  background-color: #ff6b9d;
+}
+
+.category-badge.mine {
+  background-color: #f97316;
+}
+
+.category-badge.culture {
+  background-color: #ec4899;
+}
+
+.category-badge.environnement {
+  background-color: #10b981;
+}
+
+.category-badge.informatique {
+  background-color: #3b82f6;
+}
+
+.category-badge.solidarité {
+  background-color: #f59e0b;
+}
+
+.category-badge.commerce {
+  background-color: #8b5cf6;
+}
+
+.category-badge.social {
+  background-color: #06b6d4;
 }
 
 .progress-bar {

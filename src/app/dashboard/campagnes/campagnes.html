@@ -82,6 +82,7 @@
       </div>
       <div class="card-content">
         <h3 class="campaign-title">{{ campaign.title }}</h3>
+        <p class="campaign-description">{{ campaign.campaignSummary || campaign.campaignDescription?.substring(0, 100) + '...' }}</p>
       </div>
       <div class="card-footer">
         <div class="status-badges">
@@ -195,77 +196,78 @@
           <!-- Colonne gauche -->
           <div class="form-column">
             <div class="form-group">
-              <label for="campaignName">Nom de la Campagne</label>
-              <input
-                type="text"
-                id="campaignName"
-                class="form-input"
-                [value]="selectedCampaign.title"
-                placeholder="Nom de la campagne"
-              >
+              <label for="description">Description de la campagne</label>
+              <textarea
+                id="description"
+                class="form-textarea"
+                rows="3"
+                [(ngModel)]="editForm.description"
+                name="description"
+                [placeholder]="selectedCampaign.campaignDescription"
+              ></textarea>
             </div>
 
             <div class="form-group">
-              <label for="targetBudget">Budget cible</label>
+              <label for="targetBudget">Budget cible (FCFA)</label>
               <input
-                type="text"
+                type="number"
                 id="targetBudget"
                 class="form-input"
-                [value]="selectedCampaign.targetBudget"
-                placeholder="Budget cible"
+                [(ngModel)]="editForm.targetBudget"
+                name="targetBudget"
+                [placeholder]="selectedCampaign.targetBudget"
+                min="1"
               >
             </div>
 
             <div class="form-group">
-              <label for="shareOffered">Part offerte</label>
+              <label for="shareOffered">Part offerte (%)</label>
               <input
-                type="text"
+                type="number"
                 id="shareOffered"
                 class="form-input"
-                [value]="selectedCampaign.shareOffered"
-                placeholder="Part offerte"
+                [(ngModel)]="editForm.shareOffered"
+                name="shareOffered"
+                [placeholder]="selectedCampaign.shareOffered"
+                min="0"
+                max="100"
+                step="0.1"
               >
-            </div>
-
-            <div class="form-group">
-              <label for="campaignDescription">Description de la campagne</label>
-              <textarea
-                id="campaignDescription"
-                class="form-textarea"
-                rows="4"
-                placeholder="Description de la campagne"
-              >{{ selectedCampaign.campaignDescription }}</textarea>
             </div>
           </div>
 
           <!-- Colonne droite -->
           <div class="form-column">
             <div class="form-group">
-              <label for="campaignSummary">Résumé de la campagne</label>
-              <textarea
-                id="campaignSummary"
-                class="form-textarea"
-                rows="4"
-                placeholder="Résumé de la campagne"
-              >{{ selectedCampaign.campaignSummary }}</textarea>
+              <label>Ce que M3Fund reçoit</label>
+              <input
+                type="text"
+                class="form-input readonly-input"
+                [value]="m3FundReceives"
+                readonly
+              >
             </div>
 
             <div class="form-group">
-              <label>Mise à jour le business Plan de la campagne ?</label>
-              <div class="file-upload">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Sélectionner un fichier</span>
-              </div>
+              <label>Ce que vous recevez</label>
+              <input
+                type="text"
+                class="form-input readonly-input"
+                [value]="userReceives"
+                readonly
+              >
             </div>
 
             <div class="form-group">
-              <label for="endDate">Date Fin</label>
+              <label for="endDate">Date de fin</label>
               <div class="date-input-container">
                 <i class="fas fa-calendar-alt"></i>
                 <input
                   type="date"
                   id="endDate"
                   class="form-input date-input"
+                  [(ngModel)]="editForm.endDate"
+                  name="endDate"
                   placeholder="Date de fin"
                 >
               </div>
@@ -302,48 +304,51 @@
           <!-- Colonne gauche -->
           <div class="form-column">
             <div class="form-group">
-              <label for="campaignName">Nom de la Campagne</label>
-              <input
-                type="text"
-                id="campaignName"
-                class="form-input"
-                [value]="selectedCampaign.title"
-                placeholder="Nom de la campagne"
-              >
+              <label for="description">Description de la campagne</label>
+              <textarea
+                id="description"
+                class="form-textarea"
+                rows="3"
+                [(ngModel)]="editForm.description"
+                name="description"
+                [placeholder]="selectedCampaign.campaignDescription"
+              ></textarea>
             </div>
 
             <div class="form-group">
-              <label for="targetBudget">Montant cible</label>
+              <label for="targetBudget">Montant cible (FCFA)</label>
               <input
-                type="text"
+                type="number"
                 id="targetBudget"
                 class="form-input"
-                [value]="selectedCampaign.targetBudget"
-                placeholder="Montant cible"
+                [(ngModel)]="editForm.targetBudget"
+                name="targetBudget"
+                [placeholder]="selectedCampaign.targetBudget"
+                min="1"
               >
-            </div>
-
-            <div class="form-group">
-              <label for="campaignDescription">Description de la campagne</label>
-              <textarea
-                id="campaignDescription"
-                class="form-textarea"
-                rows="4"
-                placeholder="Description de la campagne"
-              >{{ selectedCampaign.campaignDescription }}</textarea>
             </div>
           </div>
 
           <!-- Colonne droite -->
           <div class="form-column">
             <div class="form-group">
-              <label for="campaignSummary">Résumé de la campagne</label>
-              <textarea
-                id="campaignSummary"
-                class="form-textarea"
-                rows="4"
-                placeholder="Résumé de la campagne"
-              >{{ selectedCampaign.campaignSummary }}</textarea>
+              <label>Ce que M3Fund reçoit</label>
+              <input
+                type="text"
+                class="form-input readonly-input"
+                [value]="m3FundReceives"
+                readonly
+              >
+            </div>
+
+            <div class="form-group">
+              <label>Ce que vous recevez</label>
+              <input
+                type="text"
+                class="form-input readonly-input"
+                [value]="userReceives"
+                readonly
+              >
             </div>
 
             <div class="form-group">
@@ -354,6 +359,8 @@
                   type="date"
                   id="endDate"
                   class="form-input date-input"
+                  [(ngModel)]="editForm.endDate"
+                  name="endDate"
                   placeholder="Date de fin"
                 >
               </div>
@@ -387,56 +394,31 @@
       <!-- Formulaire de modification pour BÉNÉVOLAT -->
       <form class="edit-form" (ngSubmit)="onSubmitEditBenevolat()">
         <div class="form-columns">
-          <!-- Colonne gauche -->
+          <!-- Colonne unique centrée -->
           <div class="form-column">
             <div class="form-group">
-              <label for="campaignName">Nom de la Campagne</label>
+              <label for="description">Description de la campagne</label>
+              <textarea
+                id="description"
+                class="form-textarea"
+                rows="3"
+                [(ngModel)]="editForm.description"
+                name="description"
+                [placeholder]="selectedCampaign.campaignDescription"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="targetVolunteer">Nombre de bénévoles recherchés</label>
               <input
-                type="text"
-                id="campaignName"
+                type="number"
+                id="targetVolunteer"
                 class="form-input"
-                [value]="selectedCampaign.title"
-                placeholder="Nom de la campagne"
+                [(ngModel)]="editForm.targetVolunteer"
+                name="targetVolunteer"
+                min="1"
+                placeholder="Nombre de bénévoles"
               >
-            </div>
-
-            <div class="form-group">
-              <label for="skillsNeeded">Compétences recherchées</label>
-              <div class="select-container">
-                <select id="skillsNeeded" class="form-select">
-                  <option value="developpeurs">Développeurs</option>
-                  <option value="designers">Designers</option>
-                  <option value="marketing">Marketing</option>
-                  <option value="communication">Communication</option>
-                  <option value="finance">Finance</option>
-                  <option value="juridique">Juridique</option>
-                  <option value="autres">Autres</option>
-                </select>
-                <i class="fas fa-chevron-down"></i>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="campaignDescription">Description de la campagne</label>
-              <textarea
-                id="campaignDescription"
-                class="form-textarea"
-                rows="4"
-                placeholder="Description de la campagne"
-              >{{ selectedCampaign.campaignDescription }}</textarea>
-            </div>
-          </div>
-
-          <!-- Colonne droite -->
-          <div class="form-column">
-            <div class="form-group">
-              <label for="campaignSummary">Résumé de la campagne</label>
-              <textarea
-                id="campaignSummary"
-                class="form-textarea"
-                rows="4"
-                placeholder="Résumé de la campagne"
-              >{{ selectedCampaign.campaignSummary }}</textarea>
             </div>
 
             <div class="form-group">
@@ -447,6 +429,8 @@
                   type="date"
                   id="endDate"
                   class="form-input date-input"
+                  [(ngModel)]="editForm.endDate"
+                  name="endDate"
                   placeholder="Date de fin"
                 >
               </div>
@@ -502,4 +486,12 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal de confirmation -->
+  <app-confirmation-modal
+    [isVisible]="showConfirmationModal"
+    [isSuccess]="confirmationSuccess"
+    [message]="confirmationMessage"
+    (close)="closeConfirmationModal()"
+  ></app-confirmation-modal>
 </div>

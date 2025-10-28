@@ -14,7 +14,7 @@
       <app-nouvelle-campagne-don *ngIf="currentView === 'nouvelle-campagne-don'"></app-nouvelle-campagne-don>
       <app-nouvelle-campagne-benevolat *ngIf="currentView === 'nouvelle-campagne-benevolat'"></app-nouvelle-campagne-benevolat>
       <app-campagnes *ngIf="currentView === 'campagnes'"></app-campagnes>
-      <app-profil *ngIf="currentView === 'profil'"></app-profil>
+      <app-profil *ngIf="currentView === 'profil'" [currentView]="currentView"></app-profil>
       <app-parametres *ngIf="currentView === 'parametres'"></app-parametres>
       <app-message *ngIf="currentView === 'message'"></app-message>
     </div>

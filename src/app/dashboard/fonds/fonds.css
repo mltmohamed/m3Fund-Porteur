@@ -16,9 +16,7 @@
 }
 
 .search-bar {
-  flex: 1;
-  min-width: 200px;
-  max-width: 400px;
+  width: 300px;
   position: relative;
 }
 
@@ -532,6 +530,86 @@
 
 .transaction-modal-content:hover .transaction-modal-category.sante {
   background-color: #ff4d7a;
+}
+
+.transaction-modal-category.education {
+  background-color: #4a90e2;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.education {
+  background-color: #357abd;
+}
+
+.transaction-modal-category.agriculture {
+  background-color: #7cb342;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.agriculture {
+  background-color: #689f38;
+}
+
+.transaction-modal-category.technologie {
+  background-color: #9c27b0;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.technologie {
+  background-color: #7b1fa2;
+}
+
+.transaction-modal-category.environnement {
+  background-color: #4caf50;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.environnement {
+  background-color: #388e3c;
+}
+
+.transaction-modal-category.artisanat {
+  background-color: #ff9800;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.artisanat {
+  background-color: #f57c00;
+}
+
+.transaction-modal-category.commerce {
+  background-color: #2196f3;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.commerce {
+  background-color: #1976d2;
+}
+
+.transaction-modal-category.industrie {
+  background-color: #607d8b;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.industrie {
+  background-color: #455a64;
+}
+
+.transaction-modal-category.tourisme {
+  background-color: #00bcd4;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.tourisme {
+  background-color: #0097a7;
+}
+
+.transaction-modal-category.culture {
+  background-color: #e91e63;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.culture {
+  background-color: #c2185b;
+}
+
+.transaction-modal-category.sport {
+  background-color: #ff5722;
+}
+
+.transaction-modal-content:hover .transaction-modal-category.sport {
+  background-color: #e64a19;
 }
 
 .transaction-modal-body {

@@ -19,7 +19,14 @@ export class CampaignService {
 
   // Récupérer toutes les campagnes
   getCampaigns(): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns`);
+    // Ajouter un timestamp pour éviter le cache
+    const timestamp = new Date().getTime();
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/dashboard?t=${timestamp}`);
+  }
+
+  // Récupérer les campagnes actives (en cours)
+  getActiveCampaigns(): Observable<CampaignResponse[]> {
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/active`);
   }
 
   // Récupérer une campagne par ID
@@ -28,8 +35,8 @@ export class CampaignService {
   }
 
   // Créer une nouvelle campagne
-  createCampaign(campaignData: CampaignCreateRequest): Observable<CampaignResponse> {
-    return this.http.post<CampaignResponse>(`${this.API_URL}/campaigns`, campaignData);
+  createCampaign(projectId: number, campaignData: CampaignCreateRequest): Observable<CampaignResponse> {
+    return this.http.post<CampaignResponse>(`${this.API_URL}/projects/${projectId}/campaigns`, campaignData);
   }
 
   // Mettre à jour une campagne
@@ -49,47 +56,79 @@ export class CampaignService {
 
   // Rechercher des campagnes
   searchCampaigns(searchTerm: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/search?q=${encodeURIComponent(searchTerm)}`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/search?q=${encodeURIComponent(searchTerm)}`);
   }
 
   // Filtrer les campagnes par projet
   filterCampaignsByProject(projectId: number): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/project/${projectId}`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/project/${projectId}`);
   }
 
   // Filtrer les campagnes par statut
   filterCampaignsByStatus(status: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/status/${status}`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/status/${status}`);
   }
 
   // Filtrer les campagnes par type
   filterCampaignsByType(type: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/type/${type}`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/type/${type}`);
+  }
+
+  // Récupérer les statistiques des campagnes
+  getCampaignStats(): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/public/campaigns/stats`);
+  }
+
+  // Transformer les statistiques en cartes de résumé
+  transformStatsToSummary(stats: any): CampaignSummary[] {
+    return [
+      {
+        title: 'Nombre de Campagne',
+        value: stats.total?.toString() || '0',
+        icon: 'fas fa-bullhorn'
+      },
+      {
+        title: 'En Cours',
+        value: stats.inProgress?.toString() || '0',
+        icon: 'fas fa-circle-notch'
+      },
+      {
+        title: 'Non validés',
+        value: stats.pending?.toString() || '0',
+        icon: 'fas fa-times'
+      },
+      {
+        title: 'Clôturés',
+        value: stats.completed?.toString() || '0',
+        icon: 'fas fa-times-circle'
+      }
+    ];
   }
 
   // Transformer les données du backend en format frontend
   transformCampaignData(backendCampaign: CampaignResponse): Campaign {
+    const collaboratorText = backendCampaign.collaboratorCount === 1 ? 'Collaborateur' : 'Collaborateurs';
     return {
       id: backendCampaign.id,
       title: backendCampaign.title,
-      funds: `${backendCampaign.fundsRaised.toLocaleString()} FCFA récoltés`,
-      sector: this.getSectorFromProject(backendCampaign.projectId), // À adapter selon votre logique
-      collaborators: `${backendCampaign.collaboratorCount} Collaborateurs`,
-      progress: backendCampaign.progress,
+      funds: `${backendCampaign.fundsRaised.toLocaleString('fr-FR')} FCFA récoltés`,
+      sector: 'SANTE', // TODO: Récupérer le secteur réel du projet
+      collaborators: `${backendCampaign.collaboratorCount} ${collaboratorText}`,
+      progress: Math.round(backendCampaign.progress),
       status: this.getStatusLabel(backendCampaign.status),
       statusIcon: this.getStatusIcon(backendCampaign.status),
       type: this.getCampaignTypeLabel(backendCampaign.campaignType),
       typeIcon: this.getCampaignTypeIcon(backendCampaign.campaignType),
       endDate: new Date(backendCampaign.endDate).toLocaleDateString('fr-FR'),
       creationDate: new Date(backendCampaign.createdAt).toLocaleDateString('fr-FR'),
-      statusDetail: backendCampaign.status.toUpperCase(),
+      statusDetail: backendCampaign.status,
       collaboratorCount: backendCampaign.collaboratorCount.toString(),
       campaignCount: backendCampaign.campaignCount.toString(),
-      campaignSummary: backendCampaign.description,
-      targetBudget: `${backendCampaign.targetBudget.toLocaleString()} FCFA`,
+      campaignSummary: backendCampaign.description.substring(0, 150) + '...',
+      targetBudget: `${backendCampaign.targetBudget.toLocaleString('fr-FR')} FCFA`,
       shareOffered: `${backendCampaign.shareOffered}%`,
-      netValue: `${backendCampaign.netValue.toLocaleString()} FCFA`,
-      fundsRaised: `${backendCampaign.fundsRaised.toLocaleString()} FCFA`,
+      netValue: `${backendCampaign.netValue.toLocaleString('fr-FR')} FCFA`,
+      fundsRaised: `${backendCampaign.fundsRaised.toLocaleString('fr-FR')} FCFA`,
       campaignDescription: backendCampaign.description
     };
   }
@@ -146,7 +185,7 @@ export class CampaignService {
     const typeMap: { [key: string]: string } = {
       'INVESTMENT': 'Investissement',
       'DONATION': 'Don',
-      'VOLUNTEER': 'Bénévolat'
+      'VOLUNTEERING': 'Bénévolat'
     };
     return typeMap[type] || type;
   }
@@ -155,7 +194,7 @@ export class CampaignService {
     const iconMap: { [key: string]: string } = {
       'INVESTMENT': 'fas fa-chart-line',
       'DONATION': 'fas fa-dollar-sign',
-      'VOLUNTEER': 'fas fa-hands-helping'
+      'VOLUNTEERING': 'fas fa-hands-helping'
     };
     return iconMap[type] || 'fas fa-question';
   }

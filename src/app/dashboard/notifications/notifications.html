@@ -1,0 +1,141 @@
+<div class="notifications-container">
+  <!-- Header -->
+  <div class="notifications-header">
+    <div class="header-title">
+      <h1>Notifications</h1>
+      <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    </div>
+    <div class="header-actions">
+      <button class="btn-action" *ngIf="unreadCount > 0" (click)="markAllAsRead()">
+        <i class="fas fa-check-double"></i>
+        Tout marquer comme lu
+      </button>
+      <button class="btn-action" *ngIf="readCount > 0" (click)="deleteAllRead()">
+        <i class="fas fa-trash-alt"></i>
+        Supprimer tout lu
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-cards">
+    <div class="stat-card">
+      <div class="stat-icon all">
+        <i class="fas fa-inbox"></i>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ totalNotifications }}</div>
+        <div class="stat-label">Total</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon unread">
+        <i class="fas fa-envelope"></i>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ unreadCount }}</div>
+        <div class="stat-label">Non lues</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon read">
+        <i class="fas fa-envelope-open"></i>
+      </div>
+      <div class="stat-info">
+        <div class="stat-value">{{ readCount }}</div>
+        <div class="stat-label">Lues</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <div class="filter-tabs">
+      <button 
+        class="filter-tab" 
+        *ngFor="let option of filterOptions"
+        [class.active]="selectedFilter === option.value"
+        (click)="selectFilter(option.value)">
+        <i [class]="option.icon"></i>
+        <span>{{ option.label }}</span>
+      </button>
+    </div>
+    <div class="filter-toggle">
+      <label class="toggle-container">
+        <input type="checkbox" [(ngModel)]="showOnlyUnread" (change)="toggleUnreadFilter()">
+        <span class="toggle-text">Non lues uniquement</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Liste des notifications -->
+  <div class="notifications-list">
+    <!-- Message quand aucune notification -->
+    <div class="empty-state" *ngIf="filteredNotifications.length === 0">
+      <div class="empty-icon">
+        <i class="fas fa-bell-slash"></i>
+      </div>
+      <h3>Aucune notification</h3>
+      <p>Vous n'avez aucune notification pour le moment</p>
+    </div>
+
+    <!-- Notifications -->
+    <div 
+      class="notification-item" 
+      *ngFor="let notification of filteredNotifications"
+      [class.unread]="!notification.read">
+      
+      <!-- Indicateur non lu -->
+      <div class="unread-indicator" *ngIf="!notification.read"></div>
+
+      <!-- Icône -->
+      <div class="notification-icon" [style.background-color]="notification.color">
+        <i [class]="notification.icon"></i>
+      </div>
+
+      <!-- Contenu -->
+      <div class="notification-content">
+        <h3 class="notification-title">{{ notification.title }}</h3>
+        <p class="notification-message">{{ notification.message }}</p>
+        <div class="notification-footer">
+          <span class="notification-time">
+            <i class="fas fa-clock"></i>
+            {{ getTimeAgo(notification.timestamp) }}
+          </span>
+          <button 
+            class="action-button" 
+            *ngIf="notification.actionUrl"
+            (click)="handleAction(notification)">
+            {{ notification.actionLabel }}
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="notification-actions">
+        <button 
+          class="action-btn" 
+          *ngIf="!notification.read"
+          (click)="markAsRead(notification)"
+          title="Marquer comme lu">
+          <i class="fas fa-check"></i>
+        </button>
+        <button 
+          class="action-btn" 
+          *ngIf="notification.read"
+          (click)="markAsUnread(notification)"
+          title="Marquer comme non lu">
+          <i class="fas fa-envelope"></i>
+        </button>
+        <button 
+          class="action-btn delete" 
+          (click)="deleteNotification(notification)"
+          title="Supprimer">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

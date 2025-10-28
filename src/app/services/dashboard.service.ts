@@ -25,10 +25,10 @@ export class DashboardService {
             totalCampaigns: data.campaigns.length,
             totalFunds: this.calculateTotalFunds(data.projects, data.campaigns),
             totalUsers: 1, // L'utilisateur connecté
-            activeProjects: data.projects.filter(p => p.status === 'IN_PROGRESS').length,
-            activeCampaigns: data.campaigns.filter(c => c.status === 'IN_PROGRESS').length,
-            completedProjects: data.projects.filter(p => p.status === 'COMPLETED').length,
-            completedCampaigns: data.campaigns.filter(c => c.status === 'COMPLETED').length
+            activeProjects: data.projects.filter(p => p.isValidated === true).length,
+            activeCampaigns: data.campaigns.filter(c => c.state === 'ACTIVE').length,
+            completedProjects: data.projects.filter(p => !p.isValidated).length,
+            completedCampaigns: data.campaigns.filter(c => c.state === 'COMPLETED').length
           };
           observer.next(stats);
           observer.complete();
@@ -70,10 +70,10 @@ export class DashboardService {
               totalCampaigns: data.campaigns.length,
               totalFunds: this.calculateTotalFunds(data.projects, data.campaigns),
               totalUsers: 1, // L'utilisateur connecté
-              activeProjects: data.projects.filter(p => p.status === 'IN_PROGRESS').length,
-              activeCampaigns: data.campaigns.filter(c => c.status === 'IN_PROGRESS').length,
-              completedProjects: data.projects.filter(p => p.status === 'COMPLETED').length,
-              completedCampaigns: data.campaigns.filter(c => c.status === 'COMPLETED').length
+              activeProjects: data.projects.filter(p => p.isValidated === true).length,
+              activeCampaigns: data.campaigns.filter(c => c.state === 'ACTIVE').length,
+              completedProjects: data.projects.filter(p => !p.isValidated).length,
+              completedCampaigns: data.campaigns.filter(c => c.state === 'COMPLETED').length
             },
             recentActivities: this.buildRecentActivities(data.projects, data.campaigns),
             topProjects: data.projects.slice(0, 3),
@@ -234,8 +234,17 @@ export class DashboardService {
 
   // Calculer le total des fonds collectés
   private calculateTotalFunds(projects: any[], campaigns: any[]): number {
-    const projectFunds = projects.reduce((total, project) => total + (project.fundsRaised || 0), 0);
-    const campaignFunds = campaigns.reduce((total, campaign) => total + (campaign.fundsRaised || 0), 0);
+    // Calculer les fonds des campagnes basés sur le targetBudget
+    const projectFunds = projects.reduce((total, project) => {
+      // Si le projet a des fonds directement
+      return total + (project.fundsRaised || 0);
+    }, 0);
+    
+    const campaignFunds = campaigns.reduce((total, campaign) => {
+      // Utiliser le budget cible comme estimation des fonds
+      return total + (campaign.targetBudget || 0);
+    }, 0);
+    
     return projectFunds + campaignFunds;
   }
 
@@ -248,10 +257,10 @@ export class DashboardService {
       activities.push({
         id: project.id,
         type: 'project',
-        title: `Nouveau projet: ${project.title}`,
-        description: `Le projet "${project.title}" a été créé`,
+        title: `Nouveau projet: ${project.name}`,
+        description: `Le projet "${project.name}" a été créé`,
         timestamp: project.createdAt || new Date().toISOString(),
-        status: project.status,
+        status: project.isValidated ? 'validated' : 'pending',
         icon: 'fas fa-lightbulb'
       });
     });
@@ -261,10 +270,10 @@ export class DashboardService {
       activities.push({
         id: campaign.id,
         type: 'campaign',
-        title: `Nouvelle campagne: ${campaign.title}`,
-        description: `La campagne "${campaign.title}" a été lancée`,
-        timestamp: campaign.createdAt || new Date().toISOString(),
-        status: campaign.status,
+        title: `Nouvelle campagne pour: ${campaign.projectResponse?.name || 'Projet'}`,
+        description: `Une campagne de type ${campaign.type} a été lancée`,
+        timestamp: campaign.launchedAt || new Date().toISOString(),
+        status: campaign.state,
         icon: 'fas fa-bullhorn'
       });
     });

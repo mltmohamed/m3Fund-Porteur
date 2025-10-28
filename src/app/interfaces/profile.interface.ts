@@ -36,9 +36,7 @@ export interface ProfileResponse {
   email: string;
   phone: string;
   address: string;
-  profilePhoto?: string;
-  profilePicture?: string;  // Le backend peut utiliser profilePicture
-  profilePictureUrl?: string;  // Le backend peut aussi utiliser profilePictureUrl
+  profilePictureUrl?: string;  // Le backend retourne profilePictureUrl
   userType: string;
   createdAt: string;
   updatedAt: string;

@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProfileService } from '../../services/profile.service';
@@ -11,7 +11,8 @@ import { PasswordConfirmModal } from './password-confirm-modal/password-confirm-
   templateUrl: './profil.html',
   styleUrl: './profil.css'
 })
-export class Profil implements OnInit {
+export class Profil implements OnInit, OnDestroy, OnChanges {
+  @Input() currentView: string = '';
   @Output() profileImageUpdated = new EventEmitter<string>();
   
   // Formulaire réactif
@@ -39,6 +40,9 @@ export class Profil implements OnInit {
   successModalMessage = '';
   showErrorModal = false;
   errorModalMessage = '';
+  
+  // Listener pour les événements de changement de vue
+  private viewChangeListener?: EventListener;
 
   constructor(
     private fb: FormBuilder,
@@ -61,29 +65,78 @@ export class Profil implements OnInit {
   }
 
   ngOnInit() {
+    console.log('=== PROFIL COMPONENT INIT ===');
     this.loadProfile();
     this.loadProfileStats();
+    
+    // Écouter les événements de changement de vue pour recharger les données
+    this.viewChangeListener = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const newView = customEvent.detail;
+      console.log('=== PROFIL - Événement viewChanged reçu ===');
+      console.log('Nouvelle vue:', newView);
+      
+      // Recharger les données quand on revient sur la page profil
+      if (newView === 'profil') {
+        console.log('✅ Retour sur la page profil - rechargement des données');
+        // Ajouter un petit délai pour s'assurer que le composant est visible
+        setTimeout(() => {
+          this.loadProfile();
+          this.loadProfileStats();
+        }, 100);
+      }
+    };
+    
+    // Ajouter le listener pour les événements de changement de vue
+    document.addEventListener('viewChanged', this.viewChangeListener);
+    console.log('Listener viewChanged ajouté au composant profil');
   }
+  
+  ngOnChanges(changes: SimpleChanges) {
+    console.log('=== PROFIL - ngOnChanges ===');
+    console.log('Changements détectés:', changes);
+    
+    if (changes['currentView'] && changes['currentView'].currentValue === 'profil') {
+      console.log('✅ Changement vers la vue profil détecté - rechargement des données');
+      // Recharger les données quand on revient sur la page profil
+      setTimeout(() => {
+        this.loadProfile();
+        this.loadProfileStats();
+      }, 100);
+    }
+  }
+  
+  ngOnDestroy() {
+    // Nettoyer le listener pour éviter les fuites mémoire
+    if (this.viewChangeListener) {
+      document.removeEventListener('viewChanged', this.viewChangeListener);
+    }
+  }
+  
 
   // Charger le profil utilisateur
   loadProfile() {
+    console.log('=== PROFIL - loadProfile() appelée ===');
     this.isLoading = true;
     this.errorMessage = '';
 
     this.profileService.getCurrentProfile().subscribe({
-      next: (profile) => {
+      next: (profile: any) => {
         console.log('=== CHARGEMENT DU PROFIL ===');
         console.log('Profil brut du backend:', JSON.stringify(profile, null, 2));
+        
+        // Vérifier tous les champs possibles
+        console.log('profilePictureUrl:', profile.profilePictureUrl);
+        console.log('profilePhoto:', profile.profilePhoto);
+        console.log('profilePicture:', profile.profilePicture);
         
         this.userProfile = this.profileService.transformProfileData(profile);
         
         console.log('Profil transformé:', this.userProfile);
         
         // Construire l'URL complète de la photo de profil
-        // Le backend peut retourner profilePhoto, profilePicture ou profilePictureUrl selon le type d'utilisateur
-        let photoUrl = (profile as any).profilePhoto || 
-                      (profile as any).profilePicture || 
-                      (profile as any).profilePictureUrl;
+        // Le backend retourne profilePictureUrl dans IndividualProjectOwnerResponse
+        let photoUrl = profile.profilePictureUrl;
         
         console.log('URL de la photo du backend:', photoUrl);
         
@@ -127,9 +180,17 @@ export class Profil implements OnInit {
         }
       },
       error: (error) => {
-        this.errorMessage = 'Erreur lors du chargement du profil';
-        this.isLoading = false;
         console.error('Erreur lors du chargement du profil:', error);
+        
+        // Gestion spécifique des erreurs d'authentification
+        if (error.status === 401) {
+          this.errorMessage = 'Session expirée. Vous allez être redirigé vers la page de connexion.';
+          // Ne pas afficher le spinner d'erreur pour les erreurs 401
+          this.isLoading = false;
+        } else {
+          this.errorMessage = 'Erreur lors du chargement du profil';
+          this.isLoading = false;
+        }
       }
     });
   }
@@ -331,12 +392,28 @@ export class Profil implements OnInit {
       this.profileService.changePassword(passwordData).subscribe({
         next: (response) => {
           this.isChangingPassword = false;
-          this.successMessage = 'Mot de passe changé avec succès !';
           this.passwordForm.reset();
+          
+          // Afficher le modal de succès
+          this.successModalMessage = 'Mot de passe changé avec succès !';
+          this.showSuccessModal = true;
         },
         error: (error) => {
           this.isChangingPassword = false;
-          this.errorMessage = error.error?.message || 'Erreur lors du changement de mot de passe';
+          
+          // Déterminer le message d'erreur
+          let errorMsg = '';
+          if (error.status === 401 || error.status === 403) {
+            errorMsg = 'Mot de passe actuel incorrect. Veuillez réessayer.';
+          } else {
+            errorMsg = error.error?.message || 'Erreur lors du changement de mot de passe';
+          }
+          
+          // Afficher le modal d'erreur
+          this.errorModalMessage = errorMsg;
+          this.showErrorModal = true;
+          
+          console.error('Erreur lors du changement de mot de passe:', error);
         }
       });
     } else {

@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CampaignService } from '../../services/campaign.service';
+import { ProjectService } from '../../services/project.service';
+import { CampaignCreateRequest, RewardCreateRequest } from '../../interfaces/campaign.interface';
+import { ProjectResponse } from '../../interfaces/project.interface';
 
 @Component({
   selector: 'app-nouvelle-campagne-don',
@@ -8,32 +12,67 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './nouvelle-campagne-don.html',
   styleUrl: './nouvelle-campagne-don.css'
 })
-export class NouvelleCampagneDon {
+export class NouvelleCampagneDon implements OnInit {
   // Données du formulaire
   selectedProject: string = '';
   targetBudget: string = '';
   startDate: string = '';
   endDate: string = '';
-  reward: string = '';
   campaignDescription: string = '';
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
 
-  // Options pour les projets
-  projectOptions = [
-    { value: '', label: 'Sélectionner un projet' },
-    { value: 'plateforme-telemedecine', label: 'Plateforme de Télémédecine' },
-    { value: 'construction-ecole', label: 'Construction d\'une Ecole' },
-    { value: 'plateforme-ecommerce', label: 'Plateforme E-commerce' },
-    { value: 'application-mobile', label: 'Application Mobile' }
+  // Gestion des récompenses
+  rewards: RewardCreateRequest[] = [];
+  currentReward = {
+    name: '',
+    description: '',
+    type: 'PRODUCT' as 'PRODUCT' | 'SERVICE' | 'EXPERIENCE',
+    quantity: 0,
+    unlockAmount: 0
+  };
+
+  // Options pour les projets (chargées depuis le backend)
+  projectOptions: { value: string, label: string }[] = [
+    { value: '', label: 'Sélectionner un projet' }
   ];
 
-  // Options pour les récompenses
-  rewardOptions = [
-    { value: '', label: 'Sélectionner une récompense' },
-    { value: 'merci', label: 'Message de remerciement' },
-    { value: 'badge', label: 'Badge de contributeur' },
-    { value: 'certificat', label: 'Certificat de participation' },
-    { value: 'mention', label: 'Mention spéciale' }
+  // Options pour les types de récompenses
+  rewardTypeOptions = [
+    { value: 'PRODUCT', label: 'Produit' },
+    { value: 'SERVICE', label: 'Service' },
+    { value: 'EXPERIENCE', label: 'Expérience' }
   ];
+
+  constructor(
+    private campaignService: CampaignService,
+    private projectService: ProjectService
+  ) {}
+
+  ngOnInit() {
+    this.loadUserProjects();
+  }
+
+  // Charger les projets validés de l'utilisateur
+  loadUserProjects() {
+    this.projectService.getMyValidatedProjects().subscribe({
+      next: (projects: ProjectResponse[]) => {
+        this.projectOptions = [
+          { value: '', label: 'Sélectionner un projet' },
+          ...projects.map(project => ({
+            value: project.id.toString(),
+            label: project.name
+          }))
+        ];
+        console.log('Projets validés chargés:', projects);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des projets:', error);
+        this.errorMessage = 'Impossible de charger vos projets validés';
+      }
+    });
+  }
 
   // Calculs automatiques
   get m3FundReceives(): string {
@@ -49,19 +88,102 @@ export class NouvelleCampagneDon {
     return `${userAmount.toLocaleString()} FCFA`;
   }
 
-  onSubmit() {
-    console.log('Campagne de don soumise:', {
-      selectedProject: this.selectedProject,
-      targetBudget: this.targetBudget,
-      startDate: this.startDate,
-      endDate: this.endDate,
-      reward: this.reward,
-      campaignDescription: this.campaignDescription,
-      m3FundReceives: this.m3FundReceives,
-      userReceives: this.userReceives
-    });
+  // Ajouter une récompense à la liste
+  addReward() {
+    if (!this.currentReward.name || !this.currentReward.description || 
+        this.currentReward.quantity <= 0 || this.currentReward.unlockAmount <= 0) {
+      this.errorMessage = 'Veuillez remplir tous les champs de la récompense';
+      return;
+    }
+
+    this.rewards.push({ ...this.currentReward });
     
-    // Ici vous pouvez ajouter la logique pour sauvegarder la campagne
-    alert('Campagne de don soumise avec succès !');
+    // Réinitialiser le formulaire de récompense
+    this.currentReward = {
+      name: '',
+      description: '',
+      type: 'PRODUCT',
+      quantity: 0,
+      unlockAmount: 0
+    };
+    this.errorMessage = '';
+  }
+
+  // Supprimer une récompense de la liste
+  removeReward(index: number) {
+    this.rewards.splice(index, 1);
+  }
+
+  onSubmit() {
+    if (!this.selectedProject) {
+      this.errorMessage = 'Veuillez sélectionner un projet';
+      return;
+    }
+
+    if (!this.endDate) {
+      this.errorMessage = 'Veuillez sélectionner une date de fin';
+      return;
+    }
+
+    if (!this.targetBudget || parseFloat(this.targetBudget) <= 0) {
+      this.errorMessage = 'Veuillez saisir un budget cible valide';
+      return;
+    }
+
+    if (this.rewards.length === 0) {
+      this.errorMessage = 'Veuillez ajouter au moins une récompense';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Préparer les données de la campagne
+    const campaignData: CampaignCreateRequest = {
+      endAt: new Date(this.endDate).toISOString(),
+      type: 'DONATION',
+      targetBudget: parseFloat(this.targetBudget.replace(/[^\d]/g, '')),
+      rewards: this.rewards
+    };
+
+    // Créer la campagne
+    const projectId = parseInt(this.selectedProject);
+    this.campaignService.createCampaign(projectId, campaignData).subscribe({
+      next: (response) => {
+        console.log('Campagne de don créée avec succès:', response);
+        this.successMessage = 'Campagne de don créée avec succès !';
+        this.isLoading = false;
+        
+        // Réinitialiser le formulaire
+        this.resetForm();
+        
+        // Rediriger vers la page des campagnes après 2 secondes
+        setTimeout(() => {
+          window.location.href = '/dashboard?view=campagnes';
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la création de la campagne:', error);
+        this.errorMessage = error.error?.message || 'Erreur lors de la création de la campagne';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  resetForm() {
+    this.selectedProject = '';
+    this.targetBudget = '';
+    this.startDate = '';
+    this.endDate = '';
+    this.campaignDescription = '';
+    this.rewards = [];
+    this.currentReward = {
+      name: '',
+      description: '',
+      type: 'PRODUCT',
+      quantity: 0,
+      unlockAmount: 0
+    };
   }
 }

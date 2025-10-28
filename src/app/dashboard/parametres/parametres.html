@@ -1,41 +1,422 @@
 <div class="parametres-container">
-  <div class="parametres-card">
-    <h1 class="parametres-title">Thèmes</h1>
-    <p class="parametres-subtitle">Choisissez votre style</p>
+  <!-- Menu de navigation latéral -->
+  <div class="settings-sidebar">
+    <h2 class="sidebar-title">Paramètres</h2>
+    <nav class="settings-nav">
+      <button 
+        class="nav-item" 
+        [class.active]="activeSection === 'compte'"
+        (click)="selectSection('compte')">
+        <i class="fas fa-user"></i>
+        <span>Compte</span>
+      </button>
+      <button 
+        class="nav-item" 
+        [class.active]="activeSection === 'security'"
+        (click)="selectSection('security')">
+        <i class="fas fa-shield-alt"></i>
+        <span>Sécurité</span>
+      </button>
+      <button 
+        class="nav-item" 
+        [class.active]="activeSection === 'notifications'"
+        (click)="selectSection('notifications')">
+        <i class="fas fa-bell"></i>
+        <span>Notifications</span>
+      </button>
+      <button 
+        class="nav-item" 
+        [class.active]="activeSection === 'privacy'"
+        (click)="selectSection('privacy')">
+        <i class="fas fa-lock"></i>
+        <span>Confidentialité</span>
+      </button>
+      <button 
+        class="nav-item" 
+        [class.active]="activeSection === 'language'"
+        (click)="selectSection('language')">
+        <i class="fas fa-globe"></i>
+        <span>Langue</span>
+      </button>
+      <button 
+        class="nav-item" 
+        [class.active]="activeSection === 'theme'"
+        (click)="selectSection('theme')">
+        <i class="fas fa-palette"></i>
+        <span>Apparence</span>
+      </button>
+    </nav>
+  </div>
 
-    <div class="theme-options">
-      <!-- Mode Clair -->
-      <div class="theme-card" [class.selected]="selectedTheme === 'light'" (click)="selectTheme('light')">
-        <div class="theme-preview light-preview">
-          <div class="preview-content">
-            <div class="preview-header"></div>
-            <div class="preview-sidebar"></div>
-            <div class="preview-main"></div>
-          </div>
-        </div>
-        <div class="theme-label">
-          <i class="fas fa-check" *ngIf="selectedTheme === 'light'"></i>
-          <i class="far fa-circle" *ngIf="selectedTheme !== 'light'"></i>
-          <span>Mode Clair</span>
-        </div>
+  <!-- Contenu principal -->
+  <div class="settings-content">
+    <!-- Messages de succès/erreur -->
+    <div class="message success-message" *ngIf="successMessage">
+      <i class="fas fa-check-circle"></i>
+      <span>{{ successMessage }}</span>
+    </div>
+    <div class="message error-message" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- Section Compte -->
+    <div class="settings-section" *ngIf="activeSection === 'compte'">
+      <h1 class="section-title">Informations du compte</h1>
+      <p class="section-subtitle">Gérez vos informations personnelles</p>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-user"></i>
+          Prénom
+        </label>
+        <input type="text" class="form-input" [(ngModel)]="accountInfo.firstName" readonly>
       </div>
 
-      <!-- Mode Sombre -->
-      <div class="theme-card" [class.selected]="selectedTheme === 'dark'" (click)="selectTheme('dark')">
-        <div class="theme-preview dark-preview">
-          <div class="preview-content">
-            <div class="preview-header"></div>
-            <div class="preview-sidebar"></div>
-            <div class="preview-main"></div>
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-user"></i>
+          Nom
+        </label>
+        <input type="text" class="form-input" [(ngModel)]="accountInfo.lastName" readonly>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-envelope"></i>
+          Email
+        </label>
+        <input type="email" class="form-input" [(ngModel)]="accountInfo.email" readonly>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-phone"></i>
+          Téléphone
+        </label>
+        <input type="tel" class="form-input" [(ngModel)]="accountInfo.phone" readonly>
+      </div>
+
+      <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <p>Les informations du compte ne peuvent pas être modifiées directement. Contactez le support pour toute modification.</p>
+      </div>
+    </div>
+
+    <!-- Section Sécurité -->
+    <div class="settings-section" *ngIf="activeSection === 'security'">
+      <h1 class="section-title">Sécurité</h1>
+      <p class="section-subtitle">Protégez votre compte</p>
+
+      <!-- Changer le mot de passe -->
+      <div class="subsection">
+        <h3 class="subsection-title">Changer le mot de passe</h3>
+        
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-lock"></i>
+            Mot de passe actuel
+          </label>
+          <input type="password" class="form-input" [(ngModel)]="passwordForm.currentPassword" placeholder="Entrez votre mot de passe actuel">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-key"></i>
+            Nouveau mot de passe
+          </label>
+          <input type="password" class="form-input" [(ngModel)]="passwordForm.newPassword" placeholder="Entrez votre nouveau mot de passe">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fas fa-key"></i>
+            Confirmer le mot de passe
+          </label>
+          <input type="password" class="form-input" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirmez votre nouveau mot de passe">
+        </div>
+
+        <button class="btn-primary" (click)="updatePassword()">
+          <i class="fas fa-save"></i>
+          Mettre à jour le mot de passe
+        </button>
+      </div>
+
+      <!-- Authentification à deux facteurs -->
+      <div class="subsection">
+        <h3 class="subsection-title">Authentification à deux facteurs</h3>
+        <p class="subsection-description">Ajoutez une couche de sécurité supplémentaire à votre compte</p>
+        
+        <div class="toggle-option">
+          <div class="toggle-info">
+            <i class="fas fa-mobile-alt"></i>
+            <div>
+              <div class="toggle-label">Authentification à deux facteurs</div>
+              <div class="toggle-description">Recevez un code de vérification lors de la connexion</div>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="security.twoFactorEnabled" (change)="toggleTwoFactor()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-option">
+          <div class="toggle-info">
+            <i class="fas fa-bell"></i>
+            <div>
+              <div class="toggle-label">Alertes de connexion</div>
+              <div class="toggle-description">Recevoir une notification lors d'une nouvelle connexion</div>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="security.loginNotifications">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <button class="btn-primary" (click)="saveSecurity()">
+          <i class="fas fa-save"></i>
+          Enregistrer
+        </button>
+      </div>
+    </div>
+
+    <!-- Section Notifications -->
+    <div class="settings-section" *ngIf="activeSection === 'notifications'">
+      <h1 class="section-title">Notifications</h1>
+      <p class="section-subtitle">Gérez vos préférences de notifications</p>
+
+      <div class="toggle-option">
+        <div class="toggle-info">
+          <i class="fas fa-envelope"></i>
+          <div>
+            <div class="toggle-label">Notifications par email</div>
+            <div class="toggle-description">Recevoir des notifications par email</div>
           </div>
         </div>
-        <div class="theme-label">
-          <i class="fas fa-check" *ngIf="selectedTheme === 'dark'"></i>
-          <i class="far fa-circle" *ngIf="selectedTheme !== 'dark'"></i>
-          <span>Mode Sombre</span>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="notifications.emailNotifications">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-option">
+        <div class="toggle-info">
+          <i class="fas fa-bullhorn"></i>
+          <div>
+            <div class="toggle-label">Mises à jour des campagnes</div>
+            <div class="toggle-description">Notifications sur les campagnes que vous suivez</div>
+          </div>
         </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="notifications.campaignUpdates">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-option">
+        <div class="toggle-info">
+          <i class="fas fa-project-diagram"></i>
+          <div>
+            <div class="toggle-label">Mises à jour des projets</div>
+            <div class="toggle-description">Notifications sur vos projets</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="notifications.projectUpdates">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-option">
+        <div class="toggle-info">
+          <i class="fas fa-tag"></i>
+          <div>
+            <div class="toggle-label">Emails marketing</div>
+            <div class="toggle-description">Recevoir des offres et des actualités</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="notifications.marketingEmails">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-option">
+        <div class="toggle-info">
+          <i class="fas fa-shield-alt"></i>
+          <div>
+            <div class="toggle-label">Alertes de sécurité</div>
+            <div class="toggle-description">Notifications importantes sur la sécurité de votre compte</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="notifications.securityAlerts">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <button class="btn-primary" (click)="saveNotifications()">
+        <i class="fas fa-save"></i>
+        Enregistrer les préférences
+      </button>
+    </div>
+
+    <!-- Section Confidentialité -->
+    <div class="settings-section" *ngIf="activeSection === 'privacy'">
+      <h1 class="section-title">Confidentialité</h1>
+      <p class="section-subtitle">Contrôlez qui peut voir vos informations</p>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="fas fa-eye"></i>
+          Visibilité du profil
+        </label>
+        <select class="form-select" [(ngModel)]="privacy.profileVisibility">
+          <option value="public">Public - Visible par tous</option>
+          <option value="contributors">Contributeurs uniquement</option>
+          <option value="private">Privé - Visible uniquement par vous</option>
+        </select>
+      </div>
+
+      <div class="toggle-option">
+        <div class="toggle-info">
+          <i class="fas fa-envelope"></i>
+          <div>
+            <div class="toggle-label">Afficher l'email</div>
+            <div class="toggle-description">Permettre aux autres utilisateurs de voir votre email</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="privacy.showEmail">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-option">
+        <div class="toggle-info">
+          <i class="fas fa-phone"></i>
+          <div>
+            <div class="toggle-label">Afficher le téléphone</div>
+            <div class="toggle-description">Permettre aux autres utilisateurs de voir votre numéro</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="privacy.showPhone">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="toggle-option">
+        <div class="toggle-info">
+          <i class="fas fa-comments"></i>
+          <div>
+            <div class="toggle-label">Autoriser les messages</div>
+            <div class="toggle-description">Permettre aux autres utilisateurs de vous envoyer des messages</div>
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="privacy.allowMessages">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <button class="btn-primary" (click)="savePrivacy()">
+        <i class="fas fa-save"></i>
+        Enregistrer
+      </button>
+    </div>
+
+    <!-- Section Langue -->
+    <div class="settings-section" *ngIf="activeSection === 'language'">
+      <h1 class="section-title">Langue</h1>
+      <p class="section-subtitle">Choisissez votre langue préférée</p>
+
+      <div class="language-options">
+        <div 
+          class="language-card" 
+          *ngFor="let lang of languages"
+          [class.selected]="selectedLanguage === lang.code"
+          (click)="selectLanguage(lang.code)">
+          <div class="language-flag">{{ lang.flag }}</div>
+          <div class="language-info">
+            <div class="language-name">{{ lang.label }}</div>
+            <i class="fas fa-check" *ngIf="selectedLanguage === lang.code"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Apparence/Thème -->
+    <div class="settings-section" *ngIf="activeSection === 'theme'">
+      <h1 class="section-title">Apparence</h1>
+      <p class="section-subtitle">Personnalisez l'apparence de l'application</p>
+
+      <div class="theme-options">
+        <!-- Mode Clair -->
+        <div class="theme-card" [class.selected]="selectedTheme === 'light'" (click)="selectTheme('light')">
+          <div class="theme-preview light-preview">
+            <div class="preview-content">
+              <div class="preview-header"></div>
+              <div class="preview-sidebar"></div>
+              <div class="preview-main"></div>
+            </div>
+          </div>
+          <div class="theme-label">
+            <i class="fas fa-check" *ngIf="selectedTheme === 'light'"></i>
+            <i class="far fa-circle" *ngIf="selectedTheme !== 'light'"></i>
+            <span>Mode Clair</span>
+          </div>
+        </div>
+
+        <!-- Mode Sombre -->
+        <div class="theme-card" [class.selected]="selectedTheme === 'dark'" (click)="selectTheme('dark')">
+          <div class="theme-preview dark-preview">
+            <div class="preview-content">
+              <div class="preview-header"></div>
+              <div class="preview-sidebar"></div>
+              <div class="preview-main"></div>
+            </div>
+          </div>
+          <div class="theme-label">
+            <i class="fas fa-check" *ngIf="selectedTheme === 'dark'"></i>
+            <i class="far fa-circle" *ngIf="selectedTheme !== 'dark'"></i>
+            <span>Mode Sombre</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone dangereuse -->
+    <div class="danger-zone" *ngIf="activeSection === 'compte'">
+      <h3 class="danger-title">Zone dangereuse</h3>
+      <p class="danger-description">Actions irréversibles sur votre compte</p>
+      <button class="btn-danger" (click)="openDeleteModal()">
+        <i class="fas fa-trash-alt"></i>
+        Supprimer mon compte
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal de confirmation de suppression -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-icon danger">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h2 class="modal-title">Supprimer votre compte ?</h2>
+      <p class="modal-message">Cette action est irréversible. Toutes vos données seront définitivement supprimées.</p>
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closeDeleteModal()">
+          <i class="fas fa-times"></i>
+          Annuler
+        </button>
+        <button class="btn-confirm-danger" (click)="confirmDeleteAccount()">
+          <i class="fas fa-trash-alt"></i>
+          Supprimer définitivement
+        </button>
       </div>
     </div>
   </div>
 </div>
-

@@ -23,20 +23,16 @@
         </div>
         
         <div class="form-group">
-          <label for="whatLookingFor">Qu'est ce que vous rechercher?</label>
-          <div class="select-container">
-            <select 
-              id="whatLookingFor" 
-              class="form-select" 
-              [(ngModel)]="whatLookingFor"
-              name="whatLookingFor"
-            >
-              <option *ngFor="let option of whatLookingForOptions" [value]="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-            <i class="fas fa-chevron-down"></i>
-          </div>
+          <label for="targetVolunteer">Nombre de bénévoles recherchés</label>
+          <input 
+            type="number" 
+            id="targetVolunteer" 
+            class="form-input" 
+            [(ngModel)]="targetVolunteer"
+            name="targetVolunteer"
+            min="1"
+            placeholder="Ex: 10"
+          >
         </div>
         
         <div class="form-group">
@@ -81,10 +77,20 @@
         ></textarea>
       </div>
 
+      <!-- Messages d'erreur et de succès -->
+      <div *ngIf="errorMessage" style="color: #dc3545; margin-top: 1rem; padding: 0.75rem; background: #f8d7da; border-radius: 4px;">
+        {{ errorMessage }}
+      </div>
+      
+      <div *ngIf="successMessage" style="color: #28a745; margin-top: 1rem; padding: 0.75rem; background: #d4edda; border-radius: 4px;">
+        {{ successMessage }}
+      </div>
+
       <!-- Bouton de soumission -->
       <div class="form-submit">
-        <button type="submit" class="submit-btn">
-          Soumettre
+        <button type="submit" class="submit-btn" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Soumettre</span>
+          <span *ngIf="isLoading">Création en cours...</span>
         </button>
       </div>
     </form>

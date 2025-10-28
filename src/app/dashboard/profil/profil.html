@@ -174,6 +174,9 @@
             [class.error]="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched"
             placeholder="Votre mot de passe actuel"
           >
+          <div *ngIf="passwordForm.get('currentPassword')?.invalid && passwordForm.get('currentPassword')?.touched" class="error-text">
+            <span *ngIf="passwordForm.get('currentPassword')?.errors?.['required']">Le mot de passe actuel est requis</span>
+          </div>
         </div>
 
         <div class="form-group">

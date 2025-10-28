@@ -35,14 +35,20 @@ export interface CampaignFilters {
 }
 
 export interface CampaignCreateRequest {
-  projectId: number;
-  title: string;
+  endAt: string;
+  type: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
+  targetVolunteer?: number;
+  targetBudget?: number;
+  shareOffered?: number;
+  rewards?: RewardCreateRequest[];
+}
+
+export interface RewardCreateRequest {
+  name: string;
   description: string;
-  targetBudget: number;
-  shareOffered: number;
-  startDate: string;
-  endDate: string;
-  campaignType: 'INVESTMENT' | 'DONATION' | 'VOLUNTEER';
+  type: 'PRODUCT' | 'SERVICE' | 'EXPERIENCE';
+  quantity: number;
+  unlockAmount: number;
 }
 
 export interface CampaignUpdateRequest {
@@ -64,8 +70,8 @@ export interface CampaignResponse {
   shareOffered: number;
   startDate: string;
   endDate: string;
-  campaignType: string;
-  status: string;
+  campaignType: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
+  status: 'PENDING' | 'APPROVED' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
   progress: number;
   fundsRaised: number;
   collaboratorCount: number;

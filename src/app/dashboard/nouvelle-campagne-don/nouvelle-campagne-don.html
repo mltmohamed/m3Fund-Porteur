@@ -79,29 +79,23 @@
         <!-- Colonne droite -->
         <div class="form-column">
           <div class="form-group">
-            <label for="reward">Récompense</label>
-            <div class="select-container">
-              <select 
-                id="reward" 
-                class="form-select" 
-                [(ngModel)]="reward"
-                name="reward"
-              >
-                <option *ngFor="let option of rewardOptions" [value]="option.value">
-                  {{ option.label }}
-                </option>
-              </select>
-              <i class="fas fa-chevron-down"></i>
-            </div>
-          </div>
-          
-          <div class="form-group">
             <label for="m3FundReceives">Ce que M3Fund reçoit</label>
             <input 
               type="text" 
               id="m3FundReceives" 
               class="form-input readonly-input" 
               [value]="m3FundReceives"
+              readonly
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="userReceives">Ce que vous recevez</label>
+            <input 
+              type="text" 
+              id="userReceives" 
+              class="form-input readonly-input" 
+              [value]="userReceives"
               readonly
             >
           </div>
@@ -119,6 +113,118 @@
           name="campaignDescription"
           placeholder="Décrivez ce que vous recherchez après la campagne..."
         ></textarea>
+      </div>
+
+      <!-- Section des récompenses -->
+      <div class="form-group full-width">
+        <h3 style="margin-bottom: 1rem;">Récompenses pour les contributeurs</h3>
+        
+        <!-- Formulaire d'ajout de récompense -->
+        <div class="form-row">
+          <div class="form-column">
+            <div class="form-group">
+              <label for="rewardName">Nom de la récompense</label>
+              <input 
+                type="text" 
+                id="rewardName" 
+                class="form-input" 
+                [(ngModel)]="currentReward.name"
+                [ngModelOptions]="{standalone: true}"
+                placeholder="Ex: T-shirt du projet"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="rewardType">Type de récompense</label>
+              <div class="select-container">
+                <select 
+                  id="rewardType" 
+                  class="form-select" 
+                  [(ngModel)]="currentReward.type"
+                  [ngModelOptions]="{standalone: true}"
+                >
+                  <option *ngFor="let option of rewardTypeOptions" [value]="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
+                <i class="fas fa-chevron-down"></i>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="rewardQuantity">Quantité disponible</label>
+              <input 
+                type="number" 
+                id="rewardQuantity" 
+                class="form-input" 
+                [(ngModel)]="currentReward.quantity"
+                [ngModelOptions]="{standalone: true}"
+                min="1"
+                placeholder="Ex: 100"
+              >
+            </div>
+          </div>
+          
+          <div class="form-column">
+            <div class="form-group">
+              <label for="rewardDescription">Description</label>
+              <textarea 
+                id="rewardDescription" 
+                class="form-textarea" 
+                rows="3"
+                [(ngModel)]="currentReward.description"
+                [ngModelOptions]="{standalone: true}"
+                placeholder="Décrivez la récompense..."
+              ></textarea>
+            </div>
+            
+            <div class="form-group">
+              <label for="rewardUnlock">Montant de déblocage (FCFA)</label>
+              <input 
+                type="number" 
+                id="rewardUnlock" 
+                class="form-input" 
+                [(ngModel)]="currentReward.unlockAmount"
+                [ngModelOptions]="{standalone: true}"
+                min="1"
+                placeholder="Ex: 5000"
+              >
+            </div>
+            
+            <button type="button" class="submit-btn" (click)="addReward()" style="margin-top: 0.5rem;">
+              <i class="fas fa-plus"></i> Ajouter la récompense
+            </button>
+          </div>
+        </div>
+        
+        <!-- Liste des récompenses ajoutées -->
+        <div *ngIf="rewards.length > 0" style="margin-top: 1.5rem;">
+          <h4>Récompenses ajoutées ({{ rewards.length }})</h4>
+          <div *ngFor="let reward of rewards; let i = index" style="border: 1px solid #ddd; padding: 1rem; margin-top: 0.5rem; border-radius: 8px; background: #f9f9f9;">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div style="flex: 1;">
+                <h5 style="margin: 0 0 0.5rem 0;">{{ reward.name }}</h5>
+                <p style="margin: 0 0 0.5rem 0; color: #666;">{{ reward.description }}</p>
+                <div style="display: flex; gap: 1rem; font-size: 0.9rem;">
+                  <span><strong>Type:</strong> {{ reward.type }}</span>
+                  <span><strong>Quantité:</strong> {{ reward.quantity }}</span>
+                  <span><strong>Montant:</strong> {{ reward.unlockAmount }} FCFA</span>
+                </div>
+              </div>
+              <button type="button" (click)="removeReward(i)" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="errorMessage" style="color: #dc3545; margin-top: 1rem; padding: 0.75rem; background: #f8d7da; border-radius: 4px;">
+          {{ errorMessage }}
+        </div>
+        
+        <div *ngIf="successMessage" style="color: #28a745; margin-top: 1rem; padding: 0.75rem; background: #d4edda; border-radius: 4px;">
+          {{ successMessage }}
+        </div>
       </div>
 
       <!-- Bouton de soumission -->

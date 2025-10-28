@@ -100,11 +100,12 @@ export class Fonds implements OnInit {
     this.loading = true;
     this.error = '';
     
-    this.fondsService.getMyGifts().subscribe({
-      next: (gifts) => {
-        this.transactions = this.fondsService.transformGiftsToTransactions(gifts);
+    this.fondsService.getMyTransactions().subscribe({
+      next: (transactions) => {
+        this.transactions = this.fondsService.transformTransactionsData(transactions);
         this.filteredTransactions = [...this.transactions];
         this.loading = false;
+        console.log('Transactions chargées:', this.transactions);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des transactions:', error);

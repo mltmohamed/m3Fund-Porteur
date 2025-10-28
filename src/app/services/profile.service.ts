@@ -59,11 +59,6 @@ export class ProfileService {
 
   // Transformer les données du backend en format frontend
   transformProfileData(backendProfile: ProfileResponse): UserProfile {
-    // Le backend peut utiliser profilePhoto, profilePicture ou profilePictureUrl
-    const photoUrl = backendProfile.profilePhoto || 
-                     backendProfile.profilePicture || 
-                     backendProfile.profilePictureUrl;
-    
     return {
       id: backendProfile.id,
       firstName: backendProfile.firstName,
@@ -72,7 +67,7 @@ export class ProfileService {
       email: backendProfile.email,
       phone: backendProfile.phone,
       address: backendProfile.address,
-      profilePhoto: photoUrl,
+      profilePhoto: backendProfile.profilePictureUrl,
       userType: backendProfile.userType as 'INDIVIDUAL' | 'COMPANY' | 'ASSOCIATION',
       createdAt: backendProfile.createdAt || '',
       updatedAt: backendProfile.updatedAt || ''

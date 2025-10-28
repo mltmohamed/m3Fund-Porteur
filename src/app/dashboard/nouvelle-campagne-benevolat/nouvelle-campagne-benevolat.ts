@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { CampaignService } from '../../services/campaign.service';
+import { ProjectService } from '../../services/project.service';
+import { CampaignCreateRequest } from '../../interfaces/campaign.interface';
+import { ProjectResponse } from '../../interfaces/project.interface';
 
 @Component({
   selector: 'app-nouvelle-campagne-benevolat',
@@ -8,45 +12,107 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './nouvelle-campagne-benevolat.html',
   styleUrl: './nouvelle-campagne-benevolat.css'
 })
-export class NouvelleCampagneBenevolat {
+export class NouvelleCampagneBenevolat implements OnInit {
   // Données du formulaire
   selectedProject: string = '';
-  whatLookingFor: string = '';
+  targetVolunteer: number = 0;
   startDate: string = '';
   endDate: string = '';
   campaignDescription: string = '';
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
 
-  // Options pour les projets
-  projectOptions = [
-    { value: '', label: 'Sélectionner un projet' },
-    { value: 'plateforme-telemedecine', label: 'Plateforme de Télémédecine' },
-    { value: 'construction-ecole', label: 'Construction d\'une Ecole' },
-    { value: 'plateforme-ecommerce', label: 'Plateforme E-commerce' },
-    { value: 'application-mobile', label: 'Application Mobile' }
+  // Options pour les projets (chargées depuis le backend)
+  projectOptions: { value: string, label: string }[] = [
+    { value: '', label: 'Sélectionner un projet' }
   ];
 
-  // Options pour ce que l'utilisateur recherche
-  whatLookingForOptions = [
-    { value: '', label: 'Sélectionner ce que vous recherchez' },
-    { value: 'developpeurs', label: 'Développeurs' },
-    { value: 'designers', label: 'Designers' },
-    { value: 'marketing', label: 'Spécialistes Marketing' },
-    { value: 'communication', label: 'Spécialistes Communication' },
-    { value: 'finance', label: 'Spécialistes Finance' },
-    { value: 'juridique', label: 'Spécialistes Juridique' },
-    { value: 'autres', label: 'Autres compétences' }
-  ];
+  constructor(
+    private campaignService: CampaignService,
+    private projectService: ProjectService
+  ) {}
+
+  ngOnInit() {
+    this.loadUserProjects();
+  }
+
+  // Charger les projets validés de l'utilisateur
+  loadUserProjects() {
+    this.projectService.getMyValidatedProjects().subscribe({
+      next: (projects: ProjectResponse[]) => {
+        this.projectOptions = [
+          { value: '', label: 'Sélectionner un projet' },
+          ...projects.map(project => ({
+            value: project.id.toString(),
+            label: project.name
+          }))
+        ];
+        console.log('Projets validés chargés:', projects);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des projets:', error);
+        this.errorMessage = 'Impossible de charger vos projets validés';
+      }
+    });
+  }
 
   onSubmit() {
-    console.log('Campagne de bénévolat soumise:', {
-      selectedProject: this.selectedProject,
-      whatLookingFor: this.whatLookingFor,
-      startDate: this.startDate,
-      endDate: this.endDate,
-      campaignDescription: this.campaignDescription
+    if (!this.selectedProject) {
+      this.errorMessage = 'Veuillez sélectionner un projet';
+      return;
+    }
+
+    if (!this.endDate) {
+      this.errorMessage = 'Veuillez sélectionner une date de fin';
+      return;
+    }
+
+    if (!this.targetVolunteer || this.targetVolunteer <= 0) {
+      this.errorMessage = 'Veuillez saisir un nombre de bénévoles recherchés';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    // Préparer les données de la campagne
+    const campaignData: CampaignCreateRequest = {
+      endAt: new Date(this.endDate).toISOString(),
+      type: 'VOLUNTEERING',
+      targetVolunteer: this.targetVolunteer
+    };
+
+    // Créer la campagne
+    const projectId = parseInt(this.selectedProject);
+    this.campaignService.createCampaign(projectId, campaignData).subscribe({
+      next: (response) => {
+        console.log('Campagne de bénévolat créée avec succès:', response);
+        this.successMessage = 'Campagne de bénévolat créée avec succès !';
+        this.isLoading = false;
+        
+        // Réinitialiser le formulaire
+        this.resetForm();
+        
+        // Rediriger vers la page des campagnes après 2 secondes
+        setTimeout(() => {
+          window.location.href = '/dashboard?view=campagnes';
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la création de la campagne:', error);
+        this.errorMessage = error.error?.message || 'Erreur lors de la création de la campagne';
+        this.isLoading = false;
+      }
     });
-    
-    // Ici vous pouvez ajouter la logique pour sauvegarder la campagne
-    alert('Campagne de bénévolat soumise avec succès !');
+  }
+
+  resetForm() {
+    this.selectedProject = '';
+    this.targetVolunteer = 0;
+    this.startDate = '';
+    this.endDate = '';
+    this.campaignDescription = '';
   }
 }

@@ -372,20 +372,93 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.sector-badge.sante {
-  background-color: #ff6b9d;
+/* Styles pour tous les secteurs */
+.sector-badge.agriculture {
+  background-color: #22c55e;
 }
 
-.project-card:hover .sector-badge.sante {
-  background-color: #ff4d7a;
+.project-card:hover .sector-badge.agriculture {
+  background-color: #16a34a;
 }
 
-.sector-badge.education {
+.sector-badge.élevage {
+  background-color: #a855f7;
+}
+
+.project-card:hover .sector-badge.élevage {
+  background-color: #9333ea;
+}
+
+.sector-badge.éducation {
   background-color: #4ecdc4;
 }
 
-.project-card:hover .sector-badge.education {
+.project-card:hover .sector-badge.éducation {
   background-color: #3bb5ad;
+}
+
+.sector-badge.santé {
+  background-color: #ff6b9d;
+}
+
+.project-card:hover .sector-badge.santé {
+  background-color: #ff4d7a;
+}
+
+.sector-badge.mine {
+  background-color: #f97316;
+}
+
+.project-card:hover .sector-badge.mine {
+  background-color: #ea580c;
+}
+
+.sector-badge.culture {
+  background-color: #ec4899;
+}
+
+.project-card:hover .sector-badge.culture {
+  background-color: #db2777;
+}
+
+.sector-badge.environnement {
+  background-color: #10b981;
+}
+
+.project-card:hover .sector-badge.environnement {
+  background-color: #059669;
+}
+
+.sector-badge.informatique {
+  background-color: #3b82f6;
+}
+
+.project-card:hover .sector-badge.informatique {
+  background-color: #2563eb;
+}
+
+.sector-badge.solidarité {
+  background-color: #f59e0b;
+}
+
+.project-card:hover .sector-badge.solidarité {
+  background-color: #d97706;
+}
+
+.sector-badge.commerce {
+  background-color: #8b5cf6;
+}
+
+.project-card:hover .sector-badge.commerce {
+  background-color: #7c3aed;
+}
+
+.sector-badge.social {
+  background-color: #06b6d4;
+}
+
+.project-card:hover .sector-badge.social {
+  background-color: #0891b2;
 }
 
 /* Section de progression */
@@ -760,20 +833,93 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.modal-category.sante {
-  background-color: #ff6b9d;
+/* Styles des badges de modal pour tous les secteurs */
+.modal-category.agriculture {
+  background-color: #22c55e;
 }
 
-.modal-content:hover .modal-category.sante {
-  background-color: #ff4d7a;
+.modal-content:hover .modal-category.agriculture {
+  background-color: #16a34a;
 }
 
-.modal-category.education {
+.modal-category.élevage {
+  background-color: #a855f7;
+}
+
+.modal-content:hover .modal-category.élevage {
+  background-color: #9333ea;
+}
+
+.modal-category.éducation {
   background-color: #4ecdc4;
 }
 
-.modal-content:hover .modal-category.education {
+.modal-content:hover .modal-category.éducation {
   background-color: #3bb5ad;
+}
+
+.modal-category.santé {
+  background-color: #ff6b9d;
+}
+
+.modal-content:hover .modal-category.santé {
+  background-color: #ff4d7a;
+}
+
+.modal-category.mine {
+  background-color: #f97316;
+}
+
+.modal-content:hover .modal-category.mine {
+  background-color: #ea580c;
+}
+
+.modal-category.culture {
+  background-color: #ec4899;
+}
+
+.modal-content:hover .modal-category.culture {
+  background-color: #db2777;
+}
+
+.modal-category.environnement {
+  background-color: #10b981;
+}
+
+.modal-content:hover .modal-category.environnement {
+  background-color: #059669;
+}
+
+.modal-category.informatique {
+  background-color: #3b82f6;
+}
+
+.modal-content:hover .modal-category.informatique {
+  background-color: #2563eb;
+}
+
+.modal-category.solidarité {
+  background-color: #f59e0b;
+}
+
+.modal-content:hover .modal-category.solidarité {
+  background-color: #d97706;
+}
+
+.modal-category.commerce {
+  background-color: #8b5cf6;
+}
+
+.modal-content:hover .modal-category.commerce {
+  background-color: #7c3aed;
+}
+
+.modal-category.social {
+  background-color: #06b6d4;
+}
+
+.modal-content:hover .modal-category.social {
+  background-color: #0891b2;
 }
 
 .modal-body {

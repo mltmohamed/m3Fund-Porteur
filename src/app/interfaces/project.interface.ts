@@ -26,6 +26,13 @@ export interface ProjectSummary {
   icon: string;
 }
 
+export interface ProjectStats {
+  totalProjects: number;
+  validatedProjects: number;
+  pendingProjects: number;
+  projectsWithActiveCampaigns: number;
+}
+
 export interface ProjectFilters {
   searchTerm: string;
   selectedStatus: string;
@@ -33,38 +40,43 @@ export interface ProjectFilters {
 }
 
 export interface ProjectCreateRequest {
-  title: string;
+  name: string;
+  resume: string;
   description: string;
-  sector: string;
-  targetBudget: number;
-  shareOffered: number;
-  projectDescription: string;
+  domain: string;
+  objective: string;
+  websiteLink: string;
+  launchedAt: string;
+  images: File[];
+  video: File;
+  businessPlan: File;
 }
 
 export interface ProjectUpdateRequest {
-  id: number;
-  title?: string;
+  name?: string;
+  resume?: string;
   description?: string;
-  sector?: string;
-  targetBudget?: number;
-  shareOffered?: number;
-  projectDescription?: string;
+  domain?: string;
+  objective?: string;
+  websiteLink?: string;
+  launchedAt?: string;
+  images?: File[];
+  video?: File;
+  businessPlan?: File;
 }
 
 export interface ProjectResponse {
   id: number;
-  title: string;
+  name: string;
   description: string;
-  sector: string;
-  targetBudget: number;
-  shareOffered: number;
-  projectDescription: string;
-  status: string;
-  progress: number;
-  fundsRaised: number;
-  collaboratorCount: number;
-  campaignCount: number;
-  netValue: number;
+  resume: string;
+  objective: string;
+  domain: string;
+  websiteLink: string;
+  imagesUrl: string[];
+  videoUrl: string;
+  businessPlanUrl: string;
+  launchedAt: string;
   createdAt: string;
-  updatedAt: string;
+  isValidated: boolean;
 }

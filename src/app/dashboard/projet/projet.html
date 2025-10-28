@@ -190,10 +190,10 @@
         <button class="back-btn" (click)="closeEditModal()">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <h2 class="edit-modal-title">Que voulez vous modifier ?</h2>
+        <h2 class="edit-modal-title">Modifier le projet</h2>
       </div>
       
-      <p class="edit-modal-subtitle">veuillez remplir les champs ci-dessous pour modification</p>
+      <p class="edit-modal-subtitle">Veuillez remplir les champs que vous souhaitez modifier</p>
 
       <!-- Formulaire de modification -->
       <form class="edit-form" (ngSubmit)="onSubmitEdit()">
@@ -206,83 +206,153 @@
                 type="text" 
                 id="projectName" 
                 class="form-input" 
-                [value]="selectedProject.title"
+                [(ngModel)]="editForm.name"
+                name="name"
                 placeholder="Nom du projet"
               >
             </div>
             
             <div class="form-group">
-              <label for="targetBudget">Budget cible</label>
-              <input 
-                type="text" 
-                id="targetBudget" 
-                class="form-input" 
-                [value]="selectedProject.targetBudget"
-                placeholder="Budget cible"
-              >
+              <label for="projectResume">Résumé du projet</label>
+              <textarea 
+                id="projectResume" 
+                class="form-textarea" 
+                rows="3"
+                [(ngModel)]="editForm.resume"
+                name="resume"
+                placeholder="Résumé du projet"
+              ></textarea>
             </div>
             
             <div class="form-group">
-              <label for="shareOffered">Part offerte</label>
-              <input 
-                type="text" 
-                id="shareOffered" 
-                class="form-input" 
-                [value]="selectedProject.shareOffered"
-                placeholder="Part offerte"
-              >
-            </div>
-            
-            <div class="form-group">
-              <label for="projectDescription">Description du projet</label>
+              <label for="projectDescription">Décrivez votre projet</label>
               <textarea 
                 id="projectDescription" 
                 class="form-textarea" 
                 rows="4"
-                placeholder="Description du projet"
-              >{{ selectedProject.projectDescription }}</textarea>
+                [(ngModel)]="editForm.description"
+                name="description"
+                placeholder="Description complète du projet"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="projectDomain">Domaine Concerné</label>
+              <select 
+                id="projectDomain" 
+                class="form-input"
+                [(ngModel)]="editForm.domain"
+                name="domain"
+              >
+                <option value="">Sélectionner un domaine</option>
+                <option *ngFor="let option of sectorOptions.slice(1)" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="projectObjective">Objectif du projet</label>
+              <textarea 
+                id="projectObjective" 
+                class="form-textarea" 
+                rows="3"
+                [(ngModel)]="editForm.objective"
+                name="objective"
+                placeholder="Objectif du projet"
+              ></textarea>
             </div>
           </div>
 
           <!-- Colonne droite -->
           <div class="form-column">
             <div class="form-group">
-              <label for="projectSummary">Résumé du projet</label>
-              <textarea 
-                id="projectSummary" 
-                class="form-textarea" 
-                rows="4"
-                placeholder="Résumé du projet"
-              >{{ selectedProject.projectSummary }}</textarea>
+              <label for="websiteLink">Un lien à partager?</label>
+              <input 
+                type="url" 
+                id="websiteLink" 
+                class="form-input" 
+                [(ngModel)]="editForm.websiteLink"
+                name="websiteLink"
+                placeholder="https://exemple.com"
+              >
             </div>
             
             <div class="form-group">
-              <label>Mise à jour le business Plan du projet ?</label>
-              <div class="file-upload">
-                <i class="fas fa-cloud-upload-alt"></i>
-                <span>Sélectionner un fichier</span>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="endDate">Date Fin</label>
+              <label for="launchedAt">Date Fin</label>
               <div class="date-input-container">
                 <i class="fas fa-calendar-alt"></i>
                 <input 
                   type="date" 
-                  id="endDate" 
+                  id="launchedAt" 
                   class="form-input date-input" 
-                  placeholder="Date de fin"
+                  [(ngModel)]="editForm.launchedAt"
+                  name="launchedAt"
                 >
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="projectImages">Des images du projet à partager?</label>
+              <input 
+                type="file"
+                id="projectImages"
+                accept="image/jpeg,image/png"
+                multiple
+                (change)="onImagesSelected($event)"
+                style="display: none"
+              >
+              <div class="file-upload" (click)="projectImages.click()" #projectImages>
+                <i class="fas fa-images"></i>
+                <span *ngIf="editForm.images.length === 0">Sélectionner des images (max 6)</span>
+                <span *ngIf="editForm.images.length > 0">{{ editForm.images.length }} image(s) sélectionnée(s)</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="projectVideo">Une vidéo pitch?</label>
+              <input 
+                type="file"
+                id="projectVideo"
+                accept="video/mp4,video/mpeg,video/quicktime"
+                (change)="onVideoSelected($event)"
+                style="display: none"
+              >
+              <div class="file-upload" (click)="projectVideo.click()" #projectVideo>
+                <i class="fas fa-video"></i>
+                <span *ngIf="!editForm.video">Sélectionner une vidéo</span>
+                <span *ngIf="editForm.video">{{ editForm.video.name }}</span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="businessPlan">Le Business Plan du projet</label>
+              <input 
+                type="file"
+                id="businessPlan"
+                accept="application/pdf"
+                (change)="onBusinessPlanSelected($event)"
+                style="display: none"
+              >
+              <div class="file-upload" (click)="businessPlan.click()" #businessPlan>
+                <i class="fas fa-file-pdf"></i>
+                <span *ngIf="!editForm.businessPlan">Sélectionner un PDF</span>
+                <span *ngIf="editForm.businessPlan">{{ editForm.businessPlan.name }}</span>
               </div>
             </div>
           </div>
         </div>
 
+        <!-- Message d'erreur -->
+        <div *ngIf="errorMessage" class="error-message" style="margin-top: 1rem;">
+          {{ errorMessage }}
+        </div>
+
         <!-- Bouton de soumission -->
         <div class="form-submit">
-          <button type="submit" class="submit-btn">
-            Soumettre la modification
+          <button type="submit" class="submit-btn" [disabled]="isLoading">
+            <span *ngIf="!isLoading">Soumettre la modification</span>
+            <span *ngIf="isLoading"><i class="fas fa-spinner fa-spin"></i> Modification en cours...</span>
           </button>
         </div>
       </form>

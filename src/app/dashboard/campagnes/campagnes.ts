@@ -2,11 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CampaignService } from '../../services/campaign.service';
+import { ProjectService } from '../../services/project.service';
 import { Campaign, CampaignSummary, CampaignResponse } from '../../interfaces/campaign.interface';
+import { ProjectResponse } from '../../interfaces/project.interface';
+import { ConfirmationModal } from './confirmation-modal/confirmation-modal';
 
 @Component({
   selector: 'app-campagnes',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ConfirmationModal],
   templateUrl: './campagnes.html',
   styleUrl: './campagnes.css'
 })
@@ -22,18 +25,61 @@ export class Campagnes implements OnInit {
   selectedCampaign: Campaign | null = null;
   isLoading = false;
   errorMessage = '';
+  
+  // Modal de confirmation
+  showConfirmationModal = false;
+  confirmationSuccess = true;
+  confirmationMessage = '';
+  
+  // Données du formulaire de modification
+  editForm = {
+    description: '',
+    targetBudget: null as number | null,
+    shareOffered: null as number | null,
+    targetVolunteer: null as number | null,
+    endDate: ''
+  };
+  
+  // Calculs en temps réel
+  get m3FundReceives(): string {
+    const budget = this.editForm.targetBudget || 0;
+    const m3FundAmount = budget * 0.05; // 5% de frais
+    return `${m3FundAmount.toLocaleString('fr-FR')} FCFA`;
+  }
+
+  get userReceives(): string {
+    const budget = this.editForm.targetBudget || 0;
+    const m3FundAmount = budget * 0.05; // 5% de frais
+    const userAmount = budget - m3FundAmount;
+    return `${userAmount.toLocaleString('fr-FR')} FCFA`;
+  }
 
   // Données des cartes de résumé
   summaryCards: CampaignSummary[] = [];
 
   // Données des campagnes
   campaigns: Campaign[] = [];
+  
+  // Options pour les filtres
+  projectOptions: { value: string, label: string }[] = [
+    { value: '', label: 'Tous les projets' }
+  ];
 
-  constructor(private campaignService: CampaignService) {}
+  statusOptions = [
+    { value: '', label: 'Tous les statuts' },
+    { value: 'IN_PROGRESS', label: 'En cours' },
+    { value: 'FINISHED', label: 'Terminée' }
+  ];
+
+  constructor(
+    private campaignService: CampaignService,
+    private projectService: ProjectService
+  ) {}
 
   ngOnInit() {
     this.loadCampaigns();
     this.loadCampaignSummary();
+    this.loadProjects();
   }
 
   // Charger les campagnes depuis le backend
@@ -43,9 +89,14 @@ export class Campagnes implements OnInit {
     
     this.campaignService.getCampaigns().subscribe({
       next: (backendCampaigns: CampaignResponse[]) => {
-        this.campaigns = backendCampaigns.map(campaign => 
+        console.log('Campagnes chargées du backend:', backendCampaigns);
+        // Créer un nouveau tableau pour forcer la détection de changement Angular
+        const transformedCampaigns = backendCampaigns.map(campaign => 
           this.campaignService.transformCampaignData(campaign)
         );
+        // Assigner le nouveau tableau (pas modifier l'ancien)
+        this.campaigns = [...transformedCampaigns];
+        console.log('Campagnes transformées:', this.campaigns);
         this.isLoading = false;
       },
       error: (error) => {
@@ -58,9 +109,10 @@ export class Campagnes implements OnInit {
 
   // Charger les statistiques des campagnes
   loadCampaignSummary() {
-    this.campaignService.getCampaignSummary().subscribe({
-      next: (backendSummary) => {
-        this.summaryCards = this.campaignService.transformSummaryData(backendSummary);
+    this.campaignService.getCampaignStats().subscribe({
+      next: (stats) => {
+        this.summaryCards = this.campaignService.transformStatsToSummary(stats);
+        console.log('Statistiques des campagnes chargées:', stats);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des statistiques:', error);
@@ -91,163 +143,24 @@ export class Campagnes implements OnInit {
     });
   }
 
-  // Données statiques pour les tests (à supprimer après intégration)
-  staticCampaigns = [
-    {
-      title: 'Plateforme de télémédecine',
-      funds: '250,000 FCFA récoltés',
-      sector: 'SANTE',
-      collaborators: '21 Collaborateurs',
-      progress: 31,
-      status: 'En cours',
-      statusIcon: 'fas fa-circle-notch',
-      type: 'Don',
-      typeIcon: 'fas fa-dollar-sign',
-      endDate: '09/12/2025',
-      // Données détaillées pour le modal
-      creationDate: '13/10/2025',
-      statusDetail: 'EN COURS',
-      collaboratorCount: '21',
-      campaignCount: '02',
-      campaignSummary: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.',
-      targetBudget: '2,500,000,000 FCFA',
-      shareOffered: '2%',
-      netValue: '500,000,000,000 FCFA',
-      fundsRaised: '250,000 FCFA',
-      campaignDescription: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
-    },
-    {
-      title: 'Construction d\'une Ecole',
-      funds: '50,000 FCFA récoltés',
-      sector: 'SANTE',
-      collaborators: '01 Collaborateurs',
-      progress: 31,
-      status: 'En cours',
-      statusIcon: 'fas fa-circle-notch',
-      type: 'Don',
-      typeIcon: 'fas fa-dollar-sign',
-      endDate: '31/12/2025',
-      // Données détaillées pour le modal
-      creationDate: '15/09/2025',
-      statusDetail: 'EN COURS',
-      collaboratorCount: '01',
-      campaignCount: '01',
-      campaignSummary: 'Construction d\'une école avec dispositifs intégrés pour le suivi pédagogique administratif des élèves.',
-      targetBudget: '1,500,000,000 FCFA',
-      shareOffered: '5%',
-      netValue: '300,000,000,000 FCFA',
-      fundsRaised: '50,000 FCFA',
-      campaignDescription: 'Construction d\'une école moderne avec dispositifs intégrés pour le suivi pédagogique et administratif des élèves. Ce projet vise à améliorer l\'éducation dans la région.'
-    },
-    {
-      title: 'Plateforme de télémédecine',
-      funds: '250,000 FCFA récoltés',
-      sector: 'SANTE',
-      collaborators: '21 Collaborateurs',
-      progress: 31,
-      status: 'En cours',
-      statusIcon: 'fas fa-circle-notch',
-      type: 'Don',
-      typeIcon: 'fas fa-dollar-sign',
-      endDate: '09/12/2025',
-      // Données détaillées pour le modal
-      creationDate: '13/10/2025',
-      statusDetail: 'EN COURS',
-      collaboratorCount: '21',
-      campaignCount: '02',
-      campaignSummary: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.',
-      targetBudget: '2,500,000,000 FCFA',
-      shareOffered: '2%',
-      netValue: '500,000,000,000 FCFA',
-      fundsRaised: '250,000 FCFA',
-      campaignDescription: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
-    },
-    {
-      title: 'Plateforme de télémédecine',
-      funds: '250,000 FCFA récoltés',
-      sector: 'SANTE',
-      collaborators: '21 Collaborateurs',
-      progress: 31,
-      status: 'En cours',
-      statusIcon: 'fas fa-circle-notch',
-      type: 'Don',
-      typeIcon: 'fas fa-dollar-sign',
-      endDate: '09/12/2025',
-      // Données détaillées pour le modal
-      creationDate: '13/10/2025',
-      statusDetail: 'EN COURS',
-      collaboratorCount: '21',
-      campaignCount: '02',
-      campaignSummary: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.',
-      targetBudget: '2,500,000,000 FCFA',
-      shareOffered: '2%',
-      netValue: '500,000,000,000 FCFA',
-      fundsRaised: '250,000 FCFA',
-      campaignDescription: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
-    },
-    {
-      title: 'Plateforme de télémédecine',
-      funds: '250,000 FCFA récoltés',
-      sector: 'SANTE',
-      collaborators: '21 Collaborateurs',
-      progress: 31,
-      status: 'En cours',
-      statusIcon: 'fas fa-circle-notch',
-      type: 'Don',
-      typeIcon: 'fas fa-dollar-sign',
-      endDate: '09/12/2025',
-      // Données détaillées pour le modal
-      creationDate: '13/10/2025',
-      statusDetail: 'EN COURS',
-      collaboratorCount: '21',
-      campaignCount: '02',
-      campaignSummary: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.',
-      targetBudget: '2,500,000,000 FCFA',
-      shareOffered: '2%',
-      netValue: '500,000,000,000 FCFA',
-      fundsRaised: '250,000 FCFA',
-      campaignDescription: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
-    },
-    {
-      title: 'Plateforme de télémédecine',
-      funds: '250,000 FCFA récoltés',
-      sector: 'SANTE',
-      collaborators: '21 Collaborateurs',
-      progress: 31,
-      status: 'En cours',
-      statusIcon: 'fas fa-circle-notch',
-      type: 'Don',
-      typeIcon: 'fas fa-dollar-sign',
-      endDate: '09/12/2025',
-      // Données détaillées pour le modal
-      creationDate: '13/10/2025',
-      statusDetail: 'EN COURS',
-      collaboratorCount: '21',
-      campaignCount: '02',
-      campaignSummary: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.',
-      targetBudget: '2,500,000,000 FCFA',
-      shareOffered: '2%',
-      netValue: '500,000,000,000 FCFA',
-      fundsRaised: '250,000 FCFA',
-      campaignDescription: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients. Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
-    }
-  ];
-
-  projectOptions = [
-    { value: '', label: 'Tous les projets' },
-    { value: 'plateforme-telemedecine', label: 'Plateforme de Télémédecine' },
-    { value: 'construction-ecole', label: 'Construction d\'une Ecole' },
-    { value: 'plateforme-ecommerce', label: 'Plateforme E-commerce' },
-    { value: 'application-mobile', label: 'Application Mobile' }
-  ];
-
-  statusOptions = [
-    { value: '', label: 'Tous les statuts' },
-    { value: 'en-cours', label: 'En cours' },
-    { value: 'valide', label: 'Validé' },
-    { value: 'non-valide', label: 'Non validé' },
-    { value: 'cloture', label: 'Clôturé' }
-  ];
+  // Charger les projets pour le filtre
+  loadProjects() {
+    this.projectService.getProjects().subscribe({
+      next: (projects: ProjectResponse[]) => {
+        this.projectOptions = [
+          { value: '', label: 'Tous les projets' },
+          ...projects.map(project => ({
+            value: project.id.toString(),
+            label: project.name
+          }))
+        ];
+        console.log('Projets chargés pour les filtres:', this.projectOptions);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des projets:', error);
+      }
+    });
+  }
 
   onSearch() {
     if (this.searchTerm.trim()) {
@@ -316,54 +229,228 @@ export class Campagnes implements OnInit {
 
   openEditModal(campaign: Campaign) {
     this.selectedCampaign = campaign;
+    this.editForm = {
+      description: '',
+      targetBudget: null,
+      shareOffered: null,
+      targetVolunteer: null,
+      endDate: ''
+    };
     this.showEditModal = true;
   }
 
   closeEditModal() {
     this.showEditModal = false;
     this.selectedCampaign = null;
+    this.editForm = {
+      description: '',
+      targetBudget: null,
+      shareOffered: null,
+      targetVolunteer: null,
+      endDate: ''
+    };
   }
 
   onSubmitEdit() {
-    if (this.selectedCampaign) {
-      // Ici vous pouvez implémenter la logique de mise à jour
-      console.log('Modification soumise pour:', this.selectedCampaign);
-      this.closeEditModal();
+    if (!this.selectedCampaign) return;
+
+    // Préparer les données pour la mise à jour (uniquement les champs modifiés)
+    const updateData: any = {
+      id: this.selectedCampaign.id
+    };
+
+    // Ajouter les champs modifiés
+    if (this.editForm.description && this.editForm.description.trim()) {
+      updateData.description = this.editForm.description;
     }
+    
+    if (this.editForm.targetBudget !== null && this.editForm.targetBudget > 0) {
+      updateData.targetBudget = this.editForm.targetBudget;
+    }
+    
+    if (this.editForm.shareOffered !== null && this.editForm.shareOffered >= 0) {
+      updateData.shareOffered = this.editForm.shareOffered;
+    }
+
+    if (this.editForm.endDate) {
+      const date = new Date(this.editForm.endDate);
+      if (!isNaN(date.getTime())) {
+        updateData.endDate = date.toISOString().slice(0, 19);
+      }
+    }
+
+    // Appeler l'API pour mettre à jour la campagne
+    this.campaignService.updateCampaign(updateData).subscribe({
+      next: (response) => {
+        console.log('Campagne mise à jour avec succès:', response);
+        this.confirmationSuccess = true;
+        this.confirmationMessage = 'Votre campagne a été modifiée avec succès !';
+        this.showConfirmationModal = true;
+        this.closeEditModal();
+        // Recharger immédiatement
+        this.loadCampaigns();
+        this.loadCampaignSummary();
+        // Fermer le modal après 2 secondes
+        setTimeout(() => {
+          this.showConfirmationModal = false;
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la modification:', error);
+        this.confirmationSuccess = false;
+        this.confirmationMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne.';
+        this.showConfirmationModal = true;
+        this.closeEditModal();
+      }
+    });
   }
 
   openEditDonModal(campaign: Campaign) {
     this.selectedCampaign = campaign;
+    this.editForm = {
+      description: '',
+      targetBudget: null,
+      shareOffered: null,
+      targetVolunteer: null,
+      endDate: ''
+    };
     this.showEditDonModal = true;
   }
 
   closeEditDonModal() {
     this.showEditDonModal = false;
     this.selectedCampaign = null;
+    this.editForm = {
+      description: '',
+      targetBudget: null,
+      shareOffered: null,
+      targetVolunteer: null,
+      endDate: ''
+    };
   }
 
   onSubmitEditDon() {
-    if (this.selectedCampaign) {
-      console.log('Modification campagne don soumise pour:', this.selectedCampaign);
-      this.closeEditDonModal();
+    if (!this.selectedCampaign) return;
+
+    // Préparer les données pour la mise à jour
+    const updateData: any = {
+      id: this.selectedCampaign.id
+    };
+
+    // Ajouter les champs modifiés
+    if (this.editForm.description && this.editForm.description.trim()) {
+      updateData.description = this.editForm.description;
     }
+    
+    if (this.editForm.targetBudget !== null && this.editForm.targetBudget > 0) {
+      updateData.targetBudget = this.editForm.targetBudget;
+    }
+
+    if (this.editForm.endDate) {
+      const date = new Date(this.editForm.endDate);
+      if (!isNaN(date.getTime())) {
+        updateData.endDate = date.toISOString().slice(0, 19);
+      }
+    }
+
+    // Appeler l'API pour mettre à jour la campagne
+    this.campaignService.updateCampaign(updateData).subscribe({
+      next: (response) => {
+        console.log('Campagne de don mise à jour avec succès:', response);
+        this.confirmationSuccess = true;
+        this.confirmationMessage = 'Votre campagne de don a été modifiée avec succès !';
+        this.showConfirmationModal = true;
+        this.closeEditDonModal();
+        // Recharger immédiatement
+        this.loadCampaigns();
+        this.loadCampaignSummary();
+        // Fermer le modal après 2 secondes
+        setTimeout(() => {
+          this.showConfirmationModal = false;
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la modification:', error);
+        this.confirmationSuccess = false;
+        this.confirmationMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne de don.';
+        this.showConfirmationModal = true;
+        this.closeEditDonModal();
+      }
+    });
   }
 
   openEditBenevolatModal(campaign: Campaign) {
     this.selectedCampaign = campaign;
+    this.editForm = {
+      description: '',
+      targetBudget: null,
+      shareOffered: null,
+      targetVolunteer: null,
+      endDate: ''
+    };
     this.showEditBenevolatModal = true;
   }
 
   closeEditBenevolatModal() {
     this.showEditBenevolatModal = false;
     this.selectedCampaign = null;
+    this.editForm = {
+      description: '',
+      targetBudget: null,
+      shareOffered: null,
+      targetVolunteer: null,
+      endDate: ''
+    };
   }
 
   onSubmitEditBenevolat() {
-    if (this.selectedCampaign) {
-      console.log('Modification campagne bénévolat soumise pour:', this.selectedCampaign);
-      this.closeEditBenevolatModal();
+    if (!this.selectedCampaign) return;
+
+    // Préparer les données pour la mise à jour
+    const updateData: any = {
+      id: this.selectedCampaign.id
+    };
+
+    // Ajouter les champs modifiés
+    if (this.editForm.description && this.editForm.description.trim()) {
+      updateData.description = this.editForm.description;
     }
+    
+    if (this.editForm.targetVolunteer !== null && this.editForm.targetVolunteer > 0) {
+      updateData.targetVolunteer = this.editForm.targetVolunteer;
+    }
+
+    if (this.editForm.endDate) {
+      const date = new Date(this.editForm.endDate);
+      if (!isNaN(date.getTime())) {
+        updateData.endDate = date.toISOString().slice(0, 19);
+      }
+    }
+
+    // Appeler l'API pour mettre à jour la campagne
+    this.campaignService.updateCampaign(updateData).subscribe({
+      next: (response) => {
+        console.log('Campagne de bénévolat mise à jour avec succès:', response);
+        this.confirmationSuccess = true;
+        this.confirmationMessage = 'Votre campagne de bénévolat a été modifiée avec succès !';
+        this.showConfirmationModal = true;
+        this.closeEditBenevolatModal();
+        // Recharger immédiatement
+        this.loadCampaigns();
+        this.loadCampaignSummary();
+        // Fermer le modal après 2 secondes
+        setTimeout(() => {
+          this.showConfirmationModal = false;
+        }, 2000);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la modification:', error);
+        this.confirmationSuccess = false;
+        this.confirmationMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne de bénévolat.';
+        this.showConfirmationModal = true;
+        this.closeEditBenevolatModal();
+      }
+    });
   }
 
   toggleCampaignModal() {
@@ -400,5 +487,10 @@ export class Campagnes implements OnInit {
   // Méthode pour gérer les erreurs
   clearError() {
     this.errorMessage = '';
+  }
+  
+  // Fermer le modal de confirmation
+  closeConfirmationModal() {
+    this.showConfirmationModal = false;
   }
 }

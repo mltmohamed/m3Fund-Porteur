@@ -75,15 +75,17 @@ export class Campaigns implements OnInit {
   }
 
   loadRecentCampaigns() {
-    this.campaignService.getCampaigns().subscribe({
+    this.campaignService.getActiveCampaigns().subscribe({
       next: (backendCampaigns) => {
+        // Prendre les 3 campagnes les plus récentes en cours
         this.campaigns = backendCampaigns.slice(0, 3).map(campaign => 
           this.campaignService.transformCampaignData(campaign)
         );
         this.hasCampaigns = this.campaigns.length > 0;
+        console.log('Campagnes actives chargées:', this.campaigns);
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des campagnes récentes:', error);
+        console.error('Erreur lors du chargement des campagnes actives:', error);
         this.hasCampaigns = false;
       }
     });

@@ -1,10 +1,13 @@
 import { Component, Output, EventEmitter, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfileService } from '../../services/profile.service';
+import { AuthService } from '../../services/auth';
+import { NotificationService, NotificationDisplay } from '../../services/notification.service';
+import { LogoutModal } from './logout-modal/logout-modal';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule],
+  imports: [CommonModule, LogoutModal],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -12,31 +15,22 @@ export class Header implements OnInit {
   @Output() viewChange = new EventEmitter<string>();
   showNotifications = false;
   showCampaignModal = false;
+  showLogoutModal = false;
   profileImageUrl: string = '';
   isLoading = false;
+  unreadNotificationCount = 0;
 
-  notifications = [
-    {
-      sender: 'admin campagne',
-      message: 'votre demande de campagne a été accepter.',
-      time: '2 min'
-    },
-    {
-      sender: 'admin campagne',
-      message: 'votre demande de campagne a été accepter.',
-      time: '10 min'
-    },
-    {
-      sender: 'admin campagne',
-      message: 'votre demande de campagne a été accepter.',
-      time: '30 min'
-    }
-  ];
+  notifications: NotificationDisplay[] = [];
 
-  constructor(private profileService: ProfileService) {}
+  constructor(
+    private profileService: ProfileService,
+    private authService: AuthService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit() {
     this.loadProfileImage();
+    this.loadNotifications();
     
     // Écouter les changements de photo de profil
     document.addEventListener('profileImageUpdated', (event: any) => {
@@ -57,19 +51,39 @@ export class Header implements OnInit {
         }, 1000);
       }
     });
+
+    // S'abonner au nombre de notifications non lues
+    this.notificationService.getUnreadCount().subscribe(count => {
+      this.unreadNotificationCount = count;
+    });
+  }
+
+  loadNotifications() {
+    this.notificationService.getRecentNotifications().subscribe({
+      next: (notifications) => {
+        this.notifications = this.notificationService.transformNotificationsForDisplay(notifications);
+        console.log('Notifications chargées:', this.notifications);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des notifications:', error);
+      }
+    });
   }
 
   loadProfileImage() {
     this.isLoading = true;
     this.profileService.getCurrentProfile().subscribe({
-      next: (profile) => {
+      next: (profile: any) => {
         console.log('=== HEADER - Chargement de l\'image ===');
         console.log('Profil reçu dans header:', JSON.stringify(profile, null, 2));
         
-        // Le backend peut retourner profilePhoto, profilePicture ou profilePictureUrl
-        let photoUrl = profile.profilePhoto || 
-                      (profile as any).profilePicture || 
-                      (profile as any).profilePictureUrl;
+        // Vérifier tous les champs possibles
+        console.log('profilePictureUrl:', profile.profilePictureUrl);
+        console.log('profilePhoto:', profile.profilePhoto);
+        console.log('profilePicture:', profile.profilePicture);
+        
+        // Le backend retourne profilePictureUrl
+        let photoUrl = profile.profilePictureUrl;
         
         console.log('URL de photo du backend:', photoUrl);
         
@@ -111,6 +125,10 @@ export class Header implements OnInit {
 
   toggleNotifications() {
     this.showNotifications = !this.showNotifications;
+    if (this.showNotifications) {
+      // Recharger les notifications à chaque ouverture
+      this.loadNotifications();
+    }
   }
 
   goToNewProject() {
@@ -144,9 +162,16 @@ export class Header implements OnInit {
   }
 
   logout() {
-    if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
-      // Redirection vers la page de connexion
-      window.location.href = '/';
-    }
+    this.showLogoutModal = true;
+  }
+
+  confirmLogout() {
+    this.showLogoutModal = false;
+    // Utiliser le service d'authentification pour se déconnecter
+    this.authService.logout();
+  }
+
+  cancelLogout() {
+    this.showLogoutModal = false;
   }
 }

@@ -133,10 +133,18 @@ export class AuthService {
   // Refresh token
   refreshToken(): Observable<LoginResponse> {
     const refreshToken = this.getRefreshToken();
-    return this.http.post<LoginResponse>(`${this.API_URL}/auth/refresh`, refreshToken)
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+    
+    // Créer un objet avec le refresh token
+    const refreshData = { refreshToken: refreshToken };
+    
+    return this.http.post<LoginResponse>(`${this.API_URL}/auth/refresh`, refreshData)
       .pipe(
         tap(response => {
           this.setTokens(response.accessToken, response.refreshToken);
+          this.isAuthenticatedSubject.next(true);
         })
       );
   }
@@ -146,6 +154,10 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     this.isAuthenticatedSubject.next(false);
+    
+    // Rediriger vers la page de connexion
+    console.log('Redirection vers la page de connexion...');
+    window.location.href = '/';
   }
 
   // Gestion des tokens
