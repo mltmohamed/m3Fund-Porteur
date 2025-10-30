@@ -12,6 +12,12 @@
   overflow: hidden;
   box-sizing: border-box;
 }
+.m {
+  font-size: 30px;
+}
+.superscript{
+  font-size: 100px;
+}
 
 .logo {
   font-size: 1.5rem;
