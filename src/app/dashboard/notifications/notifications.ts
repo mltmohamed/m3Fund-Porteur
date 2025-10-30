@@ -168,8 +168,8 @@ export class Notifications implements OnInit {
         message: 'Une nouvelle version de m3Fund est disponible avec de nouvelles fonctionnalités',
         timestamp: new Date(Date.now() - 24 * 3600000), // 1 day ago
         read: true,
-        actionUrl: null,
-        actionLabel: null,
+        actionUrl: undefined,
+        actionLabel: undefined,
         icon: 'fas fa-sync-alt',
         color: '#9c27b0'
       },
