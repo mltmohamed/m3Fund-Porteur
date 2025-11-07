@@ -36,12 +36,16 @@ export class Projects implements OnInit {
 
     this.dashboardService.getDashboardStats().subscribe({
       next: (stats) => {
-        const summaryCards = this.dashboardService.transformStatsToSummary(stats);
-        this.projectStats = summaryCards.find(card => card.title === 'Total Projets') || null;
-        
-        // Vérifier s'il n'y a aucun projet
-        if (stats.totalProjects === 0) {
-          this.errorMessage = 'Aucun projet trouvé';
+        this.projectStats = {
+          title: 'Projets actifs',
+          value: stats.activeProjects.toString(),
+          icon: 'fas fa-check-circle',
+          color: '#10B981'
+        };
+
+        // Vérifier s'il n'y a aucun projet validé
+        if (stats.activeProjects === 0) {
+          this.errorMessage = 'Aucun projet validé pour l\'instant';
         }
         
         this.isLoading = false;
@@ -77,7 +81,8 @@ export class Projects implements OnInit {
   loadRecentProjects() {
     this.projectService.getProjects().subscribe({
       next: (backendProjects) => {
-        this.projects = backendProjects.slice(0, 2).map(project => 
+        const validatedProjects = backendProjects.filter(project => project.isValidated);
+        this.projects = validatedProjects.slice(0, 2).map(project => 
           this.projectService.transformProjectData(project)
         );
         this.hasProjects = this.projects.length > 0;
