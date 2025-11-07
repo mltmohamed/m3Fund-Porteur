@@ -29,6 +29,11 @@
   transition: all 0.3s ease;
 }
 
+#status {
+  color: #000;
+  margin-left: 470px;
+}
+
 .stats-btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
 }
