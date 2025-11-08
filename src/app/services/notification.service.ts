@@ -35,13 +35,12 @@ export class NotificationService {
 
   // Récupérer les notifications récentes (pour le header)
   getRecentNotifications(): Observable<NotificationResponse[]> {
-    // TODO: Remplacer par l'endpoint réel du backend
+    // TODO: Remplacer par l'endpoint réel du backend quand il sera disponible
     // return this.http.get<NotificationResponse[]>(`${this.apiUrl}/notifications/recent`);
     
-    // Pour l'instant, retourner des données mock via Observable
+    // Retourner un tableau vide pour l'instant
     return new Observable(observer => {
-      const mockNotifications = this.getMockNotifications();
-      observer.next(mockNotifications);
+      observer.next([]);
       observer.complete();
     }).pipe(
       tap((notifications: any) => {
@@ -53,12 +52,12 @@ export class NotificationService {
 
   // Récupérer toutes les notifications
   getAllNotifications(): Observable<NotificationResponse[]> {
-    // TODO: Remplacer par l'endpoint réel du backend
+    // TODO: Remplacer par l'endpoint réel du backend quand il sera disponible
     // return this.http.get<NotificationResponse[]>(`${this.apiUrl}/notifications`);
     
+    // Retourner un tableau vide pour l'instant
     return new Observable(observer => {
-      const mockNotifications = this.getMockNotifications();
-      observer.next(mockNotifications);
+      observer.next([]);
       observer.complete();
     });
   }

@@ -399,6 +399,46 @@
   .notifications-container {
     padding: 1rem;
   }
+  
+  .notification-item {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .notifications-container {
+    padding: 0.8rem;
+  }
+  
+  .notification-item {
+    padding: 0.8rem;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .notification-content {
+    width: 100%;
+  }
+  
+  .notification-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .notifications-container {
+    padding: 0.6rem;
+  }
+  
+  .notification-item {
+    padding: 0.6rem;
+  }
+}
+  .notifications-container {
+    padding: 1rem;
+  }
 
   .notifications-header {
     flex-direction: column;

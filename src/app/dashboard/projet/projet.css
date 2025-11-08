@@ -1,18 +1,18 @@
 .projet-container {
   padding: 2rem;
-  background-color: #F0F8F9;
+  background-color: #FFFFFF;
   min-height: 100vh;
   box-sizing: border-box;
 }
 
 /* Messages d'erreur */
 .error-message {
-  background-color: #fee2e2;
-  color: #dc2626;
+  background-color: rgba(45, 45, 45, 0.1);
+  color: #2D2D2D;
   padding: 12px 16px;
   border-radius: 6px;
   margin-bottom: 20px;
-  border: 1px solid #fecaca;
+  border: 1px solid rgba(45, 45, 45, 0.2);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -21,7 +21,7 @@
 .close-error {
   background: none;
   border: none;
-  color: #dc2626;
+  color: #2D2D2D;
   font-size: 1.2rem;
   cursor: pointer;
   padding: 0;
@@ -33,7 +33,7 @@
 }
 
 .close-error:hover {
-  background-color: rgba(220, 38, 38, 0.1);
+  background-color: rgba(45, 45, 45, 0.1);
   border-radius: 50%;
 }
 
@@ -78,12 +78,12 @@
 
 .no-projects-content {
   text-align: center;
-  color: #666;
+  color: #2D2D2D;
 }
 
 .no-projects-content i {
   font-size: 3rem;
-  color: #ccc;
+  color: #2D2D2D;
   margin-bottom: 1rem;
   display: block;
 }
@@ -169,7 +169,7 @@
 .card-icon {
   width: 50px;
   height: 50px;
-  background-color: #f8f9fa;
+  background-color: #FFFFFF;
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -209,7 +209,7 @@
 
 .card-title {
   font-size: 0.9rem;
-  color: #666;
+  color: #2D2D2D;
   font-weight: 500;
   transition: all 0.3s ease;
 }
@@ -241,14 +241,14 @@
   left: 1rem;
   top: 50%;
   transform: translateY(-50%);
-  color: #666;
+  color: #2D2D2D;
   font-size: 0.9rem;
 }
 
 .search-bar input {
   width: 100%;
   padding: 0.8rem 1rem 0.8rem 2.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(45, 45, 45, 0.2);
   border-radius: 25px;
   font-size: 0.9rem;
   background-color: white;
@@ -276,7 +276,7 @@
 
 .filters select {
   padding: 0.8rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(45, 45, 45, 0.2);
   border-radius: 25px;
   background-color: white;
   font-size: 0.9rem;
@@ -346,16 +346,16 @@
 }
 
 .funds-info {
-  color: #FFD700;
+  color: #E6B800;
   font-weight: bold;
   font-size: 0.9rem;
   transition: all 0.3s ease;
 }
 
 .project-card:hover .funds-info {
-  color: #FFA500;
+  color: #E6B800;
   transform: scale(1.05);
-  text-shadow: 0 2px 4px rgba(255, 215, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(230, 184, 0, 0.3);
 }
 
 .sector-badge {
@@ -374,55 +374,55 @@
 
 /* Styles pour tous les secteurs */
 .sector-badge.agriculture {
-  background-color: #22c55e;
+  background-color: #06A664;
 }
 
 .project-card:hover .sector-badge.agriculture {
-  background-color: #16a34a;
+  background-color: #06A664;
 }
 
 .sector-badge.élevage {
-  background-color: #a855f7;
+  background-color: #E6B800;
 }
 
 .project-card:hover .sector-badge.élevage {
-  background-color: #9333ea;
+  background-color: #E6B800;
 }
 
 .sector-badge.éducation {
-  background-color: #4ecdc4;
+  background-color: #06A664;
 }
 
 .project-card:hover .sector-badge.éducation {
-  background-color: #3bb5ad;
+  background-color: #06A664;
 }
 
 .sector-badge.santé {
-  background-color: #ff6b9d;
+  background-color: #E6B800;
 }
 
 .project-card:hover .sector-badge.santé {
-  background-color: #ff4d7a;
+  background-color: #E6B800;
 }
 
 .sector-badge.mine {
-  background-color: #f97316;
+  background-color: #E6B800;
 }
 
 .project-card:hover .sector-badge.mine {
-  background-color: #ea580c;
+  background-color: #E6B800;
 }
 
 .sector-badge.culture {
-  background-color: #ec4899;
+  background-color: #E6B800;
 }
 
 .project-card:hover .sector-badge.culture {
-  background-color: #db2777;
+  background-color: #E6B800;
 }
 
 .sector-badge.environnement {
-  background-color: #10b981;
+  background-color: #06A664;
 }
 
 .project-card:hover .sector-badge.environnement {
@@ -430,35 +430,35 @@
 }
 
 .sector-badge.informatique {
-  background-color: #3b82f6;
+  background-color: #06A664;
 }
 
 .project-card:hover .sector-badge.informatique {
-  background-color: #2563eb;
+  background-color: #06A664;
 }
 
 .sector-badge.solidarité {
-  background-color: #f59e0b;
+  background-color: #E6B800;
 }
 
 .project-card:hover .sector-badge.solidarité {
-  background-color: #d97706;
+  background-color: #E6B800;
 }
 
 .sector-badge.commerce {
-  background-color: #8b5cf6;
+  background-color: #06A664;
 }
 
 .project-card:hover .sector-badge.commerce {
-  background-color: #7c3aed;
+  background-color: #06A664;
 }
 
 .sector-badge.social {
-  background-color: #06b6d4;
+  background-color: #06A664;
 }
 
 .project-card:hover .sector-badge.social {
-  background-color: #0891b2;
+  background-color: #06A664;
 }
 
 /* Section de progression */
@@ -469,7 +469,7 @@
 .progress-bar {
   width: 100%;
   height: 6px;
-  background-color: #f0f0f0;
+  background-color: #FFFFFF;
   border-radius: 3px;
   overflow: hidden;
   margin-bottom: 0.5rem;
@@ -477,7 +477,7 @@
 
 .progress-fill {
   height: 100%;
-  background-color: #4CAF50;
+  background-color: #06A664;
   border-radius: 3px;
   transition: width 0.3s ease;
   position: relative;
@@ -496,7 +496,7 @@
 }
 
 .project-card:hover .progress-fill {
-  background: linear-gradient(90deg, #4CAF50, #66BB6A, #4CAF50);
+  background: linear-gradient(90deg, #06A664, #06A664, #06A664);
   background-size: 200% 100%;
   animation: gradientShift 1.5s ease-in-out;
 }
@@ -517,7 +517,7 @@
   justify-content: space-between;
   align-items: center;
   font-size: 0.8rem;
-  color: #666;
+  color: #2D2D2D;
 }
 
 .collaborators {
@@ -556,14 +556,14 @@
 
 .project-description {
   font-size: 0.85rem;
-  color: #666;
+  color: #2D2D2D;
   line-height: 1.4;
   margin: 0;
   transition: all 0.3s ease;
 }
 
 .project-card:hover .project-description {
-  color: #555;
+  color: #2D2D2D;
   transform: scale(1.01);
 }
 
@@ -585,12 +585,12 @@
 }
 
 .status-badge.en-cours {
-  background-color: #ff6b9d;
+  background-color: #E6B800;
   color: white;
 }
 
 .status-badge.validé {
-  background-color: #4CAF50;
+  background-color: #06A664;
   color: white;
 }
 
@@ -630,7 +630,7 @@
 }
 
 .info-btn {
-  background-color: #333;
+  background-color: #2D2D2D;
   color: white;
 }
 
@@ -641,15 +641,15 @@
 }
 
 .edit-btn {
-  background-color: #333;
+  background-color: #2D2D2D;
   color: white;
 }
 
 .edit-btn:hover {
-  background-color: #FFD700;
-  color: #333;
+  background-color: #E6B800;
+  color: #2D2D2D;
   transform: scale(1.2) rotate(360deg);
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(230, 184, 0, 0.3);
 }
 
 /* Responsive */
@@ -677,41 +677,155 @@
   .search-filters {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
   }
   
   .search-bar {
-    min-width: auto;
+    min-width: 100%;
+    max-width: 100%;
   }
   
   .filters {
     justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
   }
   
   .filters select {
     min-width: auto;
     flex: 1;
+    min-width: 48%;
   }
   
   .summary-cards {
     grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
   }
   
   .projects-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .project-card {
+    padding: 1.2rem;
+  }
+  
+  .modal-content {
+    width: 95%;
+    max-height: 90vh;
+  }
+  
+  .edit-modal-content {
+    width: 95%;
+    max-height: 95vh;
   }
 }
 
 @media (max-width: 480px) {
+  .projet-container {
+    padding: 0.8rem;
+  }
+  
   .summary-cards {
     grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+  
+  .summary-card {
+    padding: 1rem;
+  }
+  
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
   }
   
   .card-value {
     font-size: 1.5rem;
   }
   
+  .card-title {
+    font-size: 0.8rem;
+  }
+  
+  .search-filters {
+    gap: 0.8rem;
+  }
+  
+  .filters {
+    flex-direction: column;
+  }
+  
+  .filters select {
+    width: 100%;
+    min-width: 100%;
+  }
+  
   .project-card {
     padding: 1rem;
+  }
+  
+  .project-title {
+    font-size: 1rem;
+  }
+  
+  .project-description {
+    font-size: 0.8rem;
+  }
+  
+  .modal-content {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    padding: 1rem;
+  }
+  
+  .modal-header {
+    padding: 1rem;
+  }
+  
+  .modal-body {
+    padding: 1rem;
+  }
+  
+  .edit-modal-content {
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+  
+  .edit-modal-header {
+    padding: 1rem;
+  }
+  
+  .edit-form {
+    padding: 1rem;
+  }
+  
+  .form-columns {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .projet-container {
+    padding: 0.6rem;
+  }
+  
+  .summary-card {
+    padding: 0.8rem;
+  }
+  
+  .card-value {
+    font-size: 1.3rem;
+  }
+  
+  .project-card {
+    padding: 0.8rem;
   }
 }
 
@@ -761,7 +875,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(45, 45, 45, 0.1);
   position: relative;
 }
 
@@ -772,7 +886,7 @@
   background: none;
   border: none;
   font-size: 1.2rem;
-  color: #666;
+  color: #2D2D2D;
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 50%;
@@ -797,10 +911,10 @@
 }
 
 .close-btn:hover {
-  background-color: #ff4757;
+  background-color: #2D2D2D;
   color: white;
   transform: scale(1.2) rotate(90deg);
-  box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+  box-shadow: 0 4px 12px rgba(45, 45, 45, 0.3);
 }
 
 .modal-title {
@@ -835,55 +949,55 @@
 
 /* Styles des badges de modal pour tous les secteurs */
 .modal-category.agriculture {
-  background-color: #22c55e;
+  background-color: #06A664;
 }
 
 .modal-content:hover .modal-category.agriculture {
-  background-color: #16a34a;
+  background-color: #06A664;
 }
 
 .modal-category.élevage {
-  background-color: #a855f7;
+  background-color: #E6B800;
 }
 
 .modal-content:hover .modal-category.élevage {
-  background-color: #9333ea;
+  background-color: #E6B800;
 }
 
 .modal-category.éducation {
-  background-color: #4ecdc4;
+  background-color: #06A664;
 }
 
 .modal-content:hover .modal-category.éducation {
-  background-color: #3bb5ad;
+  background-color: #06A664;
 }
 
 .modal-category.santé {
-  background-color: #ff6b9d;
+  background-color: #E6B800;
 }
 
 .modal-content:hover .modal-category.santé {
-  background-color: #ff4d7a;
+  background-color: #E6B800;
 }
 
 .modal-category.mine {
-  background-color: #f97316;
+  background-color: #E6B800;
 }
 
 .modal-content:hover .modal-category.mine {
-  background-color: #ea580c;
+  background-color: #E6B800;
 }
 
 .modal-category.culture {
-  background-color: #ec4899;
+  background-color: #E6B800;
 }
 
 .modal-content:hover .modal-category.culture {
-  background-color: #db2777;
+  background-color: #E6B800;
 }
 
 .modal-category.environnement {
-  background-color: #10b981;
+  background-color: #06A664;
 }
 
 .modal-content:hover .modal-category.environnement {
@@ -891,35 +1005,35 @@
 }
 
 .modal-category.informatique {
-  background-color: #3b82f6;
+  background-color: #06A664;
 }
 
 .modal-content:hover .modal-category.informatique {
-  background-color: #2563eb;
+  background-color: #06A664;
 }
 
 .modal-category.solidarité {
-  background-color: #f59e0b;
+  background-color: #E6B800;
 }
 
 .modal-content:hover .modal-category.solidarité {
-  background-color: #d97706;
+  background-color: #E6B800;
 }
 
 .modal-category.commerce {
-  background-color: #8b5cf6;
+  background-color: #06A664;
 }
 
 .modal-content:hover .modal-category.commerce {
-  background-color: #7c3aed;
+  background-color: #06A664;
 }
 
 .modal-category.social {
-  background-color: #06b6d4;
+  background-color: #06A664;
 }
 
 .modal-content:hover .modal-category.social {
-  background-color: #0891b2;
+  background-color: #06A664;
 }
 
 .modal-body {
@@ -932,7 +1046,7 @@
   align-items: flex-start;
   margin-bottom: 1rem;
   padding: 0.8rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(45, 45, 45, 0.1);
   border-radius: 8px;
   transition: all 0.3s ease;
   position: relative;
@@ -955,7 +1069,7 @@
 }
 
 .modal-content:hover .modal-row {
-  background-color: #f8f9fa;
+  background-color: #FFFFFF;
   transform: translateX(5px);
   box-shadow: 0 2px 8px rgba(6, 166, 100, 0.1);
 }
@@ -967,7 +1081,7 @@
 
 .modal-label {
   font-size: 0.9rem;
-  color: #666;
+  color: #2D2D2D;
   font-weight: 500;
   flex: 1;
   transition: all 0.3s ease;
@@ -1106,7 +1220,7 @@
   display: flex;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid rgba(45, 45, 45, 0.1);
   gap: 1rem;
 }
 
@@ -1114,7 +1228,7 @@
   background: none;
   border: none;
   font-size: 1.2rem;
-  color: #666;
+  color: #2D2D2D;
   cursor: pointer;
   padding: 0.5rem;
   border-radius: 50%;
@@ -1161,7 +1275,7 @@
 
 .edit-modal-subtitle {
   padding: 0 1.5rem;
-  color: #666;
+  color: #2D2D2D;
   font-size: 0.9rem;
   margin-bottom: 1.5rem;
 }
@@ -1203,7 +1317,7 @@
 
 .form-input {
   padding: 0.8rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(45, 45, 45, 0.2);
   border-radius: 8px;
   font-size: 0.9rem;
   background-color: white;
@@ -1226,7 +1340,7 @@
 
 .form-textarea {
   padding: 0.8rem 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(45, 45, 45, 0.2);
   border-radius: 8px;
   font-size: 0.9rem;
   background-color: white;
@@ -1254,7 +1368,7 @@
   align-items: center;
   gap: 0.8rem;
   padding: 0.8rem 1rem;
-  background-color: #f8f9fa;
+  background-color: #FFFFFF;
   border: 2px dashed #ddd;
   border-radius: 8px;
   cursor: pointer;
@@ -1280,14 +1394,14 @@
 
 .file-upload:hover {
   border-color: #06A664;
-  background-color: #f0f8f9;
+  background-color: #FFFFFF;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(6, 166, 100, 0.1);
 }
 
 .file-upload i {
   font-size: 1.2rem;
-  color: #666;
+  color: #2D2D2D;
   transition: all 0.3s ease;
 }
 
@@ -1297,7 +1411,7 @@
 }
 
 .file-upload span {
-  color: #666;
+  color: #2D2D2D;
   font-size: 0.9rem;
   transition: all 0.3s ease;
 }
@@ -1316,7 +1430,7 @@
 .date-input-container i {
   position: absolute;
   left: 1rem;
-  color: #666;
+  color: #2D2D2D;
   font-size: 0.9rem;
   z-index: 1;
 }
@@ -1332,7 +1446,7 @@
 }
 
 .submit-btn {
-  background-color: #f8f9fa;
+  background-color: #FFFFFF;
   color: #333;
   border: none;
   padding: 1rem 2rem;

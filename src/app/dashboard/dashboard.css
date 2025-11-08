@@ -57,6 +57,13 @@ html {
 @media (max-width: 768px) {
   .dashboard-container {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .main-content {
+    width: 100%;
+    flex: 1;
   }
   
   .content-area {
@@ -69,6 +76,8 @@ html {
     padding: 1rem;
     border-radius: 0;
     min-height: auto;
+    overflow-y: visible;
+    overflow-x: hidden;
   }
 }
 
@@ -76,5 +85,12 @@ html {
 @media (max-width: 480px) {
   .content-area {
     padding: 0.8rem;
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .content-area {
+    padding: 0.5rem;
   }
 }

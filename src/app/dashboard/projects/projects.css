@@ -267,7 +267,7 @@
 }
 
 .amount {
-  color: #FFD700;
+  color: #E6B800;
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -282,47 +282,47 @@
 
 /* Styles pour tous les secteurs */
 .category-badge.agriculture {
-  background-color: #22c55e;
+  background-color: #06A664;
 }
 
 .category-badge.élevage {
-  background-color: #a855f7;
+  background-color: #E6B800;
 }
 
 .category-badge.éducation {
-  background-color: #4ecdc4;
+  background-color: #06A664;
 }
 
 .category-badge.santé {
-  background-color: #ff6b9d;
+  background-color: #E6B800;
 }
 
 .category-badge.mine {
-  background-color: #f97316;
+  background-color: #E6B800;
 }
 
 .category-badge.culture {
-  background-color: #ec4899;
+  background-color: #06A664;
 }
 
 .category-badge.environnement {
-  background-color: #10b981;
+  background-color: #06A664;
 }
 
 .category-badge.informatique {
-  background-color: #3b82f6;
+  background-color: #06A664;
 }
 
 .category-badge.solidarité {
-  background-color: #f59e0b;
+  background-color: #E6B800;
 }
 
 .category-badge.commerce {
-  background-color: #8b5cf6;
+  background-color: #E6B800;
 }
 
 .category-badge.social {
-  background-color: #06b6d4;
+  background-color: #06A664;
 }
 
 .media-section {
@@ -487,8 +487,8 @@
   border-radius: 14px;
   overflow: visible;
   position: relative;
-  background: linear-gradient(135deg, #1f2937, #111827);
-  box-shadow: 0 10px 25px rgba(17, 24, 39, 0.35);
+  background: #2D2D2D;
+  box-shadow: 0 10px 25px rgba(45, 45, 45, 0.35);
   padding: 12px;
   display: flex;
   align-items: center;
@@ -519,8 +519,8 @@
   position: absolute;
   bottom: 0.8rem;
   right: 0.8rem;
-  background: rgba(17, 24, 39, 0.85);
-  color: white;
+  background: rgba(45, 45, 45, 0.85);
+  color: #FFFFFF;
   padding: 0.35rem 0.8rem;
   border-radius: 999px;
   display: inline-flex;
@@ -536,8 +536,8 @@
 }
 
 .media-placeholder {
-  background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.12));
-  border: 1px dashed rgba(59, 130, 246, 0.4);
+  background: rgba(6, 166, 100, 0.1);
+  border: 1px dashed rgba(6, 166, 100, 0.4);
   border-radius: 14px;
   padding: 2.5rem 1.5rem;
   display: flex;
@@ -545,7 +545,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  color: #3b82f6;
+  color: #06A664;
   text-align: center;
 }
 
@@ -564,18 +564,18 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: #666;
+  color: #2D2D2D;
   margin-bottom: 1.2rem;
   font-size: 1rem;
 }
 
 .collaborators i {
-  color: #4CAF50;
+  color: #06A664;
   font-size: 1.1rem;
 }
 
 .card-content h3 {
-  color: #333;
+  color: #2D2D2D;
   font-size: 1.2rem;
   font-weight: 600;
   margin-bottom: 0.6rem;
@@ -588,7 +588,7 @@
 }
 
 .card-content p {
-  color: #666;
+  color: #2D2D2D;
   line-height: 1.6;
   margin-bottom: 1.5rem;
   font-size: 1rem;
@@ -596,7 +596,7 @@
 }
 
 .date {
-  color: #4CAF50;
+  color: #06A664;
   font-size: 1rem;
   font-weight: 600;
 }
@@ -619,30 +619,35 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  background-color: #9ca3af;
-  color: #fff;
+  background-color: #2D2D2D;
+  color: #FFFFFF;
   min-width: 110px;
   text-align: center;
 }
 
 .status-badge.approved {
-  background-color: #22c55e;
+  background-color: #06A664;
+  color: #FFFFFF;
 }
 
 .status-badge.pending {
-  background-color: #f59e0b;
+  background-color: #E6B800;
+  color: #2D2D2D;
 }
 
 .status-badge.rejected {
-  background-color: #ef4444;
+  background-color: #2D2D2D;
+  color: #FFFFFF;
 }
 
 .status-badge.completed {
-  background-color: #3b82f6;
+  background-color: #06A664;
+  color: #FFFFFF;
 }
 
 .status-badge.in_progress {
-  background-color: #6366f1;
+  background-color: #06A664;
+  color: #FFFFFF;
 }
 
 /* Tablettes */
@@ -729,8 +734,19 @@
     padding: 0.8rem;
   }
   
+  .section-header {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
   .section-header h2 {
     font-size: 1.1rem;
+  }
+  
+  .see-all-btn {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 0.8rem;
   }
   
   .card-content h3 {
@@ -739,5 +755,51 @@
   
   .amount {
     font-size: 0.9rem;
+  }
+  
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .category-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.8rem;
+  }
+  
+  .media-main {
+    aspect-ratio: 16 / 9;
+  }
+  
+  .card-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .status-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    min-width: auto;
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .project-card {
+    padding: 0.6rem;
+  }
+  
+  .section-header h2 {
+    font-size: 1rem;
+  }
+  
+  .card-content h3 {
+    font-size: 0.9rem;
+  }
+  
+  .amount {
+    font-size: 0.85rem;
   }
 }

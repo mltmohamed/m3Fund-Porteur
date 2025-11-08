@@ -379,8 +379,35 @@
 }
 
 @media (max-width: 480px) {
+  .fonds-container {
+    padding: 0.8rem;
+  }
+  
+  .search-filters {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .search-bar {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+  }
+  
+  .filters {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .filters select {
+    width: 100%;
+    min-width: 100%;
+  }
+  
   .transaction-content {
     gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-start;
   }
   
   .method-text,
@@ -393,6 +420,27 @@
     height: 35px;
     font-size: 1rem;
   }
+  
+  .transaction-item {
+    padding: 0.8rem;
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .fonds-container {
+    padding: 0.6rem;
+  }
+  
+  .transaction-item {
+    padding: 0.6rem;
+  }
+  
+  .method-text,
+  .project-name {
+    font-size: 0.75rem;
+  }
+}
   
   .info-btn {
     width: 30px;

@@ -363,6 +363,10 @@
 }
 
 @media (max-width: 480px) {
+  .nouveau-projet-container {
+    padding: 0.8rem;
+  }
+  
   .form-card {
     padding: 0.8rem;
   }
@@ -371,8 +375,16 @@
     font-size: 1.3rem;
   }
   
+  .form-subtitle {
+    font-size: 0.85rem;
+  }
+  
   .form-group {
     gap: 0.3rem;
+  }
+  
+  .form-group label {
+    font-size: 0.85rem;
   }
   
   .form-input,
@@ -382,9 +394,38 @@
     font-size: 0.8rem;
   }
   
+  .file-upload {
+    padding: 0.8rem;
+    flex-direction: column;
+    text-align: center;
+  }
+  
   .submit-btn {
     padding: 0.8rem 1.5rem;
     font-size: 0.9rem;
+    width: 100%;
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .nouveau-projet-container {
+    padding: 0.6rem;
+  }
+  
+  .form-card {
+    padding: 0.6rem;
+  }
+  
+  .form-title {
+    font-size: 1.1rem;
+  }
+  
+  .form-input,
+  .form-textarea,
+  .form-select {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.75rem;
   }
 }
 

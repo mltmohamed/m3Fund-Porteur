@@ -448,6 +448,51 @@
 }
 
 @media (max-width: 480px) {
+  .message-container {
+    padding: 0.8rem;
+  }
+  
+  .chat-container {
+    padding: 0.8rem;
+  }
+  
+  .message-input-container {
+    padding: 0.6rem;
+  }
+  
+  .message-input {
+    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 0.9rem;
+  }
+  
+  .message-bubble {
+    max-width: 85%;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .message-container {
+    padding: 0.6rem;
+  }
+  
+  .chat-container {
+    padding: 0.6rem;
+  }
+  
+  .message-bubble {
+    max-width: 90%;
+    font-size: 0.8rem;
+  }
+}
   .sidebar-header {
     padding: 1rem;
   }

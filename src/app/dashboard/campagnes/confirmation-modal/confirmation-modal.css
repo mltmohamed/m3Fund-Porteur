@@ -132,4 +132,39 @@
   }
 }
 
+@media (max-width: 480px) {
+  .confirmation-modal-content {
+    width: 95%;
+    padding: 1.5rem;
+    max-height: 85vh;
+  }
+  
+  .confirmation-modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .confirmation-message {
+    font-size: 0.9rem;
+  }
+  
+  .confirmation-modal-actions {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  
+  .confirmation-btn {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .confirmation-modal-content {
+    width: 100%;
+    border-radius: 0;
+    padding: 1rem;
+    max-height: 100vh;
+  }
+}
+
 

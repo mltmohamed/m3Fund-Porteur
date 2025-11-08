@@ -305,29 +305,40 @@
 /* Mobiles */
 @media (max-width: 768px) {
   .header {
-    padding: 1rem;
-    gap: 0.8rem;
+    padding: 0.8rem 1rem;
+    gap: 0.6rem;
     flex-wrap: wrap;
+    width: 100%;
+    border-top-left-radius: 0;
   }
   
   .campaign-btn,
   .new-project-btn {
-    padding: 0.6rem 1rem;
+    padding: 0.6rem 0.9rem;
     font-size: 0.8rem;
+    flex: 1;
+    min-width: 0;
   }
   
   .new-project-btn {
-    max-width: 150px;
+    max-width: none;
+    flex: 1;
   }
   
   .header-icons {
-    gap: 0.8rem;
+    gap: 0.6rem;
+    flex-shrink: 0;
   }
   
   .notification-bell,
   .profile-pic {
     width: 35px;
     height: 35px;
+  }
+  
+  .notification-bell i,
+  .profile-pic img {
+    font-size: 0.9rem;
   }
   
   .logout-btn {
@@ -335,35 +346,84 @@
     height: 35px;
     font-size: 0.9rem;
   }
+  
+  .notification-modal {
+    min-width: 280px;
+    max-width: 90vw;
+    right: 0;
+    left: auto;
+  }
 }
 
 /* Petits mobiles */
 @media (max-width: 480px) {
   .header {
-    padding: 0.8rem;
-    gap: 0.6rem;
+    padding: 0.6rem 0.8rem;
+    gap: 0.5rem;
   }
   
   .campaign-btn,
   .new-project-btn {
-    padding: 0.5rem 0.8rem;
+    padding: 0.5rem 0.7rem;
     font-size: 0.7rem;
+    flex: 1;
   }
   
   .new-project-btn {
-    max-width: 120px;
+    max-width: none;
+  }
+  
+  .header-icons {
+    gap: 0.5rem;
   }
   
   .notification-bell,
   .profile-pic {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .notification-bell i {
+    font-size: 0.85rem;
   }
   
   .logout-btn {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     font-size: 0.8rem;
+  }
+  
+  .notification-modal {
+    min-width: calc(100vw - 2rem);
+    max-width: calc(100vw - 2rem);
+    right: 1rem;
+    left: 1rem;
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .header {
+    padding: 0.5rem 0.6rem;
+    gap: 0.4rem;
+  }
+  
+  .campaign-btn,
+  .new-project-btn {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.65rem;
+  }
+  
+  .notification-bell,
+  .profile-pic,
+  .logout-btn {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .notification-bell i,
+  .logout-btn i {
+    font-size: 0.75rem;
   }
 }
 

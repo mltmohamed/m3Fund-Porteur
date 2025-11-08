@@ -15,6 +15,9 @@
           </div>
           <div class="timestamp">{{ notification.time }}</div>
         </div>
+        <div class="no-notifications" *ngIf="notifications.length === 0">
+          <p>Aucune notification</p>
+        </div>
       </div>
     </div>
     <div class="profile-pic" (click)="goToProfil()">

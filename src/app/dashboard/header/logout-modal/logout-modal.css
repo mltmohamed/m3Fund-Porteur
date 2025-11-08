@@ -176,3 +176,27 @@
   }
 }
 
+@media (max-width: 480px) {
+  .modal-container {
+    width: 95%;
+    max-width: none;
+    padding: 1.2rem;
+  }
+  
+  .modal-title {
+    font-size: 1.1rem;
+  }
+  
+  .modal-message {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .modal-container {
+    width: 100%;
+    border-radius: 0;
+    padding: 1rem;
+  }
+}
+
