@@ -51,6 +51,19 @@
           </div>
           
           <div class="form-group">
+            <label for="targetVolunteer">Nombre de bénévoles recherchés</label>
+            <input 
+              type="number" 
+              id="targetVolunteer" 
+              class="form-input" 
+              [(ngModel)]="targetVolunteer"
+              name="targetVolunteer"
+              min="1"
+              placeholder="Nombre de bénévoles"
+            >
+          </div>
+          
+          <div class="form-group">
             <label for="endDate">Date Fin</label>
             <div class="date-input-container">
               <i class="fas fa-calendar-alt"></i>

@@ -47,10 +47,51 @@
         <span class="amount">{{ project.funds }}</span>
         <span class="category-badge" [class]="project.sector.toLowerCase()">{{ project.sector }}</span>
       </div>
-      <div class="progress-bar">
-        <div class="progress-fill" [style.width.%]="project.progress"></div>
-      </div>
       <div class="card-content">
+        <div class="media-section">
+          <ng-container *ngIf="project.hasMedia; else mediaPlaceholder">
+            <div class="media-grid" [ngClass]="{'has-side': project.images.length > 1 || project.videoUrl}">
+              <div class="media-main" *ngIf="project.images.length">
+                <div class="image-carousel">
+                  <img [src]="getCurrentImage(project)" [alt]="'Image du projet ' + project.title" loading="lazy" class="carousel-image">
+                  <button class="carousel-btn carousel-btn-prev" *ngIf="project.images.length > 1" (click)="prevImage(project)">
+                    <i class="fas fa-chevron-left"></i>
+                  </button>
+                  <button class="carousel-btn carousel-btn-next" *ngIf="project.images.length > 1" (click)="nextImage(project)">
+                    <i class="fas fa-chevron-right"></i>
+                  </button>
+                  <div class="carousel-indicators" *ngIf="project.images.length > 1">
+                    <span *ngFor="let image of project.images; let i = index" 
+                          class="indicator" 
+                          [class.active]="(currentImageIndex[project.id] || 0) === i"
+                          (click)="goToImage(project, i)">
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="media-side" *ngIf="project.images.length > 1 || project.videoUrl">
+                <div class="media-thumbnails" *ngIf="project.images.length > 1">
+                  <div class="thumbnail" *ngFor="let image of project.images.slice(1,4); let i = index">
+                    <img [src]="image" [alt]="'Image du projet ' + project.title" loading="lazy">
+                  </div>
+                </div>
+                <div class="media-video" *ngIf="project.videoUrl">
+                  <video controls preload="metadata" [attr.poster]="project.images[0] || null">
+                    <source [src]="project.videoUrl" type="video/mp4">
+                    Votre navigateur ne supporte pas la lecture vidéo.
+                  </video>
+                  <span class="video-label"><i class="fas fa-play"></i> Pitch vidéo</span>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+          <ng-template #mediaPlaceholder>
+            <div class="media-placeholder">
+              <i class="fas fa-photo-video"></i>
+              <span>Ajoutez des visuels pour sublimer votre projet</span>
+            </div>
+          </ng-template>
+        </div>
         <div class="collaborators">
           <i class="fas fa-users"></i>
           <span>{{ project.collaborators }}</span>
@@ -58,7 +99,7 @@
         <h3>{{ project.title }}</h3>
         <p>{{ project.description }}</p>
         <div class="card-footer">
-          <span class="date">Créé: {{ project.creationDate }}</span>
+          <span class="date">Fin: {{ project.endDate }}</span>
           <span class="status-badge" [ngClass]="project.statusDetail.toLowerCase()">{{ project.status }}</span>
         </div>
       </div>

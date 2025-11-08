@@ -103,6 +103,7 @@ export class NouvelleCampagne implements OnInit {
     const campaignData: CampaignCreateRequest = {
       endAt: new Date(this.endDate).toISOString(),
       type: 'INVESTMENT',
+      description: this.campaignDescription,
       targetBudget: parseFloat(this.targetBudget.replace(/[^\d]/g, '')),
       shareOffered: parseFloat(this.shareOffered)
     };

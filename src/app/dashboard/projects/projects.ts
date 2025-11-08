@@ -19,6 +19,7 @@ export class Projects implements OnInit {
   projectStats: DashboardSummary | null = null;
   projects: Project[] = [];
   hasProjects = false;
+  currentImageIndex: { [key: number]: number } = {};
 
   constructor(
     private dashboardService: DashboardService,
@@ -86,11 +87,40 @@ export class Projects implements OnInit {
           this.projectService.transformProjectData(project)
         );
         this.hasProjects = this.projects.length > 0;
+        // Initialiser l'index du carousel pour chaque projet
+        this.projects.forEach((project, index) => {
+          this.currentImageIndex[project.id] = 0;
+        });
       },
       error: (error) => {
         console.error('Erreur lors du chargement des projets récents:', error);
         this.hasProjects = false;
       }
     });
+  }
+
+  getCurrentImage(project: Project): string {
+    const index = this.currentImageIndex[project.id] || 0;
+    return project.images[index] || project.images[0] || '';
+  }
+
+  nextImage(project: Project) {
+    if (!this.currentImageIndex[project.id]) {
+      this.currentImageIndex[project.id] = 0;
+    }
+    this.currentImageIndex[project.id] = (this.currentImageIndex[project.id] + 1) % project.images.length;
+  }
+
+  prevImage(project: Project) {
+    if (!this.currentImageIndex[project.id]) {
+      this.currentImageIndex[project.id] = 0;
+    }
+    this.currentImageIndex[project.id] = this.currentImageIndex[project.id] === 0 
+      ? project.images.length - 1 
+      : this.currentImageIndex[project.id] - 1;
+  }
+
+  goToImage(project: Project, index: number) {
+    this.currentImageIndex[project.id] = index;
   }
 }

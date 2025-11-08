@@ -16,6 +16,7 @@ export class NouvelleCampagneDon implements OnInit {
   // Données du formulaire
   selectedProject: string = '';
   targetBudget: string = '';
+  targetVolunteer: number = 0;
   startDate: string = '';
   endDate: string = '';
   campaignDescription: string = '';
@@ -130,6 +131,11 @@ export class NouvelleCampagneDon implements OnInit {
       return;
     }
 
+    if (!this.targetVolunteer || this.targetVolunteer <= 0) {
+      this.errorMessage = 'Veuillez saisir un nombre de bénévoles recherchés valide';
+      return;
+    }
+
     if (this.rewards.length === 0) {
       this.errorMessage = 'Veuillez ajouter au moins une récompense';
       return;
@@ -143,9 +149,14 @@ export class NouvelleCampagneDon implements OnInit {
     const campaignData: CampaignCreateRequest = {
       endAt: new Date(this.endDate).toISOString(),
       type: 'DONATION',
+      description: this.campaignDescription && this.campaignDescription.trim() ? this.campaignDescription.trim() : undefined,
       targetBudget: parseFloat(this.targetBudget.replace(/[^\d]/g, '')),
+      targetVolunteer: this.targetVolunteer,
       rewards: this.rewards
     };
+    
+    console.log('Données de la campagne à envoyer:', campaignData);
+    console.log('Description de la campagne:', this.campaignDescription);
 
     // Créer la campagne
     const projectId = parseInt(this.selectedProject);
@@ -174,6 +185,7 @@ export class NouvelleCampagneDon implements OnInit {
   resetForm() {
     this.selectedProject = '';
     this.targetBudget = '';
+    this.targetVolunteer = 0;
     this.startDate = '';
     this.endDate = '';
     this.campaignDescription = '';

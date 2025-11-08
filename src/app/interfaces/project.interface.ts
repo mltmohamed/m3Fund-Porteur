@@ -9,6 +9,7 @@ export interface Project {
   status: string;
   statusIcon: string;
   creationDate: string;
+  endDate: string;
   statusDetail: string;
   collaboratorCount: string;
   campaignCount: string;
@@ -18,6 +19,9 @@ export interface Project {
   netValue: string;
   fundsRaised: string;
   projectDescription: string;
+  images: string[];
+  videoUrl: string;
+  hasMedia: boolean;
 }
 
 export interface ProjectSummary {

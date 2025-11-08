@@ -9,12 +9,14 @@ import {
   ProjectUpdateRequest, 
   ProjectResponse 
 } from '../interfaces/project.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProjectService {
-  private readonly API_URL = 'http://localhost:7878/api/v1';
+  private readonly API_URL = environment.apiUrl;
+  private readonly API_ORIGIN = this.extractApiOrigin(environment.apiUrl);
 
   constructor(private http: HttpClient) {}
 
@@ -166,6 +168,8 @@ export class ProjectService {
   // Transformer les données du backend en format frontend
   transformProjectData(backendProject: ProjectResponse): Project {
     const status = backendProject.isValidated ? 'APPROVED' : 'PENDING';
+    const images = (backendProject.imagesUrl || []).map(url => this.ensureAbsoluteUrl(url));
+    const videoUrl = this.ensureAbsoluteUrl(backendProject.videoUrl || '');
     return {
       id: backendProject.id,
       title: backendProject.name,
@@ -177,6 +181,7 @@ export class ProjectService {
       status: this.getStatusLabel(status),
       statusIcon: this.getStatusIcon(status),
       creationDate: new Date(backendProject.createdAt).toLocaleDateString('fr-FR'),
+      endDate: new Date(backendProject.launchedAt).toLocaleDateString('fr-FR'),
       statusDetail: status,
       collaboratorCount: '0',
       campaignCount: '0',
@@ -185,7 +190,10 @@ export class ProjectService {
       shareOffered: '0%',
       netValue: '0 FCFA',
       fundsRaised: '0 FCFA',
-      projectDescription: backendProject.description
+      projectDescription: backendProject.description,
+      images,
+      videoUrl,
+      hasMedia: images.length > 0 || !!videoUrl
     };
   }
 
@@ -261,6 +269,32 @@ export class ProjectService {
       'REJECTED': 'fas fa-times'
     };
     return iconMap[status] || 'fas fa-question';
+  }
+
+  private ensureAbsoluteUrl(url?: string): string {
+    if (!url) {
+      return '';
+    }
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    const normalizedPath = url.startsWith('/') ? url : `/${url}`;
+    if (normalizedPath.startsWith('/api')) {
+      return `${this.API_ORIGIN}${normalizedPath}`;
+    }
+    const base = this.API_URL.replace(/\/$/, '');
+    return `${base}${normalizedPath}`;
+  }
+
+  private extractApiOrigin(apiUrl: string): string {
+    try {
+      const parsed = new URL(apiUrl);
+      return parsed.origin;
+    } catch {
+      // Fallback: retirer la partie chemin après le premier slash suivant le protocole
+      const matches = apiUrl.match(/^(https?:\/\/[^\/]+)(?:\/.*)?$/i);
+      return matches ? matches[1] : '';
+    }
   }
 
   getDomainLabel(domain: string): string {

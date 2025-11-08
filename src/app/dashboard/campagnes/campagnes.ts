@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CampaignService } from '../../services/campaign.service';
@@ -14,6 +14,7 @@ import { ConfirmationModal } from './confirmation-modal/confirmation-modal';
   styleUrl: './campagnes.css'
 })
 export class Campagnes implements OnInit {
+  @Output() viewChange = new EventEmitter<string>();
   searchTerm: string = '';
   selectedProject: string = '';
   selectedStatus: string = '';
@@ -90,6 +91,10 @@ export class Campagnes implements OnInit {
     this.campaignService.getCampaigns().subscribe({
       next: (backendCampaigns: CampaignResponse[]) => {
         console.log('Campagnes chargées du backend:', backendCampaigns);
+        // Log des descriptions pour déboguer
+        backendCampaigns.forEach((campaign, index) => {
+          console.log(`Campagne ${index} (ID: ${campaign.id}): description =`, campaign.description, 'type:', typeof campaign.description, 'length:', campaign.description?.length);
+        });
         // Créer un nouveau tableau pour forcer la détection de changement Angular
         const transformedCampaigns = backendCampaigns.map(campaign => 
           this.campaignService.transformCampaignData(campaign)
@@ -465,16 +470,13 @@ export class Campagnes implements OnInit {
     console.log('Type de campagne sélectionné:', type);
     this.closeCampaignModal();
 
-    // Navigation vers la page appropriée selon le type
+    // Navigation vers la page appropriée selon le type en utilisant l'événement viewChange
     if (type === 'investissement') {
-      // Redirection vers nouvelle campagne investissement
-      window.location.href = '/dashboard?view=nouvelle-campagne';
+      this.viewChange.emit('nouvelle-campagne');
     } else if (type === 'don') {
-      // Redirection vers nouvelle campagne don
-      window.location.href = '/dashboard?view=nouvelle-campagne-don';
+      this.viewChange.emit('nouvelle-campagne-don');
     } else if (type === 'benevolat') {
-      // Redirection vers nouvelle campagne bénévolat
-      window.location.href = '/dashboard?view=nouvelle-campagne-benevolat';
+      this.viewChange.emit('nouvelle-campagne-benevolat');
     }
   }
 

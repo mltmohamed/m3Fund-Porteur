@@ -81,6 +81,7 @@ export class NouvelleCampagneBenevolat implements OnInit {
     const campaignData: CampaignCreateRequest = {
       endAt: new Date(this.endDate).toISOString(),
       type: 'VOLUNTEERING',
+      description: this.campaignDescription,
       targetVolunteer: this.targetVolunteer
     };
 

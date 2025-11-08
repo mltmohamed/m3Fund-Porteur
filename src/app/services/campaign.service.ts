@@ -108,10 +108,20 @@ export class CampaignService {
   // Transformer les données du backend en format frontend
   transformCampaignData(backendCampaign: CampaignResponse): Campaign {
     const collaboratorText = backendCampaign.collaboratorCount === 1 ? 'Collaborateur' : 'Collaborateurs';
+    const volunteerText = backendCampaign.collaboratorCount === 1 ? 'bénévole trouvé' : 'bénévoles trouvés';
+    
+    // Pour les campagnes de bénévolat, afficher le nombre de bénévoles au lieu des fonds récoltés
+    let fundsDisplay: string;
+    if (backendCampaign.campaignType === 'VOLUNTEERING') {
+      fundsDisplay = `${backendCampaign.collaboratorCount} ${volunteerText}`;
+    } else {
+      fundsDisplay = `${backendCampaign.fundsRaised.toLocaleString('fr-FR')} FCFA récoltés`;
+    }
+    
     return {
       id: backendCampaign.id,
       title: backendCampaign.title,
-      funds: `${backendCampaign.fundsRaised.toLocaleString('fr-FR')} FCFA récoltés`,
+      funds: fundsDisplay,
       sector: 'SANTE', // TODO: Récupérer le secteur réel du projet
       collaborators: `${backendCampaign.collaboratorCount} ${collaboratorText}`,
       progress: Math.round(backendCampaign.progress),
@@ -124,12 +134,16 @@ export class CampaignService {
       statusDetail: backendCampaign.status,
       collaboratorCount: backendCampaign.collaboratorCount.toString(),
       campaignCount: backendCampaign.campaignCount.toString(),
-      campaignSummary: backendCampaign.description.substring(0, 150) + '...',
+      campaignSummary: backendCampaign.description && typeof backendCampaign.description === 'string' && backendCampaign.description.trim().length > 0 
+        ? (backendCampaign.description.length > 150 ? backendCampaign.description.substring(0, 150) + '...' : backendCampaign.description)
+        : '',
       targetBudget: `${backendCampaign.targetBudget.toLocaleString('fr-FR')} FCFA`,
       shareOffered: `${backendCampaign.shareOffered}%`,
       netValue: `${backendCampaign.netValue.toLocaleString('fr-FR')} FCFA`,
       fundsRaised: `${backendCampaign.fundsRaised.toLocaleString('fr-FR')} FCFA`,
-      campaignDescription: backendCampaign.description
+      campaignDescription: backendCampaign.description && typeof backendCampaign.description === 'string' && backendCampaign.description.trim().length > 0 
+        ? backendCampaign.description.trim() 
+        : ''
     };
   }
 

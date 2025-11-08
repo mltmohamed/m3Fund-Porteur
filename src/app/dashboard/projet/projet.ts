@@ -2,7 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
+import { CampaignService } from '../../services/campaign.service';
 import { Project, ProjectSummary, ProjectResponse, ProjectUpdateRequest } from '../../interfaces/project.interface';
+import { CampaignResponse } from '../../interfaces/campaign.interface';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-projet',
@@ -26,7 +29,10 @@ export class Projet implements OnInit {
   // Données des projets
   projects: Project[] = [];
 
-  constructor(private projectService: ProjectService) {}
+  constructor(
+    private projectService: ProjectService,
+    private campaignService: CampaignService
+  ) {}
 
   ngOnInit() {
     this.loadProjects();
@@ -38,11 +44,66 @@ export class Projet implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.projectService.getProjects().subscribe({
-      next: (backendProjects: ProjectResponse[]) => {
-        this.projects = backendProjects.map(project => 
-          this.projectService.transformProjectData(project)
-        );
+    // Récupérer les projets et les campagnes en parallèle
+    forkJoin({
+      projects: this.projectService.getProjects(),
+      campaigns: this.campaignService.getCampaigns()
+    }).subscribe({
+      next: ({ projects: backendProjects, campaigns: backendCampaigns }) => {
+        // Transformer les projets et enrichir avec les données des campagnes
+        this.projects = backendProjects.map(project => {
+          const transformedProject = this.projectService.transformProjectData(project);
+          
+          // Filtrer les campagnes de ce projet
+          const projectCampaigns = backendCampaigns.filter(
+            campaign => campaign.projectId === project.id
+          );
+          
+          // Calculer le nombre de campagnes
+          transformedProject.campaignCount = projectCampaigns.length.toString();
+          
+          // Calculer la somme des parts vendues (seulement pour les campagnes d'investissement)
+          const totalSharesSold = projectCampaigns
+            .filter(campaign => campaign.campaignType === 'INVESTMENT')
+            .reduce((sum, campaign) => sum + (campaign.shareOffered || 0), 0);
+          
+          transformedProject.shareOffered = totalSharesSold > 0 
+            ? `${totalSharesSold.toFixed(2)}%` 
+            : '0%';
+          
+          // Calculer les fonds récoltés totaux
+          const totalFundsRaised = projectCampaigns.reduce(
+            (sum, campaign) => sum + (campaign.fundsRaised || 0), 
+            0
+          );
+          
+          transformedProject.fundsRaised = `${totalFundsRaised.toLocaleString('fr-FR')} FCFA`;
+          
+          // Calculer le budget cible total
+          const totalTargetBudget = projectCampaigns.reduce(
+            (sum, campaign) => sum + (campaign.targetBudget || 0), 
+            0
+          );
+          
+          transformedProject.targetBudget = `${totalTargetBudget.toLocaleString('fr-FR')} FCFA`;
+          
+          // Calculer la valeur nette totale (pour les investissements)
+          const totalNetValue = projectCampaigns
+            .filter(campaign => campaign.campaignType === 'INVESTMENT')
+            .reduce((sum, campaign) => sum + (campaign.netValue || 0), 0);
+          
+          transformedProject.netValue = `${totalNetValue.toLocaleString('fr-FR')} FCFA`;
+          
+          // Calculer le nombre total de collaborateurs uniques
+          const uniqueCollaborators = new Set<number>();
+          projectCampaigns.forEach(campaign => {
+            // Note: collaboratorCount est déjà calculé par campagne, on doit agréger
+            // Pour l'instant, on prend le max ou la somme selon la logique métier
+          });
+          
+          return transformedProject;
+        });
+        
         this.isLoading = false;
       },
       error: (error) => {

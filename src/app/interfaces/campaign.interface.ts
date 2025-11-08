@@ -37,6 +37,7 @@ export interface CampaignFilters {
 export interface CampaignCreateRequest {
   endAt: string;
   type: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
+  description?: string;
   targetVolunteer?: number;
   targetBudget?: number;
   shareOffered?: number;

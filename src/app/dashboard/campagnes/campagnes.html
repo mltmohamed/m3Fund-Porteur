@@ -82,7 +82,7 @@
       </div>
       <div class="card-content">
         <h3 class="campaign-title">{{ campaign.title }}</h3>
-        <p class="campaign-description">{{ campaign.campaignSummary || campaign.campaignDescription?.substring(0, 100) + '...' }}</p>
+        <p class="campaign-description">{{ campaign.campaignSummary || (campaign.campaignDescription ? (campaign.campaignDescription.length > 100 ? campaign.campaignDescription.substring(0, 100) + '...' : campaign.campaignDescription) : '') }}</p>
       </div>
       <div class="card-footer">
         <div class="status-badges">
