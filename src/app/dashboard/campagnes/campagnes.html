@@ -64,43 +64,64 @@
   <!-- Grille des campagnes -->
   <div class="campaigns-grid" *ngIf="!isLoading && campaigns.length > 0">
     <div class="campaign-card" *ngFor="let campaign of campaigns">
+      <!-- En-tête avec titre et secteur -->
       <div class="card-header">
-        <span class="funds-info">{{ campaign.funds }}</span>
+        <h3 class="campaign-title">{{ campaign.title }}</h3>
         <span class="sector-badge" [class]="campaign.sector.toLowerCase()">{{ campaign.sector }}</span>
       </div>
-      <div class="progress-section">
-        <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="campaign.progress"></div>
+      
+      <!-- Section principale avec fonds et progression -->
+      <div class="card-main">
+        <div class="funds-section">
+          <div class="funds-info">
+            <i [class]="campaign.type === 'Bénévolat' ? 'fas fa-hands-helping' : 'fas fa-coins'"></i>
+            <span>{{ campaign.funds }}</span>
+          </div>
         </div>
-        <div class="progress-info">
+        
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Progression</span>
+            <span class="percentage">{{ campaign.progress }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="campaign.progress"></div>
+          </div>
           <div class="collaborators">
             <i class="fas fa-users"></i>
             <span>{{ campaign.collaborators }}</span>
           </div>
-          <span class="percentage">{{ campaign.progress }}%</span>
         </div>
       </div>
+      
+      <!-- Description -->
       <div class="card-content">
-        <h3 class="campaign-title">{{ campaign.title }}</h3>
         <p class="campaign-description">{{ campaign.campaignSummary || (campaign.campaignDescription ? (campaign.campaignDescription.length > 100 ? campaign.campaignDescription.substring(0, 100) + '...' : campaign.campaignDescription) : '') }}</p>
       </div>
+      
+      <!-- Pied de carte avec badges et actions -->
       <div class="card-footer">
-        <div class="status-badges">
-          <div class="status-badge" [class]="campaign.status.toLowerCase().replace(' ', '-')">
-            <i [class]="campaign.statusIcon"></i>
-            {{ campaign.status }}
+        <div class="footer-top">
+          <div class="status-badges">
+            <div class="status-badge" [class]="campaign.status.toLowerCase().replace(' ', '-')">
+              <i [class]="campaign.statusIcon"></i>
+              <span>{{ campaign.status }}</span>
+            </div>
+            <div class="type-badge">
+              <i [class]="campaign.typeIcon"></i>
+              <span>{{ campaign.type }}</span>
+            </div>
           </div>
-          <div class="type-badge">
-            <i [class]="campaign.typeIcon"></i>
-            {{ campaign.type }}
+          <div class="end-date">
+            <i class="fas fa-calendar-alt"></i>
+            <span>Fin: {{ campaign.endDate }}</span>
           </div>
         </div>
-        <div class="end-date">{{ campaign.endDate }}</div>
         <div class="card-actions">
-          <button class="action-btn info-btn" (click)="openCampaignModal(campaign)">
+          <button class="action-btn info-btn" (click)="openCampaignModal(campaign)" title="Voir les détails">
             <i class="fas fa-info"></i>
           </button>
-          <button class="action-btn edit-btn" (click)="campaign.type === 'Don' ? openEditDonModal(campaign) : campaign.type === 'Benevolat' ? openEditBenevolatModal(campaign) : openEditModal(campaign)">
+          <button class="action-btn edit-btn" (click)="campaign.type === 'Don' ? openEditDonModal(campaign) : campaign.type === 'Benevolat' ? openEditBenevolatModal(campaign) : openEditModal(campaign)" title="Modifier">
             <i class="fas fa-pencil-alt"></i>
           </button>
         </div>
