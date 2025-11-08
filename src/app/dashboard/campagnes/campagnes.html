@@ -118,10 +118,16 @@
           </div>
         </div>
         <div class="card-actions">
-          <button class="action-btn info-btn" (click)="openCampaignModal(campaign)" title="Voir les détails">
+          <button type="button" class="action-btn info-btn" (click)="openCampaignModal(campaign)" title="Voir les détails">
             <i class="fas fa-info"></i>
           </button>
-          <button class="action-btn edit-btn" (click)="campaign.type === 'Don' ? openEditDonModal(campaign) : campaign.type === 'Benevolat' ? openEditBenevolatModal(campaign) : openEditModal(campaign)" title="Modifier">
+          <button 
+            type="button" 
+            class="action-btn edit-btn" 
+            [class.disabled]="isCampaignClosed(campaign)"
+            [disabled]="isCampaignClosed(campaign)"
+            (click)="!isCampaignClosed(campaign) && (campaign.type === 'Don' ? openEditDonModal(campaign, $event) : campaign.type === 'Benevolat' ? openEditBenevolatModal(campaign, $event) : openEditModal(campaign, $event))" 
+            [title]="isCampaignClosed(campaign) ? 'Cette campagne est clôturée et ne peut plus être modifiée' : 'Modifier'">
             <i class="fas fa-pencil-alt"></i>
           </button>
         </div>
@@ -279,6 +285,26 @@
               >
             </div>
 
+            <div class="form-group" *ngIf="!isCampaignValidated()">
+              <label for="startDate">Date de début</label>
+              <div class="date-input-container">
+                <i class="fas fa-calendar-alt"></i>
+                <input
+                  type="date"
+                  id="startDate"
+                  class="form-input date-input"
+                  [(ngModel)]="editForm.startDate"
+                  name="startDate"
+                  placeholder="Date de début"
+                  [min]="getMinStartDate()"
+                  (change)="validateCampaignStartDate()"
+                >
+              </div>
+              <div *ngIf="errorMessage && errorMessage.includes('date de début')" class="error-message" style="color: red; margin-top: 5px; font-size: 0.875rem;">
+                {{ errorMessage }}
+              </div>
+            </div>
+
             <div class="form-group">
               <label for="endDate">Date de fin</label>
               <div class="date-input-container">
@@ -290,7 +316,12 @@
                   [(ngModel)]="editForm.endDate"
                   name="endDate"
                   placeholder="Date de fin"
+                  [max]="getMaxEndDate()"
+                  (change)="validateCampaignEndDate()"
                 >
+              </div>
+              <div *ngIf="errorMessage" class="error-message" style="color: red; margin-top: 5px; font-size: 0.875rem;">
+                {{ errorMessage }}
               </div>
             </div>
           </div>

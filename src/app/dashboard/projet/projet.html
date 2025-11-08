@@ -102,10 +102,10 @@
           {{ project.status }}
         </div>
         <div class="card-actions">
-          <button class="action-btn info-btn" (click)="openProjectModal(project)">
+          <button type="button" class="action-btn info-btn" (click)="openProjectModal(project); $event.stopPropagation()">
             <i class="fas fa-info"></i>
           </button>
-          <button class="action-btn edit-btn" (click)="openEditModal(project)">
+          <button type="button" class="action-btn edit-btn" (click)="openEditModal(project, $event)">
             <i class="fas fa-pencil-alt"></i>
           </button>
         </div>
@@ -278,31 +278,28 @@
               >
             </div>
             
-            <div class="form-group">
-              <label for="launchedAt">Date Fin</label>
+            <div class="form-group" *ngIf="!isProjectValidated()">
+              <label for="launchedAt">Date de début</label>
               <div class="date-input-container">
                 <i class="fas fa-calendar-alt"></i>
-                <input 
-                  type="date" 
-                  id="launchedAt" 
-                  class="form-input date-input" 
+                <input
+                  type="date"
+                  id="launchedAt"
+                  class="form-input date-input"
                   [(ngModel)]="editForm.launchedAt"
                   name="launchedAt"
+                  [min]="getMinDate()"
+                  (change)="validateDate()"
                 >
+              </div>
+              <div *ngIf="errorMessage && (errorMessage.includes('date') || errorMessage.includes('antérieure'))" class="error-message" style="color: red; margin-top: 5px; font-size: 0.875rem;">
+                {{ errorMessage }}
               </div>
             </div>
 
             <div class="form-group">
               <label for="projectImages">Des images du projet à partager?</label>
-              <input 
-                type="file"
-                id="projectImages"
-                accept="image/jpeg,image/png"
-                multiple
-                (change)="onImagesSelected($event)"
-                style="display: none"
-              >
-              <div class="file-upload" (click)="projectImages.click()" #projectImages>
+              <div class="file-upload" (click)="onImagesSelect()">
                 <i class="fas fa-images"></i>
                 <span *ngIf="editForm.images.length === 0">Sélectionner des images (max 6)</span>
                 <span *ngIf="editForm.images.length > 0">{{ editForm.images.length }} image(s) sélectionnée(s)</span>
@@ -311,14 +308,7 @@
 
             <div class="form-group">
               <label for="projectVideo">Une vidéo pitch?</label>
-              <input 
-                type="file"
-                id="projectVideo"
-                accept="video/mp4,video/mpeg,video/quicktime"
-                (change)="onVideoSelected($event)"
-                style="display: none"
-              >
-              <div class="file-upload" (click)="projectVideo.click()" #projectVideo>
+              <div class="file-upload" (click)="onVideoSelect()">
                 <i class="fas fa-video"></i>
                 <span *ngIf="!editForm.video">Sélectionner une vidéo</span>
                 <span *ngIf="editForm.video">{{ editForm.video.name }}</span>
@@ -327,14 +317,7 @@
             
             <div class="form-group">
               <label for="businessPlan">Le Business Plan du projet</label>
-              <input 
-                type="file"
-                id="businessPlan"
-                accept="application/pdf"
-                (change)="onBusinessPlanSelected($event)"
-                style="display: none"
-              >
-              <div class="file-upload" (click)="businessPlan.click()" #businessPlan>
+              <div class="file-upload" (click)="onBusinessPlanSelect()">
                 <i class="fas fa-file-pdf"></i>
                 <span *ngIf="!editForm.businessPlan">Sélectionner un PDF</span>
                 <span *ngIf="editForm.businessPlan">{{ editForm.businessPlan.name }}</span>

@@ -24,6 +24,10 @@ export class Campagnes implements OnInit {
   showEditBenevolatModal: boolean = false;
   showCampaignModal: boolean = false;
   selectedCampaign: Campaign | null = null;
+  selectedCampaignRaw: CampaignResponse | null = null; // Données brutes de la campagne depuis le backend
+  selectedCampaignProject: ProjectResponse | null = null; // Projet associé à la campagne sélectionnée
+  backendCampaignsMap: Map<number, CampaignResponse> = new Map(); // Map pour stocker les campagnes brutes par ID
+  backendProjectsMap: Map<number, ProjectResponse> = new Map(); // Map pour stocker les projets bruts par ID
   isLoading = false;
   errorMessage = '';
   
@@ -38,6 +42,7 @@ export class Campagnes implements OnInit {
     targetBudget: null as number | null,
     shareOffered: null as number | null,
     targetVolunteer: null as number | null,
+    startDate: '',
     endDate: ''
   };
   
@@ -91,6 +96,11 @@ export class Campagnes implements OnInit {
     this.campaignService.getCampaigns().subscribe({
       next: (backendCampaigns: CampaignResponse[]) => {
         console.log('Campagnes chargées du backend:', backendCampaigns);
+        // Stocker les campagnes brutes dans une map pour accès rapide
+        this.backendCampaignsMap.clear();
+        backendCampaigns.forEach(campaign => {
+          this.backendCampaignsMap.set(campaign.id, campaign);
+        });
         // Log des descriptions pour déboguer
         backendCampaigns.forEach((campaign, index) => {
           console.log(`Campagne ${index} (ID: ${campaign.id}): description =`, campaign.description, 'type:', typeof campaign.description, 'length:', campaign.description?.length);
@@ -152,6 +162,11 @@ export class Campagnes implements OnInit {
   loadProjects() {
     this.projectService.getProjects().subscribe({
       next: (projects: ProjectResponse[]) => {
+        // Stocker les projets dans une map pour accès rapide
+        this.backendProjectsMap.clear();
+        projects.forEach(project => {
+          this.backendProjectsMap.set(project.id, project);
+        });
         this.projectOptions = [
           { value: '', label: 'Tous les projets' },
           ...projects.map(project => ({
@@ -165,6 +180,29 @@ export class Campagnes implements OnInit {
         console.error('Erreur lors du chargement des projets:', error);
       }
     });
+  }
+  
+  // Vérifier si une campagne est clôturée
+  isCampaignClosed(campaign: Campaign): boolean {
+    const status = campaign.statusDetail || campaign.status;
+    return status === 'COMPLETED' || status === 'FINISHED' || status === 'Clôturé' || status === 'clôturé';
+  }
+
+  // Vérifier si une campagne est validée (ne peut plus modifier la date de début)
+  isCampaignValidated(): boolean {
+    if (!this.selectedCampaignRaw) {
+      // Si on n'a pas les données brutes, vérifier depuis la campagne transformée
+      if (this.selectedCampaign) {
+        const status = this.selectedCampaign.statusDetail || this.selectedCampaign.status;
+        // Une campagne est validée si elle est APPROVED, IN_PROGRESS, COMPLETED, ou FINISHED
+        return status === 'APPROVED' || status === 'IN_PROGRESS' || status === 'COMPLETED' || status === 'FINISHED' || 
+               status === 'Validé' || status === 'En cours' || status === 'Clôturé';
+      }
+      return false;
+    }
+    // Utiliser le statut brut du backend
+    const status = this.selectedCampaignRaw.status;
+    return status === 'APPROVED' || status === 'IN_PROGRESS' || status === 'COMPLETED' || status === 'FINISHED';
   }
 
   onSearch() {
@@ -232,32 +270,127 @@ export class Campagnes implements OnInit {
     this.selectedCampaign = null;
   }
 
-  openEditModal(campaign: Campaign) {
+  openEditModal(campaign: Campaign, event?: Event) {
+    console.log('=== openEditModal appelé ===', { campaignId: campaign.id, event });
+    
+    // Empêcher la propagation de l'événement IMMÉDIATEMENT
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
+    
+    // Vérifier si la campagne est clôturée
+    if (this.isCampaignClosed(campaign)) {
+      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+      return;
+    }
+    
+    // S'assurer que le modal s'ouvre immédiatement
     this.selectedCampaign = campaign;
-    this.editForm = {
-      description: '',
-      targetBudget: null,
-      shareOffered: null,
-      targetVolunteer: null,
-      endDate: ''
-    };
     this.showEditModal = true;
+    this.errorMessage = '';
+    
+    console.log('Modal ouvert, recherche de la campagne dans la map...', { 
+      campaignId: campaign.id, 
+      mapSize: this.backendCampaignsMap.size 
+    });
+    
+    // Récupérer les données complètes de la campagne depuis la map
+    const campaignResponse = this.backendCampaignsMap.get(campaign.id);
+    
+    if (campaignResponse) {
+      console.log('Campagne trouvée dans la map, utilisation des données');
+      this.selectedCampaignRaw = campaignResponse;
+      
+      // Pré-remplir le formulaire avec les données actuelles
+      // Ne pas pré-remplir startDate si la campagne est validée
+      this.editForm = {
+        description: campaignResponse.description || campaign.campaignDescription || '',
+        targetBudget: campaignResponse.targetBudget || null,
+        shareOffered: campaignResponse.shareOffered || null,
+        targetVolunteer: null, // Pas disponible pour les campagnes d'investissement
+        startDate: (campaignResponse.status === 'APPROVED' || campaignResponse.status === 'IN_PROGRESS' || campaignResponse.status === 'COMPLETED' || campaignResponse.status === 'FINISHED') 
+          ? '' 
+          : (campaignResponse.startDate ? this.formatDateForInput(campaignResponse.startDate) : ''),
+        endDate: campaignResponse.endDate ? this.formatDateForInput(campaignResponse.endDate) : ''
+      };
+      
+      // Récupérer le projet associé depuis la map
+      const project = this.backendProjectsMap.get(campaignResponse.projectId);
+      if (project) {
+        this.selectedCampaignProject = project;
+      } else {
+        console.warn('Projet non trouvé dans la map pour la campagne', campaign.id);
+        this.selectedCampaignProject = null;
+      }
+    } else {
+      console.warn('Campagne non trouvée dans la map, utilisation des données transformées disponibles');
+      console.warn('ATTENTION: Ne pas appeler getCampaignById() pour éviter une erreur 401 et une redirection');
+      
+      // NE PAS appeler getCampaignById() car cela pourrait déclencher une erreur 401
+      // Utiliser les données de la campagne transformée qui sont déjà disponibles
+      this.selectedCampaignRaw = null;
+      
+      // Pré-remplir le formulaire avec les données disponibles
+      this.editForm = {
+        description: campaign.campaignDescription || '',
+        targetBudget: this.parseNumberFromString(campaign.targetBudget) || null,
+        shareOffered: this.parseNumberFromString(campaign.shareOffered) || null,
+        targetVolunteer: null,
+        startDate: '',
+        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : ''
+      };
+      
+      this.selectedCampaignProject = null;
+    }
   }
 
   closeEditModal() {
     this.showEditModal = false;
     this.selectedCampaign = null;
+    this.selectedCampaignRaw = null;
+    this.selectedCampaignProject = null;
+    this.errorMessage = '';
     this.editForm = {
       description: '',
       targetBudget: null,
       shareOffered: null,
       targetVolunteer: null,
+      startDate: '',
       endDate: ''
     };
   }
 
   onSubmitEdit() {
     if (!this.selectedCampaign) return;
+
+    // Valider la date de début de campagne avant la soumission (seulement si la campagne n'est pas validée)
+    if (!this.isCampaignValidated() && this.editForm.startDate) {
+      const campaignStartDate = new Date(this.editForm.startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      campaignStartDate.setHours(0, 0, 0, 0);
+      
+      if (campaignStartDate < today) {
+        this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+        return;
+      }
+    }
+
+    // Valider la date de fin de campagne avant la soumission
+    if (this.editForm.endDate && this.selectedCampaignProject) {
+      const campaignEndDate = new Date(this.editForm.endDate);
+      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
+      campaignEndDate.setHours(0, 0, 0, 0);
+      projectEndDate.setHours(0, 0, 0, 0);
+      
+      if (campaignEndDate > projectEndDate) {
+        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
+        return;
+      }
+    }
 
     // Préparer les données pour la mise à jour (uniquement les champs modifiés)
     const updateData: any = {
@@ -277,12 +410,23 @@ export class Campagnes implements OnInit {
       updateData.shareOffered = this.editForm.shareOffered;
     }
 
+    // Ne pas envoyer la date de début si la campagne est validée
+    if (!this.isCampaignValidated() && this.editForm.startDate) {
+      const date = new Date(this.editForm.startDate);
+      if (!isNaN(date.getTime())) {
+        updateData.startDate = date.toISOString().slice(0, 19);
+      }
+    }
+
     if (this.editForm.endDate) {
       const date = new Date(this.editForm.endDate);
       if (!isNaN(date.getTime())) {
         updateData.endDate = date.toISOString().slice(0, 19);
       }
     }
+
+    this.isLoading = true;
+    this.errorMessage = '';
 
     // Appeler l'API pour mettre à jour la campagne
     this.campaignService.updateCampaign(updateData).subscribe({
@@ -292,6 +436,7 @@ export class Campagnes implements OnInit {
         this.confirmationMessage = 'Votre campagne a été modifiée avec succès !';
         this.showConfirmationModal = true;
         this.closeEditModal();
+        this.isLoading = false;
         // Recharger immédiatement
         this.loadCampaigns();
         this.loadCampaignSummary();
@@ -303,39 +448,120 @@ export class Campagnes implements OnInit {
       error: (error) => {
         console.error('Erreur lors de la modification:', error);
         this.confirmationSuccess = false;
+        this.errorMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne.';
         this.confirmationMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne.';
         this.showConfirmationModal = true;
-        this.closeEditModal();
+        this.isLoading = false;
       }
     });
   }
 
-  openEditDonModal(campaign: Campaign) {
+  openEditDonModal(campaign: Campaign, event?: Event) {
+    console.log('=== openEditDonModal appelé ===', { campaignId: campaign.id, event });
+    
+    // Empêcher la propagation de l'événement IMMÉDIATEMENT
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
+    
+    // Vérifier si la campagne est clôturée
+    if (this.isCampaignClosed(campaign)) {
+      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+      return;
+    }
+    
+    // S'assurer que le modal s'ouvre immédiatement
     this.selectedCampaign = campaign;
-    this.editForm = {
-      description: '',
-      targetBudget: null,
-      shareOffered: null,
-      targetVolunteer: null,
-      endDate: ''
-    };
     this.showEditDonModal = true;
+    this.errorMessage = '';
+    
+    // Récupérer les données complètes de la campagne depuis la map
+    const campaignResponse = this.backendCampaignsMap.get(campaign.id);
+    
+    if (campaignResponse) {
+      this.selectedCampaignRaw = campaignResponse;
+      
+      // Pré-remplir le formulaire avec les données actuelles
+      this.editForm = {
+        description: campaignResponse.description || campaign.campaignDescription || '',
+        targetBudget: campaignResponse.targetBudget || null,
+        shareOffered: null, // Pas de parts pour les campagnes de don
+        targetVolunteer: null,
+        startDate: campaignResponse.startDate ? this.formatDateForInput(campaignResponse.startDate) : '',
+        endDate: campaignResponse.endDate ? this.formatDateForInput(campaignResponse.endDate) : ''
+      };
+      
+      // Récupérer le projet associé depuis la map
+      const project = this.backendProjectsMap.get(campaignResponse.projectId);
+      if (project) {
+        this.selectedCampaignProject = project;
+      } else {
+        this.selectedCampaignProject = null;
+      }
+    } else {
+      console.warn('Campagne non trouvée dans la map, utilisation des données transformées');
+      this.selectedCampaignRaw = null;
+      
+      this.editForm = {
+        description: campaign.campaignDescription || '',
+        targetBudget: this.parseNumberFromString(campaign.targetBudget) || null,
+        shareOffered: null,
+        targetVolunteer: null,
+        startDate: '',
+        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : ''
+      };
+      
+      this.selectedCampaignProject = null;
+    }
   }
 
   closeEditDonModal() {
     this.showEditDonModal = false;
     this.selectedCampaign = null;
+    this.selectedCampaignRaw = null;
+    this.selectedCampaignProject = null;
+    this.errorMessage = '';
     this.editForm = {
       description: '',
       targetBudget: null,
       shareOffered: null,
       targetVolunteer: null,
+      startDate: '',
       endDate: ''
     };
   }
 
   onSubmitEditDon() {
     if (!this.selectedCampaign) return;
+
+    // Valider la date de début de campagne avant la soumission (seulement si la campagne n'est pas validée)
+    if (!this.isCampaignValidated() && this.editForm.startDate) {
+      const campaignStartDate = new Date(this.editForm.startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      campaignStartDate.setHours(0, 0, 0, 0);
+      
+      if (campaignStartDate < today) {
+        this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+        return;
+      }
+    }
+
+    // Valider la date de fin de campagne avant la soumission
+    if (this.editForm.endDate && this.selectedCampaignProject) {
+      const campaignEndDate = new Date(this.editForm.endDate);
+      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
+      campaignEndDate.setHours(0, 0, 0, 0);
+      projectEndDate.setHours(0, 0, 0, 0);
+      
+      if (campaignEndDate > projectEndDate) {
+        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
+        return;
+      }
+    }
 
     // Préparer les données pour la mise à jour
     const updateData: any = {
@@ -351,12 +577,23 @@ export class Campagnes implements OnInit {
       updateData.targetBudget = this.editForm.targetBudget;
     }
 
+    // Ne pas envoyer la date de début si la campagne est validée
+    if (!this.isCampaignValidated() && this.editForm.startDate) {
+      const date = new Date(this.editForm.startDate);
+      if (!isNaN(date.getTime())) {
+        updateData.startDate = date.toISOString().slice(0, 19);
+      }
+    }
+
     if (this.editForm.endDate) {
       const date = new Date(this.editForm.endDate);
       if (!isNaN(date.getTime())) {
         updateData.endDate = date.toISOString().slice(0, 19);
       }
     }
+
+    this.isLoading = true;
+    this.errorMessage = '';
 
     // Appeler l'API pour mettre à jour la campagne
     this.campaignService.updateCampaign(updateData).subscribe({
@@ -366,6 +603,7 @@ export class Campagnes implements OnInit {
         this.confirmationMessage = 'Votre campagne de don a été modifiée avec succès !';
         this.showConfirmationModal = true;
         this.closeEditDonModal();
+        this.isLoading = false;
         // Recharger immédiatement
         this.loadCampaigns();
         this.loadCampaignSummary();
@@ -377,39 +615,123 @@ export class Campagnes implements OnInit {
       error: (error) => {
         console.error('Erreur lors de la modification:', error);
         this.confirmationSuccess = false;
+        this.errorMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne de don.';
         this.confirmationMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne de don.';
         this.showConfirmationModal = true;
-        this.closeEditDonModal();
+        this.isLoading = false;
       }
     });
   }
 
-  openEditBenevolatModal(campaign: Campaign) {
+  openEditBenevolatModal(campaign: Campaign, event?: Event) {
+    console.log('=== openEditBenevolatModal appelé ===', { campaignId: campaign.id, event });
+    
+    // Empêcher la propagation de l'événement IMMÉDIATEMENT
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
+    
+    // Vérifier si la campagne est clôturée
+    if (this.isCampaignClosed(campaign)) {
+      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+      return;
+    }
+    
+    // S'assurer que le modal s'ouvre immédiatement
     this.selectedCampaign = campaign;
-    this.editForm = {
-      description: '',
-      targetBudget: null,
-      shareOffered: null,
-      targetVolunteer: null,
-      endDate: ''
-    };
     this.showEditBenevolatModal = true;
+    this.errorMessage = '';
+    
+    // Récupérer les données complètes de la campagne depuis la map
+    const campaignResponse = this.backendCampaignsMap.get(campaign.id);
+    
+    if (campaignResponse) {
+      this.selectedCampaignRaw = campaignResponse;
+      
+      // Pré-remplir le formulaire avec les données actuelles
+      // Ne pas pré-remplir startDate si la campagne est validée
+      this.editForm = {
+        description: campaignResponse.description || campaign.campaignDescription || '',
+        targetBudget: null, // Pas de budget pour les campagnes de bénévolat
+        shareOffered: null,
+        targetVolunteer: null, // TODO: Récupérer depuis campaignResponse si disponible
+        startDate: (campaignResponse.status === 'APPROVED' || campaignResponse.status === 'IN_PROGRESS' || campaignResponse.status === 'COMPLETED' || campaignResponse.status === 'FINISHED') 
+          ? '' 
+          : (campaignResponse.startDate ? this.formatDateForInput(campaignResponse.startDate) : ''),
+        endDate: campaignResponse.endDate ? this.formatDateForInput(campaignResponse.endDate) : ''
+      };
+      
+      // Récupérer le projet associé depuis la map
+      const project = this.backendProjectsMap.get(campaignResponse.projectId);
+      if (project) {
+        this.selectedCampaignProject = project;
+      } else {
+        this.selectedCampaignProject = null;
+      }
+    } else {
+      console.warn('Campagne non trouvée dans la map, utilisation des données transformées');
+      this.selectedCampaignRaw = null;
+      
+      this.editForm = {
+        description: campaign.campaignDescription || '',
+        targetBudget: null,
+        shareOffered: null,
+        targetVolunteer: null,
+        startDate: '',
+        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : ''
+      };
+      
+      this.selectedCampaignProject = null;
+    }
   }
 
   closeEditBenevolatModal() {
     this.showEditBenevolatModal = false;
     this.selectedCampaign = null;
+    this.selectedCampaignRaw = null;
+    this.selectedCampaignProject = null;
+    this.errorMessage = '';
     this.editForm = {
       description: '',
       targetBudget: null,
       shareOffered: null,
       targetVolunteer: null,
+      startDate: '',
       endDate: ''
     };
   }
 
   onSubmitEditBenevolat() {
     if (!this.selectedCampaign) return;
+
+    // Valider la date de début de campagne avant la soumission (seulement si la campagne n'est pas validée)
+    if (!this.isCampaignValidated() && this.editForm.startDate) {
+      const campaignStartDate = new Date(this.editForm.startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      campaignStartDate.setHours(0, 0, 0, 0);
+      
+      if (campaignStartDate < today) {
+        this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+        return;
+      }
+    }
+
+    // Valider la date de fin de campagne avant la soumission
+    if (this.editForm.endDate && this.selectedCampaignProject) {
+      const campaignEndDate = new Date(this.editForm.endDate);
+      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
+      campaignEndDate.setHours(0, 0, 0, 0);
+      projectEndDate.setHours(0, 0, 0, 0);
+      
+      if (campaignEndDate > projectEndDate) {
+        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
+        return;
+      }
+    }
 
     // Préparer les données pour la mise à jour
     const updateData: any = {
@@ -425,12 +747,23 @@ export class Campagnes implements OnInit {
       updateData.targetVolunteer = this.editForm.targetVolunteer;
     }
 
+    // Ne pas envoyer la date de début si la campagne est validée
+    if (!this.isCampaignValidated() && this.editForm.startDate) {
+      const date = new Date(this.editForm.startDate);
+      if (!isNaN(date.getTime())) {
+        updateData.startDate = date.toISOString().slice(0, 19);
+      }
+    }
+
     if (this.editForm.endDate) {
       const date = new Date(this.editForm.endDate);
       if (!isNaN(date.getTime())) {
         updateData.endDate = date.toISOString().slice(0, 19);
       }
     }
+
+    this.isLoading = true;
+    this.errorMessage = '';
 
     // Appeler l'API pour mettre à jour la campagne
     this.campaignService.updateCampaign(updateData).subscribe({
@@ -440,6 +773,7 @@ export class Campagnes implements OnInit {
         this.confirmationMessage = 'Votre campagne de bénévolat a été modifiée avec succès !';
         this.showConfirmationModal = true;
         this.closeEditBenevolatModal();
+        this.isLoading = false;
         // Recharger immédiatement
         this.loadCampaigns();
         this.loadCampaignSummary();
@@ -451,9 +785,10 @@ export class Campagnes implements OnInit {
       error: (error) => {
         console.error('Erreur lors de la modification:', error);
         this.confirmationSuccess = false;
+        this.errorMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne de bénévolat.';
         this.confirmationMessage = error.error?.message || 'Une erreur est survenue lors de la modification de la campagne de bénévolat.';
         this.showConfirmationModal = true;
-        this.closeEditBenevolatModal();
+        this.isLoading = false;
       }
     });
   }
@@ -494,5 +829,124 @@ export class Campagnes implements OnInit {
   // Fermer le modal de confirmation
   closeConfirmationModal() {
     this.showConfirmationModal = false;
+  }
+
+  // Formater la date pour l'input de type date (format YYYY-MM-DD)
+  private formatDateForInput(dateString: string): string {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return '';
+      }
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error('Erreur lors du formatage de la date:', error);
+      return '';
+    }
+  }
+
+  // Parser une date depuis une chaîne locale (format DD/MM/YYYY) vers format YYYY-MM-DD
+  private parseDateFromString(dateString: string): string {
+    try {
+      // Format attendu: "DD/MM/YYYY" (format français)
+      const parts = dateString.split('/');
+      if (parts.length === 3) {
+        const day = parts[0].padStart(2, '0');
+        const month = parts[1].padStart(2, '0');
+        const year = parts[2];
+        return `${year}-${month}-${day}`;
+      }
+      // Si ce n'est pas au format attendu, essayer de parser comme date ISO
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return this.formatDateForInput(dateString);
+      }
+      return '';
+    } catch (error) {
+      console.error('Erreur lors du parsing de la date:', error);
+      return '';
+    }
+  }
+
+  // Parser un nombre depuis une chaîne (ex: "100 FCFA" ou "100%" -> 100)
+  private parseNumberFromString(value: string): number | null {
+    if (!value) return null;
+    try {
+      // Extraire les chiffres de la chaîne (supporte les décimales)
+      const match = value.match(/(\d+(?:\.\d+)?)/);
+      if (match) {
+        return parseFloat(match[1]);
+      }
+      return null;
+    } catch (error) {
+      console.error('Erreur lors du parsing du nombre:', error);
+      return null;
+    }
+  }
+
+  // Valider la date de fin de campagne par rapport à la date de fin du projet
+  validateCampaignEndDate() {
+    if (this.editForm.endDate && this.selectedCampaignProject) {
+      const campaignEndDate = new Date(this.editForm.endDate);
+      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
+      campaignEndDate.setHours(0, 0, 0, 0);
+      projectEndDate.setHours(0, 0, 0, 0);
+      
+      if (campaignEndDate > projectEndDate) {
+        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
+        return false;
+      } else {
+        // Réinitialiser l'erreur si la date est valide
+        if (this.errorMessage && this.errorMessage.includes('date de fin')) {
+          this.errorMessage = '';
+        }
+      }
+    }
+    return true;
+  }
+
+  // Obtenir la date maximale pour la date de fin de campagne (date de fin du projet)
+  getMaxEndDate(): string | null {
+    if (this.selectedCampaignProject && this.selectedCampaignProject.launchedAt) {
+      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
+      const year = projectEndDate.getFullYear();
+      const month = String(projectEndDate.getMonth() + 1).padStart(2, '0');
+      const day = String(projectEndDate.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    return null;
+  }
+
+  // Valider la date de début de campagne par rapport à aujourd'hui
+  validateCampaignStartDate() {
+    if (this.editForm.startDate) {
+      const campaignStartDate = new Date(this.editForm.startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      campaignStartDate.setHours(0, 0, 0, 0);
+      
+      if (campaignStartDate < today) {
+        this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+        return false;
+      } else {
+        // Réinitialiser l'erreur si la date est valide
+        if (this.errorMessage && this.errorMessage.includes('date de début')) {
+          this.errorMessage = '';
+        }
+      }
+    }
+    return true;
+  }
+
+  // Obtenir la date minimale (aujourd'hui) pour la date de début de campagne
+  getMinStartDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }

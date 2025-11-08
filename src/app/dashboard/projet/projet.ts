@@ -20,6 +20,8 @@ export class Projet implements OnInit {
   showModal: boolean = false;
   showEditModal: boolean = false;
   selectedProject: Project | null = null;
+  selectedProjectRaw: ProjectResponse | null = null; // Stocker les données brutes du backend
+  backendProjectsMap: Map<number, ProjectResponse> = new Map(); // Map pour stocker les projets bruts par ID
   isLoading = false;
   errorMessage = '';
 
@@ -46,10 +48,16 @@ export class Projet implements OnInit {
     
     // Récupérer les projets et les campagnes en parallèle
     forkJoin({
-      projects: this.projectService.getProjects(),
+      projects: this.projectService.getMyProjects(), // Utiliser getMyProjects pour obtenir les données complètes
       campaigns: this.campaignService.getCampaigns()
     }).subscribe({
       next: ({ projects: backendProjects, campaigns: backendCampaigns }) => {
+        // Stocker les projets bruts dans une map pour accès rapide
+        this.backendProjectsMap.clear();
+        backendProjects.forEach(project => {
+          this.backendProjectsMap.set(project.id, project);
+        });
+        
         // Transformer les projets et enrichir avec les données des campagnes
         this.projects = backendProjects.map(project => {
           const transformedProject = this.projectService.transformProjectData(project);
@@ -345,28 +353,132 @@ export class Projet implements OnInit {
     businessPlan: null as File | null
   };
 
-  openEditModal(project: Project) {
+  // Vérifier si un projet est validé (ne peut plus modifier la date de début)
+  isProjectValidated(): boolean {
+    if (this.selectedProjectRaw) {
+      // Utiliser le champ isValidated du backend
+      return this.selectedProjectRaw.isValidated === true;
+    }
+    // Si on n'a pas les données brutes, considérer comme non validé pour permettre la modification
+    return false;
+  }
+
+  openEditModal(project: Project, event?: Event) {
+    console.log('=== openEditModal appelé ===', { projectId: project.id, event });
+    
+    // Empêcher la propagation de l'événement IMMÉDIATEMENT
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }
+    
+    // S'assurer que le modal s'ouvre immédiatement
     this.selectedProject = project;
     this.showEditModal = true;
+    this.errorMessage = '';
     
-    // Pré-remplir le formulaire avec les données actuelles
-    this.editForm = {
-      name: project.title,
-      resume: project.projectSummary,
-      description: project.projectDescription,
-      domain: '', // À récupérer depuis project si disponible
-      objective: '', // À récupérer depuis project si disponible
-      websiteLink: '', // À récupérer depuis project si disponible
-      launchedAt: '', // Laisser vide - l'utilisateur peut saisir une nouvelle date si nécessaire
-      images: [],
-      video: null,
-      businessPlan: null
-    };
+    console.log('Modal ouvert, recherche du projet dans la map...', { 
+      projectId: project.id, 
+      mapSize: this.backendProjectsMap.size 
+    });
+    
+    // Récupérer les données complètes du projet depuis la map
+    const projectResponse = this.backendProjectsMap.get(project.id);
+    
+    if (projectResponse) {
+      console.log('Projet trouvé dans la map, utilisation des données');
+      // Utiliser les données déjà chargées
+      this.selectedProjectRaw = projectResponse;
+      
+      // Pré-remplir le formulaire avec les données actuelles
+      // Ne pas pré-remplir launchedAt si le projet est validé
+      this.editForm = {
+        name: projectResponse.name || project.title,
+        resume: projectResponse.resume || project.projectSummary || '',
+        description: projectResponse.description || project.projectDescription || '',
+        domain: projectResponse.domain || '',
+        objective: projectResponse.objective || '',
+        websiteLink: projectResponse.websiteLink || '',
+        launchedAt: (projectResponse.isValidated ? '' : (projectResponse.launchedAt ? this.formatDateForInput(projectResponse.launchedAt) : '')),
+        images: [],
+        video: null,
+        businessPlan: null
+      };
+    } else {
+      console.warn('Projet non trouvé dans la map, utilisation des données transformées disponibles');
+      console.warn('ATTENTION: Ne pas appeler getMyProjects() pour éviter une erreur 401 et une redirection');
+      
+      // NE PAS appeler getMyProjects() car cela pourrait déclencher une erreur 401
+      // et causer une déconnexion via l'intercepteur
+      // Utiliser les données du projet transformé qui sont déjà disponibles
+      this.selectedProjectRaw = null; // Pas de données brutes disponibles
+      
+      // Pré-remplir le formulaire avec les données disponibles depuis le projet transformé
+      // Note: certains champs seront vides, mais l'utilisateur peut les remplir manuellement
+      // Ne pas pré-remplir launchedAt si on ne peut pas vérifier si le projet est validé
+      this.editForm = {
+        name: project.title,
+        resume: project.projectSummary || '',
+        description: project.projectDescription || '',
+        domain: '', // Ne sera pas disponible depuis Project transformé
+        objective: '', // Ne sera pas disponible depuis Project transformé
+        websiteLink: '', // Ne sera pas disponible depuis Project transformé
+        launchedAt: '', // Ne pas pré-remplir si on n'a pas les données brutes
+        images: [],
+        video: null,
+        businessPlan: null
+      };
+      
+      // Afficher un message informatif (mais pas une erreur)
+      console.log('Formulaire pré-rempli avec les données disponibles du projet transformé');
+    }
+  }
+  
+  // Formater la date pour l'input de type date (format YYYY-MM-DD)
+  private formatDateForInput(dateString: string): string {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return '';
+      }
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      console.error('Erreur lors du formatage de la date:', error);
+      return '';
+    }
+  }
+
+  // Parser une date depuis une chaîne locale (format DD/MM/YYYY) vers format YYYY-MM-DD
+  private parseDateFromString(dateString: string): string {
+    try {
+      // Format attendu: "DD/MM/YYYY" (format français)
+      const parts = dateString.split('/');
+      if (parts.length === 3) {
+        const day = parts[0].padStart(2, '0');
+        const month = parts[1].padStart(2, '0');
+        const year = parts[2];
+        return `${year}-${month}-${day}`;
+      }
+      // Si ce n'est pas au format attendu, essayer de parser comme date ISO
+      const date = new Date(dateString);
+      if (!isNaN(date.getTime())) {
+        return this.formatDateForInput(dateString);
+      }
+      return '';
+    } catch (error) {
+      console.error('Erreur lors du parsing de la date:', error);
+      return '';
+    }
   }
 
   closeEditModal() {
     this.showEditModal = false;
     this.selectedProject = null;
+    this.selectedProjectRaw = null;
     // Réinitialiser le formulaire
     this.editForm = {
       name: '',
@@ -382,62 +494,176 @@ export class Projet implements OnInit {
     };
   }
 
-  onImagesSelected(event: any) {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      this.editForm.images = Array.from(files);
-    }
+  // Gestion de la sélection d'images
+  onImagesSelect() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/jpeg,image/png';
+    input.multiple = true;
+    input.onchange = (event: any) => {
+      const files = Array.from(event.target.files) as File[];
+      if (files.length > 0) {
+        // Vérifier le nombre d'images (max 6)
+        if (files.length > 6) {
+          this.errorMessage = 'Vous ne pouvez sélectionner que 6 images maximum.';
+          return;
+        }
+        
+        // Vérifier la taille de chaque image (max 5MB)
+        for (const file of files) {
+          if (file.size > 5 * 1024 * 1024) {
+            this.errorMessage = 'Chaque image ne doit pas dépasser 5MB.';
+            return;
+          }
+        }
+        
+        this.editForm.images = files;
+        // Ne réinitialiser que les erreurs liées aux fichiers
+        if (this.errorMessage && (this.errorMessage.includes('image') || this.errorMessage.includes('Image'))) {
+          this.errorMessage = '';
+        }
+        console.log('Images sélectionnées:', files.length);
+      }
+    };
+    input.click();
   }
 
-  onVideoSelected(event: any) {
-    const file = event.target.files?.[0];
-    if (file) {
-      this.editForm.video = file;
-    }
+  // Gestion de la sélection de vidéo
+  onVideoSelect() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/mp4,video/mpeg,video/quicktime';
+    input.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        // Vérifier le type MIME
+        const allowedTypes = ['video/mp4', 'video/mpeg', 'video/quicktime'];
+        if (!allowedTypes.includes(file.type)) {
+          this.errorMessage = 'La vidéo doit être au format MP4, MPEG ou MOV.';
+          return;
+        }
+        
+        // Vérifier l'extension du fichier
+        const fileName = file.name.toLowerCase();
+        const allowedExtensions = ['.mp4', '.mpeg', '.mov'];
+        const hasValidExtension = allowedExtensions.some(ext => fileName.endsWith(ext));
+        
+        if (!hasValidExtension) {
+          this.errorMessage = 'La vidéo doit avoir l\'extension .mp4, .mpeg ou .mov.';
+          return;
+        }
+        
+        // Vérifier la taille (max 50MB)
+        if (file.size > 50 * 1024 * 1024) {
+          this.errorMessage = 'La vidéo ne doit pas dépasser 50MB.';
+          return;
+        }
+        
+        this.editForm.video = file;
+        // Ne réinitialiser que les erreurs liées aux fichiers
+        if (this.errorMessage && (this.errorMessage.includes('vidéo') || this.errorMessage.includes('Vidéo') || this.errorMessage.includes('video'))) {
+          this.errorMessage = '';
+        }
+        console.log('Vidéo sélectionnée:', file.name, 'Type:', file.type);
+      }
+    };
+    input.click();
   }
 
-  onBusinessPlanSelected(event: any) {
-    const file = event.target.files?.[0];
-    if (file) {
-      this.editForm.businessPlan = file;
-    }
+  // Gestion de la sélection du business plan
+  onBusinessPlanSelect() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/pdf';
+    input.onchange = (event: any) => {
+      const file = event.target.files[0];
+      if (file) {
+        // Vérifier que c'est bien un PDF
+        if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+          this.errorMessage = 'Le business plan doit être un fichier PDF.';
+          return;
+        }
+        
+        // Vérifier la taille (max 10MB)
+        if (file.size > 10 * 1024 * 1024) {
+          this.errorMessage = 'Le business plan ne doit pas dépasser 10MB.';
+          return;
+        }
+        
+        this.editForm.businessPlan = file;
+        // Ne réinitialiser que les erreurs liées aux fichiers
+        if (this.errorMessage && (this.errorMessage.includes('business plan') || this.errorMessage.includes('Business plan') || this.errorMessage.includes('PDF'))) {
+          this.errorMessage = '';
+        }
+        console.log('Business plan sélectionné:', file.name);
+      }
+    };
+    input.click();
   }
 
   onSubmitEdit() {
     if (this.selectedProject) {
+      // Valider la date avant la soumission
+      if (this.editForm.launchedAt) {
+        const selectedDate = new Date(this.editForm.launchedAt);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        selectedDate.setHours(0, 0, 0, 0);
+        
+        if (selectedDate < today) {
+          this.errorMessage = 'La date sélectionnée ne peut pas être antérieure à aujourd\'hui.';
+          return;
+        }
+      }
+      
       this.isLoading = true;
       this.errorMessage = '';
 
       // Créer l'objet de mise à jour
       const updateData: ProjectUpdateRequest = {};
       
-      // Ajouter seulement les champs modifiés
-      if (this.editForm.name && this.editForm.name !== this.selectedProject.title) {
-        updateData.name = this.editForm.name;
+      // Ajouter seulement les champs modifiés (comparer avec les données originales)
+      const originalProject = this.selectedProjectRaw || {
+        name: this.selectedProject.title,
+        resume: this.selectedProject.projectSummary,
+        description: this.selectedProject.projectDescription,
+        domain: '',
+        objective: '',
+        websiteLink: '',
+        launchedAt: ''
+      };
+      
+      if (this.editForm.name && this.editForm.name.trim() !== originalProject.name) {
+        updateData.name = this.editForm.name.trim();
       }
-      if (this.editForm.resume) {
-        updateData.resume = this.editForm.resume;
+      if (this.editForm.resume && this.editForm.resume.trim() !== originalProject.resume) {
+        updateData.resume = this.editForm.resume.trim();
       }
-      if (this.editForm.description) {
-        updateData.description = this.editForm.description;
+      if (this.editForm.description && this.editForm.description.trim() !== originalProject.description) {
+        updateData.description = this.editForm.description.trim();
       }
-      if (this.editForm.domain) {
+      if (this.editForm.domain && this.editForm.domain !== originalProject.domain) {
         updateData.domain = this.editForm.domain;
       }
-      if (this.editForm.objective) {
-        updateData.objective = this.editForm.objective;
+      if (this.editForm.objective && this.editForm.objective.trim() !== originalProject.objective) {
+        updateData.objective = this.editForm.objective.trim();
       }
-      if (this.editForm.websiteLink) {
-        updateData.websiteLink = this.editForm.websiteLink;
+      if (this.editForm.websiteLink && this.editForm.websiteLink.trim() !== originalProject.websiteLink) {
+        updateData.websiteLink = this.editForm.websiteLink.trim();
       }
-      if (this.editForm.launchedAt) {
-        // Convertir la date au format LocalDateTime attendu par le backend
-        const date = new Date(this.editForm.launchedAt);
-        // Vérifier que la date est valide
-        if (!isNaN(date.getTime())) {
-          updateData.launchedAt = date.toISOString().slice(0, 19); // Format: "2025-10-30T00:00:00"
-        } else {
-          console.error('Date invalide:', this.editForm.launchedAt);
+      // Ne pas envoyer la date de début si le projet est validé
+      if (!this.isProjectValidated() && this.editForm.launchedAt) {
+        const formattedDate = this.formatDateForInput(this.editForm.launchedAt);
+        const originalDate = originalProject.launchedAt ? this.formatDateForInput(originalProject.launchedAt) : '';
+        if (formattedDate !== originalDate) {
+          // Convertir la date au format LocalDateTime attendu par le backend
+          const date = new Date(this.editForm.launchedAt);
+          // Vérifier que la date est valide
+          if (!isNaN(date.getTime())) {
+            updateData.launchedAt = date.toISOString().slice(0, 19); // Format: "2025-10-30T00:00:00"
+          } else {
+            console.error('Date invalide:', this.editForm.launchedAt);
+          }
         }
       }
       
@@ -482,5 +708,33 @@ export class Projet implements OnInit {
   // Méthode pour gérer les erreurs
   clearError() {
     this.errorMessage = '';
+  }
+
+  // Obtenir la date minimale (aujourd'hui)
+  getMinDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  // Valider que la date sélectionnée n'est pas inférieure à aujourd'hui
+  validateDate() {
+    if (this.editForm.launchedAt) {
+      const selectedDate = new Date(this.editForm.launchedAt);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Réinitialiser l'heure à minuit pour la comparaison
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+        return;
+      }
+    }
+    // Si la date est valide et qu'il y avait une erreur de date, la réinitialiser
+    if (this.errorMessage && this.errorMessage.includes('date')) {
+      this.errorMessage = '';
+    }
   }
 }

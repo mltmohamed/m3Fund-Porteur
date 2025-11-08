@@ -72,7 +72,7 @@ export interface CampaignResponse {
   startDate: string;
   endDate: string;
   campaignType: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
-  status: 'PENDING' | 'APPROVED' | 'IN_PROGRESS' | 'COMPLETED' | 'REJECTED';
+  status: 'PENDING' | 'APPROVED' | 'IN_PROGRESS' | 'COMPLETED' | 'FINISHED' | 'REJECTED';
   progress: number;
   fundsRaised: number;
   collaboratorCount: number;

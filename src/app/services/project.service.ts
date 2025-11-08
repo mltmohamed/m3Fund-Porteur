@@ -167,7 +167,19 @@ export class ProjectService {
 
   // Transformer les données du backend en format frontend
   transformProjectData(backendProject: ProjectResponse): Project {
-    const status = backendProject.isValidated ? 'APPROVED' : 'PENDING';
+    let status = backendProject.isValidated ? 'APPROVED' : 'PENDING';
+    
+    // Vérifier si la date de fin du projet (launchedAt) est dépassée
+    const now = new Date();
+    const projectEndDate = new Date(backendProject.launchedAt);
+    now.setHours(0, 0, 0, 0);
+    projectEndDate.setHours(0, 0, 0, 0);
+    
+    // Si la date de fin du projet est dépassée, marquer comme clôturé
+    if (projectEndDate < now) {
+      status = 'COMPLETED';
+    }
+    
     const images = (backendProject.imagesUrl || []).map(url => this.ensureAbsoluteUrl(url));
     const videoUrl = this.ensureAbsoluteUrl(backendProject.videoUrl || '');
     return {

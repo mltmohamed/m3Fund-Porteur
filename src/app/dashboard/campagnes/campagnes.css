@@ -618,9 +618,24 @@
   color: #2D2D2D;
 }
 
-.status-badge.finished {
+.status-badge.finished,
+.status-badge.clôturé,
+.status-badge.cloture {
   background: #2D2D2D;
   color: #FFFFFF;
+}
+
+.action-btn.disabled,
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.action-btn.edit-btn.disabled,
+.action-btn.edit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .status-badge i {

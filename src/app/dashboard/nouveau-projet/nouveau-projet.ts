@@ -169,6 +169,17 @@ export class NouveauProjet {
       return false;
     }
     
+    // Valider que la date de début n'est pas dans le passé
+    const startDateObj = new Date(this.startDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    startDateObj.setHours(0, 0, 0, 0);
+    
+    if (startDateObj < today) {
+      this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+      return false;
+    }
+    
     if (this.selectedImages.length === 0) {
       this.errorMessage = 'Veuillez sélectionner au moins une image.';
       return false;
@@ -288,6 +299,36 @@ export class NouveauProjet {
       }
     };
     input.click();
+  }
+
+  // Valider la date de début lors de la saisie
+  validateStartDate() {
+    if (this.startDate) {
+      const startDateObj = new Date(this.startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      startDateObj.setHours(0, 0, 0, 0);
+      
+      if (startDateObj < today) {
+        this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+        return false;
+      } else {
+        // Réinitialiser l'erreur si la date est valide
+        if (this.errorMessage && this.errorMessage.includes('date de début')) {
+          this.errorMessage = '';
+        }
+      }
+    }
+    return true;
+  }
+
+  // Obtenir la date minimale (aujourd'hui)
+  getMinDate(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   // Effacer les messages d'erreur

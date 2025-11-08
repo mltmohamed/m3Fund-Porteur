@@ -118,6 +118,26 @@ export class CampaignService {
       fundsDisplay = `${backendCampaign.fundsRaised.toLocaleString('fr-FR')} FCFA récoltés`;
     }
     
+    // Vérifier si la date de fin de la campagne est dépassée
+    let campaignStatus = backendCampaign.status;
+    const now = new Date();
+    const campaignEndDate = new Date(backendCampaign.endDate);
+    const campaignStartDate = new Date(backendCampaign.startDate);
+    now.setHours(0, 0, 0, 0);
+    campaignEndDate.setHours(0, 0, 0, 0);
+    campaignStartDate.setHours(0, 0, 0, 0);
+    
+    // Vérifier si la date de début est dans le passé (ne devrait jamais arriver, mais on vérifie quand même)
+    if (campaignStartDate < now) {
+      console.warn(`Campagne ${backendCampaign.id}: La date de début (${backendCampaign.startDate}) est dans le passé.`);
+      // On peut marquer la campagne comme ayant un problème, mais pour l'instant on laisse le statut tel quel
+    }
+    
+    // Si la date de fin est dépassée et que la campagne n'est pas déjà clôturée, marquer comme clôturée
+    if (campaignEndDate < now && campaignStatus !== 'COMPLETED' && campaignStatus !== 'FINISHED' && campaignStatus !== 'REJECTED') {
+      campaignStatus = 'COMPLETED';
+    }
+    
     return {
       id: backendCampaign.id,
       title: backendCampaign.title,
@@ -125,13 +145,13 @@ export class CampaignService {
       sector: 'SANTE', // TODO: Récupérer le secteur réel du projet
       collaborators: `${backendCampaign.collaboratorCount} ${collaboratorText}`,
       progress: Math.round(backendCampaign.progress),
-      status: this.getStatusLabel(backendCampaign.status),
-      statusIcon: this.getStatusIcon(backendCampaign.status),
+      status: this.getStatusLabel(campaignStatus),
+      statusIcon: this.getStatusIcon(campaignStatus),
       type: this.getCampaignTypeLabel(backendCampaign.campaignType),
       typeIcon: this.getCampaignTypeIcon(backendCampaign.campaignType),
       endDate: new Date(backendCampaign.endDate).toLocaleDateString('fr-FR'),
       creationDate: new Date(backendCampaign.createdAt).toLocaleDateString('fr-FR'),
-      statusDetail: backendCampaign.status,
+      statusDetail: campaignStatus,
       collaboratorCount: backendCampaign.collaboratorCount.toString(),
       campaignCount: backendCampaign.campaignCount.toString(),
       campaignSummary: backendCampaign.description && typeof backendCampaign.description === 'string' && backendCampaign.description.trim().length > 0 
@@ -179,6 +199,7 @@ export class CampaignService {
       'APPROVED': 'Validé',
       'IN_PROGRESS': 'En cours',
       'COMPLETED': 'Clôturé',
+      'FINISHED': 'Clôturé',
       'REJECTED': 'Rejeté'
     };
     return statusMap[status] || status;
@@ -190,6 +211,7 @@ export class CampaignService {
       'APPROVED': 'fas fa-check',
       'IN_PROGRESS': 'fas fa-circle-notch',
       'COMPLETED': 'fas fa-times-circle',
+      'FINISHED': 'fas fa-times-circle',
       'REJECTED': 'fas fa-times'
     };
     return iconMap[status] || 'fas fa-question';

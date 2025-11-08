@@ -135,7 +135,12 @@
                 class="form-input date-input" 
                 [(ngModel)]="startDate"
                 name="startDate"
+                [min]="getMinDate()"
+                (change)="validateStartDate()"
               >
+            </div>
+            <div *ngIf="errorMessage && errorMessage.includes('date de début')" class="error-message" style="color: red; margin-top: 5px; font-size: 0.875rem;">
+              {{ errorMessage }}
             </div>
           </div>
           
