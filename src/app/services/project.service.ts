@@ -130,9 +130,14 @@ export class ProjectService {
     return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/validated`);
   }
 
-  // Récupérer les statistiques des projets depuis le backend
+  // Récupérer les statistiques des projets depuis le backend (public)
   getProjectStats(): Observable<ProjectStats> {
     return this.http.get<ProjectStats>(`${this.API_URL}/public/projects/stats`);
+  }
+
+  // Récupérer les statistiques des projets de l'utilisateur connecté (privé)
+  getMyProjectStats(): Observable<ProjectStats> {
+    return this.http.get<ProjectStats>(`${this.API_URL}/projects/my-projects/stats`);
   }
 
   // Ancienne méthode (à garder pour compatibilité si nécessaire)
@@ -140,19 +145,34 @@ export class ProjectService {
     return this.http.get<ProjectSummary[]>(`${this.API_URL}/projects/summary`);
   }
 
-  // Rechercher des projets
+  // Rechercher des projets (public)
   searchProjects(searchTerm: string): Observable<ProjectResponse[]> {
     return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/search?q=${encodeURIComponent(searchTerm)}`);
   }
 
-  // Filtrer les projets par statut (validated ou pending)
+  // Rechercher des projets de l'utilisateur connecté (privé)
+  searchMyProjects(searchTerm: string): Observable<ProjectResponse[]> {
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/search?q=${encodeURIComponent(searchTerm)}`);
+  }
+
+  // Filtrer les projets par statut (public)
   filterProjectsByStatus(status: string): Observable<ProjectResponse[]> {
     return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/${status}`);
   }
 
-  // Filtrer les projets par secteur/domaine
+  // Filtrer les projets de l'utilisateur connecté par statut (privé)
+  filterMyProjectsByStatus(status: string): Observable<ProjectResponse[]> {
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/status/${status}`);
+  }
+
+  // Filtrer les projets par secteur/domaine (public)
   filterProjectsBySector(sector: string): Observable<ProjectResponse[]> {
     return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/domain/${sector}`);
+  }
+
+  // Filtrer les projets de l'utilisateur connecté par secteur/domaine (privé)
+  filterMyProjectsBySector(sector: string): Observable<ProjectResponse[]> {
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/domain/${sector}`);
   }
 
   // Récupérer les projets validés

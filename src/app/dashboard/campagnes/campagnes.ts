@@ -88,12 +88,12 @@ export class Campagnes implements OnInit {
     this.loadProjects();
   }
 
-  // Charger les campagnes depuis le backend
+  // Charger les campagnes depuis le backend (utilise maintenant l'endpoint privé)
   loadCampaigns() {
     this.isLoading = true;
     this.errorMessage = '';
     
-    this.campaignService.getCampaigns().subscribe({
+    this.campaignService.getMyCampaigns().subscribe({
       next: (backendCampaigns: CampaignResponse[]) => {
         console.log('Campagnes chargées du backend:', backendCampaigns);
         // Stocker les campagnes brutes dans une map pour accès rapide
@@ -122,9 +122,9 @@ export class Campagnes implements OnInit {
     });
   }
 
-  // Charger les statistiques des campagnes
+  // Charger les statistiques des campagnes (utilise maintenant l'endpoint privé)
   loadCampaignSummary() {
-    this.campaignService.getCampaignStats().subscribe({
+    this.campaignService.getMyCampaignStats().subscribe({
       next: (stats) => {
         this.summaryCards = this.campaignService.transformStatsToSummary(stats);
         console.log('Statistiques des campagnes chargées:', stats);
@@ -158,15 +158,16 @@ export class Campagnes implements OnInit {
     });
   }
 
-  // Charger les projets pour le filtre
+  // Charger les projets pour le filtre (utilise maintenant l'endpoint privé)
   loadProjects() {
-    this.projectService.getProjects().subscribe({
+    this.projectService.getMyProjects().subscribe({
       next: (projects: ProjectResponse[]) => {
         // Stocker les projets dans une map pour accès rapide
         this.backendProjectsMap.clear();
         projects.forEach(project => {
           this.backendProjectsMap.set(project.id, project);
         });
+        // Filtrer pour ne garder que les projets du porteur connecté
         this.projectOptions = [
           { value: '', label: 'Tous les projets' },
           ...projects.map(project => ({
@@ -207,7 +208,7 @@ export class Campagnes implements OnInit {
 
   onSearch() {
     if (this.searchTerm.trim()) {
-      this.campaignService.searchCampaigns(this.searchTerm).subscribe({
+      this.campaignService.searchMyCampaigns(this.searchTerm).subscribe({
         next: (backendCampaigns: CampaignResponse[]) => {
           this.campaigns = backendCampaigns.map(campaign => 
             this.campaignService.transformCampaignData(campaign)
@@ -226,7 +227,7 @@ export class Campagnes implements OnInit {
   onProjectChange() {
     if (this.selectedProject) {
       const projectId = parseInt(this.selectedProject);
-      this.campaignService.filterCampaignsByProject(projectId).subscribe({
+      this.campaignService.filterMyCampaignsByProject(projectId).subscribe({
         next: (backendCampaigns: CampaignResponse[]) => {
           this.campaigns = backendCampaigns.map(campaign => 
             this.campaignService.transformCampaignData(campaign)
@@ -244,7 +245,7 @@ export class Campagnes implements OnInit {
 
   onStatusChange() {
     if (this.selectedStatus) {
-      this.campaignService.filterCampaignsByStatus(this.selectedStatus).subscribe({
+      this.campaignService.filterMyCampaignsByStatus(this.selectedStatus).subscribe({
         next: (backendCampaigns: CampaignResponse[]) => {
           this.campaigns = backendCampaigns.map(campaign => 
             this.campaignService.transformCampaignData(campaign)

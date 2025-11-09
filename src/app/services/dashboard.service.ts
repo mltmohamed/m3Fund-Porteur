@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
 import { DashboardStats, DashboardSummary, RecentActivity, DashboardData } from '../interfaces/dashboard.interface';
+import { ProjectService } from './project.service';
+import { CampaignService } from './campaign.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,15 +11,19 @@ import { DashboardStats, DashboardSummary, RecentActivity, DashboardData } from 
 export class DashboardService {
   private readonly API_URL = 'http://localhost:7878/api/v1';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private projectService: ProjectService,
+    private campaignService: CampaignService
+  ) {}
 
   // Récupérer les statistiques du dashboard
   getDashboardStats(): Observable<DashboardStats> {
-    // Utiliser les endpoints existants pour construire les statistiques
+    // Utiliser les endpoints privés pour construire les statistiques
     return new Observable(observer => {
       forkJoin({
-        projects: this.http.get<any[]>(`${this.API_URL}/public/projects`),
-        campaigns: this.http.get<any[]>(`${this.API_URL}/public/campaigns`)
+        projects: this.projectService.getMyProjects(),
+        campaigns: this.campaignService.getMyCampaigns()
       }).subscribe({
         next: (data) => {
           const stats: DashboardStats = {
@@ -26,9 +32,9 @@ export class DashboardService {
             totalFunds: this.calculateTotalFunds(data.projects, data.campaigns),
             totalUsers: 1, // L'utilisateur connecté
             activeProjects: data.projects.filter(p => p.isValidated === true).length,
-            activeCampaigns: data.campaigns.filter(c => c.state === 'ACTIVE').length,
+            activeCampaigns: data.campaigns.filter(c => c.status === 'IN_PROGRESS').length,
             completedProjects: data.projects.filter(p => !p.isValidated).length,
-            completedCampaigns: data.campaigns.filter(c => c.state === 'COMPLETED').length
+            completedCampaigns: data.campaigns.filter(c => c.status === 'COMPLETED' || c.status === 'FINISHED').length
           };
           observer.next(stats);
           observer.complete();
@@ -54,12 +60,12 @@ export class DashboardService {
 
   // Récupérer les données complètes du dashboard
   getDashboardData(): Observable<DashboardData> {
-    // Utiliser les endpoints existants pour construire les données du dashboard
+    // Utiliser les endpoints privés pour construire les données du dashboard
     return new Observable(observer => {
-      // Appeler les endpoints existants en parallèle
+      // Appeler les endpoints privés en parallèle
       forkJoin({
-        projects: this.http.get<any[]>(`${this.API_URL}/public/projects`),
-        campaigns: this.http.get<any[]>(`${this.API_URL}/public/campaigns`),
+        projects: this.projectService.getMyProjects(),
+        campaigns: this.campaignService.getMyCampaigns(),
         user: this.http.get<any>(`${this.API_URL}/users/me`)
       }).subscribe({
         next: (data) => {
@@ -71,9 +77,9 @@ export class DashboardService {
               totalFunds: this.calculateTotalFunds(data.projects, data.campaigns),
               totalUsers: 1, // L'utilisateur connecté
               activeProjects: data.projects.filter(p => p.isValidated === true).length,
-              activeCampaigns: data.campaigns.filter(c => c.state === 'ACTIVE').length,
+              activeCampaigns: data.campaigns.filter(c => c.status === 'IN_PROGRESS').length,
               completedProjects: data.projects.filter(p => !p.isValidated).length,
-              completedCampaigns: data.campaigns.filter(c => c.state === 'COMPLETED').length
+              completedCampaigns: data.campaigns.filter(c => c.status === 'COMPLETED' || c.status === 'FINISHED').length
             },
             recentActivities: this.buildRecentActivities(data.projects, data.campaigns),
             topProjects: data.projects.slice(0, 3),
@@ -96,8 +102,8 @@ export class DashboardService {
   getRecentActivities(): Observable<RecentActivity[]> {
     return new Observable(observer => {
       forkJoin({
-        projects: this.http.get<any[]>(`${this.API_URL}/public/projects`),
-        campaigns: this.http.get<any[]>(`${this.API_URL}/public/campaigns`)
+        projects: this.projectService.getMyProjects(),
+        campaigns: this.campaignService.getMyCampaigns()
       }).subscribe({
         next: (data) => {
           const activities = this.buildRecentActivities(data.projects, data.campaigns);
@@ -113,14 +119,14 @@ export class DashboardService {
     });
   }
 
-  // Récupérer les projets les plus populaires
+  // Récupérer les projets les plus populaires (privé)
   getTopProjects(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.API_URL}/public/projects`);
+    return this.projectService.getMyProjects();
   }
 
-  // Récupérer les campagnes les plus populaires
+  // Récupérer les campagnes les plus populaires (privé)
   getTopCampaigns(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.API_URL}/public/campaigns`);
+    return this.campaignService.getMyCampaigns();
   }
 
   // Transformer les statistiques en cartes de résumé
@@ -270,10 +276,10 @@ export class DashboardService {
       activities.push({
         id: campaign.id,
         type: 'campaign',
-        title: `Nouvelle campagne pour: ${campaign.projectResponse?.name || 'Projet'}`,
-        description: `Une campagne de type ${campaign.type} a été lancée`,
-        timestamp: campaign.launchedAt || new Date().toISOString(),
-        status: campaign.state,
+        title: `Nouvelle campagne: ${campaign.title || 'Campagne'}`,
+        description: `Une campagne de type ${campaign.campaignType || 'N/A'} a été lancée`,
+        timestamp: campaign.startDate || campaign.createdAt || new Date().toISOString(),
+        status: campaign.status,
         icon: 'fas fa-bullhorn'
       });
     });

@@ -46,10 +46,10 @@ export class Projet implements OnInit {
     this.isLoading = true;
     this.errorMessage = '';
     
-    // Récupérer les projets et les campagnes en parallèle
+    // Récupérer les projets et les campagnes en parallèle (utilise maintenant les endpoints privés)
     forkJoin({
-      projects: this.projectService.getMyProjects(), // Utiliser getMyProjects pour obtenir les données complètes
-      campaigns: this.campaignService.getCampaigns()
+      projects: this.projectService.getMyProjects(), // Endpoint privé - seulement les projets du porteur
+      campaigns: this.campaignService.getMyCampaigns() // Endpoint privé - seulement les campagnes du porteur
     }).subscribe({
       next: ({ projects: backendProjects, campaigns: backendCampaigns }) => {
         // Stocker les projets bruts dans une map pour accès rapide
@@ -124,7 +124,7 @@ export class Projet implements OnInit {
 
   // Charger les statistiques des projets
   loadProjectSummary() {
-    this.projectService.getProjectStats().subscribe({
+    this.projectService.getMyProjectStats().subscribe({
       next: (stats) => {
         this.summaryCards = this.projectService.transformStatsToSummary(stats);
         console.log('Statistiques des projets chargées:', stats);
@@ -277,7 +277,7 @@ export class Projet implements OnInit {
 
   onSearch() {
     if (this.searchTerm.trim()) {
-      this.projectService.searchProjects(this.searchTerm).subscribe({
+      this.projectService.searchMyProjects(this.searchTerm).subscribe({
         next: (backendProjects: ProjectResponse[]) => {
           this.projects = backendProjects.map(project => 
             this.projectService.transformProjectData(project)
@@ -295,7 +295,7 @@ export class Projet implements OnInit {
 
   onStatusChange() {
     if (this.selectedStatus) {
-      this.projectService.filterProjectsByStatus(this.selectedStatus).subscribe({
+      this.projectService.filterMyProjectsByStatus(this.selectedStatus).subscribe({
         next: (backendProjects: ProjectResponse[]) => {
           this.projects = backendProjects.map(project => 
             this.projectService.transformProjectData(project)
@@ -313,7 +313,7 @@ export class Projet implements OnInit {
 
   onSectorChange() {
     if (this.selectedSector) {
-      this.projectService.filterProjectsBySector(this.selectedSector).subscribe({
+      this.projectService.filterMyProjectsBySector(this.selectedSector).subscribe({
         next: (backendProjects: ProjectResponse[]) => {
           this.projects = backendProjects.map(project => 
             this.projectService.transformProjectData(project)

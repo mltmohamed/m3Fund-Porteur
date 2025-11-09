@@ -80,7 +80,9 @@ export class Projects implements OnInit {
   }
 
   loadRecentProjects() {
-    this.projectService.getProjects().subscribe({
+    // Utiliser getMyProjects() pour récupérer uniquement les projets du porteur connecté
+    // et filtrer pour ne garder que les projets validés
+    this.projectService.getMyProjects().subscribe({
       next: (backendProjects) => {
         const validatedProjects = backendProjects.filter(project => project.isValidated);
         this.projects = validatedProjects.slice(0, 2).map(project => 

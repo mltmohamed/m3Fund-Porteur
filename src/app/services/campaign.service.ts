@@ -17,11 +17,17 @@ export class CampaignService {
 
   constructor(private http: HttpClient) {}
 
-  // Récupérer toutes les campagnes
+  // Récupérer toutes les campagnes (ENDPOINT PUBLIC - pour les contributeurs)
   getCampaigns(): Observable<CampaignResponse[]> {
     // Ajouter un timestamp pour éviter le cache
     const timestamp = new Date().getTime();
     return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/dashboard?t=${timestamp}`);
+  }
+
+  // Récupérer les campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
+  getMyCampaigns(): Observable<CampaignResponse[]> {
+    const timestamp = new Date().getTime();
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/my-campaigns?t=${timestamp}`);
   }
 
   // Récupérer les campagnes actives (en cours)
@@ -54,19 +60,34 @@ export class CampaignService {
     return this.http.get<CampaignSummary[]>(`${this.API_URL}/campaigns/summary`);
   }
 
-  // Rechercher des campagnes
+  // Rechercher des campagnes (ENDPOINT PUBLIC - pour les contributeurs)
   searchCampaigns(searchTerm: string): Observable<CampaignResponse[]> {
     return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/search?q=${encodeURIComponent(searchTerm)}`);
   }
 
-  // Filtrer les campagnes par projet
+  // Rechercher les campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
+  searchMyCampaigns(searchTerm: string): Observable<CampaignResponse[]> {
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/my-campaigns/search?q=${encodeURIComponent(searchTerm)}`);
+  }
+
+  // Filtrer les campagnes par projet (ENDPOINT PUBLIC - pour les contributeurs)
   filterCampaignsByProject(projectId: number): Observable<CampaignResponse[]> {
     return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/project/${projectId}`);
   }
 
-  // Filtrer les campagnes par statut
+  // Filtrer les campagnes du porteur par projet (ENDPOINT PRIVÉ)
+  filterMyCampaignsByProject(projectId: number): Observable<CampaignResponse[]> {
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/my-campaigns/project/${projectId}`);
+  }
+
+  // Filtrer les campagnes par statut (ENDPOINT PUBLIC - pour les contributeurs)
   filterCampaignsByStatus(status: string): Observable<CampaignResponse[]> {
     return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/status/${status}`);
+  }
+
+  // Filtrer les campagnes du porteur par statut (ENDPOINT PRIVÉ)
+  filterMyCampaignsByStatus(status: string): Observable<CampaignResponse[]> {
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/my-campaigns/status/${status}`);
   }
 
   // Filtrer les campagnes par type
@@ -74,9 +95,14 @@ export class CampaignService {
     return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/type/${type}`);
   }
 
-  // Récupérer les statistiques des campagnes
+  // Récupérer les statistiques des campagnes (ENDPOINT PUBLIC - pour les contributeurs)
   getCampaignStats(): Observable<any> {
     return this.http.get<any>(`${this.API_URL}/public/campaigns/stats`);
+  }
+
+  // Récupérer les statistiques des campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
+  getMyCampaignStats(): Observable<any> {
+    return this.http.get<any>(`${this.API_URL}/campaigns/my-campaigns/stats`);
   }
 
   // Transformer les statistiques en cartes de résumé
