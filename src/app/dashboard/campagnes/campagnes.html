@@ -124,10 +124,10 @@
           <button 
             type="button" 
             class="action-btn edit-btn" 
-            [class.disabled]="isCampaignClosed(campaign)"
-            [disabled]="isCampaignClosed(campaign)"
-            (click)="!isCampaignClosed(campaign) && (campaign.type === 'Don' ? openEditDonModal(campaign, $event) : campaign.type === 'Benevolat' ? openEditBenevolatModal(campaign, $event) : openEditModal(campaign, $event))" 
-            [title]="isCampaignClosed(campaign) ? 'Cette campagne est clôturée et ne peut plus être modifiée' : 'Modifier'">
+            [class.disabled]="!canEditCampaign(campaign)"
+            [disabled]="!canEditCampaign(campaign)"
+            (click)="canEditCampaign(campaign) && (campaign.type === 'Don' ? openEditDonModal(campaign, $event) : campaign.type === 'Benevolat' ? openEditBenevolatModal(campaign, $event) : openEditModal(campaign, $event))" 
+            [title]="!canEditCampaign(campaign) ? (isCampaignClosed(campaign) ? 'Cette campagne est clôturée et ne peut plus être modifiée' : isCampaignInProgress(campaign) ? 'Cette campagne est en cours et ne peut plus être modifiée' : 'Modification non autorisée') : 'Modifier'">
             <i class="fas fa-pencil-alt"></i>
           </button>
         </div>

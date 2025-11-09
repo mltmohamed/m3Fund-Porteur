@@ -189,6 +189,17 @@ export class Campagnes implements OnInit {
     return status === 'COMPLETED' || status === 'FINISHED' || status === 'Clôturé' || status === 'clôturé';
   }
 
+  // Vérifier si une campagne est en cours (ne peut plus être modifiée)
+  isCampaignInProgress(campaign: Campaign): boolean {
+    const status = campaign.statusDetail || campaign.status;
+    return status === 'IN_PROGRESS' || status === 'En cours' || status === 'en cours';
+  }
+
+  // Vérifier si une campagne peut être modifiée
+  canEditCampaign(campaign: Campaign): boolean {
+    return !this.isCampaignClosed(campaign) && !this.isCampaignInProgress(campaign);
+  }
+
   // Vérifier si une campagne est validée (ne peut plus modifier la date de début)
   isCampaignValidated(): boolean {
     if (!this.selectedCampaignRaw) {
@@ -281,10 +292,15 @@ export class Campagnes implements OnInit {
       event.stopImmediatePropagation();
     }
     
-    // Vérifier si la campagne est clôturée
-    if (this.isCampaignClosed(campaign)) {
-      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
-      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+    // Vérifier si la campagne peut être modifiée
+    if (!this.canEditCampaign(campaign)) {
+      if (this.isCampaignClosed(campaign)) {
+        console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+        this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+      } else if (this.isCampaignInProgress(campaign)) {
+        console.warn('Tentative de modification d\'une campagne en cours - bloquée');
+        this.errorMessage = 'Cette campagne est en cours et ne peut plus être modifiée.';
+      }
       return;
     }
     
@@ -467,10 +483,15 @@ export class Campagnes implements OnInit {
       event.stopImmediatePropagation();
     }
     
-    // Vérifier si la campagne est clôturée
-    if (this.isCampaignClosed(campaign)) {
-      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
-      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+    // Vérifier si la campagne peut être modifiée
+    if (!this.canEditCampaign(campaign)) {
+      if (this.isCampaignClosed(campaign)) {
+        console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+        this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+      } else if (this.isCampaignInProgress(campaign)) {
+        console.warn('Tentative de modification d\'une campagne en cours - bloquée');
+        this.errorMessage = 'Cette campagne est en cours et ne peut plus être modifiée.';
+      }
       return;
     }
     
@@ -634,10 +655,15 @@ export class Campagnes implements OnInit {
       event.stopImmediatePropagation();
     }
     
-    // Vérifier si la campagne est clôturée
-    if (this.isCampaignClosed(campaign)) {
-      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
-      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+    // Vérifier si la campagne peut être modifiée
+    if (!this.canEditCampaign(campaign)) {
+      if (this.isCampaignClosed(campaign)) {
+        console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+        this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
+      } else if (this.isCampaignInProgress(campaign)) {
+        console.warn('Tentative de modification d\'une campagne en cours - bloquée');
+        this.errorMessage = 'Cette campagne est en cours et ne peut plus être modifiée.';
+      }
       return;
     }
     

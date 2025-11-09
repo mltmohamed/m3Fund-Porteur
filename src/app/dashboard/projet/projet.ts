@@ -22,6 +22,7 @@ export class Projet implements OnInit {
   selectedProject: Project | null = null;
   selectedProjectRaw: ProjectResponse | null = null; // Stocker les données brutes du backend
   backendProjectsMap: Map<number, ProjectResponse> = new Map(); // Map pour stocker les projets bruts par ID
+  backendCampaignsMap: Map<number, CampaignResponse[]> = new Map(); // Map pour stocker les campagnes par projectId
   isLoading = false;
   errorMessage = '';
 
@@ -56,6 +57,15 @@ export class Projet implements OnInit {
         this.backendProjectsMap.clear();
         backendProjects.forEach(project => {
           this.backendProjectsMap.set(project.id, project);
+        });
+        
+        // Stocker les campagnes par projet dans une map pour accès rapide
+        this.backendCampaignsMap.clear();
+        backendProjects.forEach(project => {
+          const projectCampaigns = backendCampaigns.filter(
+            campaign => campaign.projectId === project.id
+          );
+          this.backendCampaignsMap.set(project.id, projectCampaigns);
         });
         
         // Transformer les projets et enrichir avec les données des campagnes
@@ -96,11 +106,12 @@ export class Projet implements OnInit {
           transformedProject.targetBudget = `${totalTargetBudget.toLocaleString('fr-FR')} FCFA`;
           
           // Calculer la valeur nette totale (pour les investissements)
-          const totalNetValue = projectCampaigns
-            .filter(campaign => campaign.campaignType === 'INVESTMENT')
-            .reduce((sum, campaign) => sum + (campaign.netValue || 0), 0);
+          // Pour le moment, laisser à 0 comme demandé
+          // const totalNetValue = projectCampaigns
+          //   .filter(campaign => campaign.campaignType === 'INVESTMENT')
+          //   .reduce((sum, campaign) => sum + (campaign.netValue || 0), 0);
           
-          transformedProject.netValue = `${totalNetValue.toLocaleString('fr-FR')} FCFA`;
+          transformedProject.netValue = '0 FCFA';
           
           // Calculer le nombre total de collaborateurs uniques
           const uniqueCollaborators = new Set<number>();
@@ -331,6 +342,112 @@ export class Projet implements OnInit {
 
   openProjectModal(project: Project) {
     this.selectedProject = project;
+    
+    // Récupérer les campagnes du projet
+    const projectCampaigns = this.backendCampaignsMap.get(project.id) || [];
+    
+    console.log('Campagnes du projet:', projectCampaigns);
+    console.log('Statuts des campagnes:', projectCampaigns.map(c => ({ 
+      id: c.id, 
+      type: c.campaignType, 
+      status: c.status,
+      startDate: c.startDate,
+      endDate: c.endDate,
+      shareOffered: c.shareOffered,
+      targetBudget: c.targetBudget,
+      fundsRaised: c.fundsRaised
+    })));
+    
+    // Filtrer les campagnes d'investissement qui sont validées ou en cours
+    // Une campagne est "validée ou en cours" si elle a le statut IN_PROGRESS
+    // On n'inclut QUE les campagnes avec le statut IN_PROGRESS (validées et en cours)
+    // Les campagnes PENDING (non validées) ne sont PAS incluses, même si elles sont actives
+    const investmentCampaigns = projectCampaigns.filter(campaign => {
+      // Ne garder que les campagnes d'investissement
+      if (campaign.campaignType !== 'INVESTMENT') {
+        return false;
+      }
+      
+      // Inclure uniquement les campagnes avec le statut IN_PROGRESS (validées et en cours)
+      // Exclure toutes les autres (PENDING, FINISHED, COMPLETED, REJECTED, etc.)
+      return campaign.status === 'IN_PROGRESS';
+    });
+    
+    console.log('Campagnes d\'investissement filtrées:', investmentCampaigns.map(c => ({
+      id: c.id,
+      status: c.status,
+      shareOffered: c.shareOffered,
+      targetBudget: c.targetBudget,
+      fundsRaised: c.fundsRaised
+    })));
+    console.log('Nombre de campagnes d\'investissement:', investmentCampaigns.length);
+    
+    // Calculer les totaux avec seulement les campagnes d'investissement validées ou en cours
+    const totalSharesSold = investmentCampaigns.reduce(
+      (sum, campaign) => sum + (campaign.shareOffered || 0), 
+      0
+    );
+    
+    const totalTargetBudget = investmentCampaigns.reduce(
+      (sum, campaign) => sum + (campaign.targetBudget || 0), 
+      0
+    );
+    
+    const totalFundsRaised = investmentCampaigns.reduce(
+      (sum, campaign) => sum + (campaign.fundsRaised || 0), 
+      0
+    );
+    
+    console.log('Totaux calculés:', { 
+      totalSharesSold, 
+      totalTargetBudget, 
+      totalFundsRaised,
+      nombreCampagnes: investmentCampaigns.length 
+    });
+    
+    // Mettre à jour les valeurs affichées dans le modal
+    if (this.selectedProject) {
+      console.log('Mise à jour du projet sélectionné avec les totaux');
+      // Calculer la date de fin (la date de fin la plus récente des campagnes)
+      let maxEndDate: Date | null = null;
+      
+      for (const campaign of projectCampaigns) {
+        if (campaign.endDate) {
+          try {
+            const endDate = new Date(campaign.endDate);
+            if (!isNaN(endDate.getTime())) {
+              if (maxEndDate === null || endDate.getTime() > maxEndDate.getTime()) {
+                maxEndDate = endDate;
+              }
+            }
+          } catch (e) {
+            console.warn('Erreur lors de la conversion de la date:', campaign.endDate);
+          }
+        }
+      }
+      
+      // Ajouter la date de fin au projet pour l'affichage
+      if (maxEndDate) {
+        const formattedDate = maxEndDate.toLocaleDateString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+        this.selectedProject.endDate = formattedDate;
+      } else {
+        this.selectedProject.endDate = 'N/A';
+      }
+      
+      // Mettre à jour les totaux dans le projet pour l'affichage
+      this.selectedProject.shareOffered = totalSharesSold > 0 
+        ? `${totalSharesSold.toFixed(2)}%` 
+        : '0%';
+      this.selectedProject.targetBudget = `${totalTargetBudget.toLocaleString('fr-FR')} FCFA`;
+      this.selectedProject.fundsRaised = `${totalFundsRaised.toLocaleString('fr-FR')} FCFA`;
+      // Laisser la valeur nette à 0 pour le moment
+      this.selectedProject.netValue = '0 FCFA';
+    }
+    
     this.showModal = true;
   }
 
