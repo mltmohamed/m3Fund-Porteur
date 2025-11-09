@@ -1,15 +1,16 @@
 .header {
   background-color: #000000;
-  padding: 1.2rem 2rem;
+  padding: 1.2rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.2rem;
+  gap: 1rem;
   width: 100%;
   border-top-left-radius: 35px;
   position: relative;
   transition: all 0.3s ease;
   flex: 1;
+  overflow: visible;
 }
 
 .campaign-btn {
@@ -24,6 +25,9 @@
   transition: all 0.3s ease;
   transform: translateY(0);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  flex: 0 0 auto;
+  white-space: nowrap;
+  z-index: 1;
 }
 
 .campaign-btn:hover {
@@ -41,25 +45,31 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  flex: 1;
-  max-width: 200px;
   font-size: 0.95rem;
   transition: all 0.3s ease;
-  transform: translateY(0);
+  transform: translate(-50%, 0);
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  white-space: nowrap;
+  position: absolute;
+  left: 50%;
+  z-index: 1;
 }
 
 .new-project-btn:hover {
   background-color: #FFD700;
   color: #333;
-  transform: translateY(-2px);
+  transform: translate(-50%, -2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 .header-icons {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem; /* Augmenter l'espace entre les trois icônes */
+  margin-left: auto; /* Aligner les icônes à droite */
+  flex-shrink: 0;
+  margin-right: 2.5rem; /* Plus d'espace entre "Se déconnecter" et la fin du navbar */
+  z-index: 1;
 }
 
 .notification-container {
@@ -263,9 +273,9 @@
 }
 
 .logout-btn {
-  width: 40px;
+  min-width: 40px;
   height: 40px;
-  border-radius: 50%;
+  border-radius: 20px;
   background-color: #dc3545;
   color: white;
   border: 2px solid #dc3545;
@@ -274,80 +284,157 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  gap: 0.5rem;
+  padding: 0 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .logout-btn:hover {
   background-color: #c82333;
   border-color: #c82333;
-  transform: scale(1.1);
+  transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
 }
 
+.logout-btn i {
+  color: white;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.logout-text {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
 /* Tablettes */
-@media (max-width: 1024px) {
+@media (max-width: 1024px) and (min-width: 769px) {
   .header {
-    padding: 1rem 1.5rem;
-    gap: 1rem;
+    padding: 1rem 0.8rem;
+    padding-right: 1.5rem;
+    gap: 0.8rem;
+    overflow: visible;
   }
   
-  .campaign-btn,
-  .new-project-btn {
+  .campaign-btn {
     padding: 0.7rem 1.2rem;
     font-size: 0.9rem;
   }
-  
+
   .new-project-btn {
-    max-width: 180px;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+  }
+
+  .header-icons {
+    margin-left: auto; /* Aligner les icônes à droite */
+    gap: 0.7rem; /* Augmenter l'espace entre les icônes */
+    margin-right: 0;
+    padding-right: 0.5rem;
+  }
+
+  /* Masquer le texte sur tablettes et petits écrans */
+  .logout-text {
+    display: none;
+  }
+  
+  .logout-btn {
+    width: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.7);
   }
 }
 
 /* Mobiles */
 @media (max-width: 768px) {
   .header {
-    padding: 0.8rem 1rem;
-    gap: 0.6rem;
-    flex-wrap: wrap;
+    padding: 0.7rem 0.5rem;
+    padding-left: 2.8rem; /* Réduire l'espace pour le bouton hamburger */
+    padding-right: 1rem; /* Augmenter le padding à droite pour le logout */
+    gap: 0.25rem;
+    flex-wrap: nowrap;
     width: 100%;
     border-top-left-radius: 0;
     margin-left: 0;
-    padding-left: 3.5rem; /* Espace pour le bouton hamburger */
+    overflow: visible !important;
+    justify-content: space-between;
   }
   
-  .campaign-btn,
+  .campaign-btn {
+    padding: 0.5rem 0.5rem;
+    font-size: 0.68rem;
+    flex: 0 0 auto;
+    z-index: 1;
+    max-width: 75px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
   .new-project-btn {
-    padding: 0.6rem 0.9rem;
-    font-size: 0.8rem;
-    flex: 1;
-    min-width: 0;
+    padding: 0.5rem 0.5rem;
+    font-size: 0.68rem;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  
-  .new-project-btn {
-    max-width: none;
-    flex: 1;
+
+  .new-project-btn:hover {
+    transform: translate(-50%, 0);
   }
-  
+
   .header-icons {
-    gap: 0.6rem;
+    gap: 0.35rem;
     flex-shrink: 0;
+    margin-left: auto;
+    margin-right: 0;
+    padding-right: 0;
+    min-width: calc(30px * 3 + 0.35rem * 2); /* Largeur minimale pour 3 icônes de 30px */
+    z-index: 2;
   }
   
   .notification-bell,
   .profile-pic {
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
   }
   
   .notification-bell i,
   .profile-pic img {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+  }
+
+  /* Masquer le texte sur mobiles */
+  .logout-text {
+    display: none;
   }
   
   .logout-btn {
-    width: 35px;
-    height: 35px;
-    font-size: 0.9rem;
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(220, 53, 69, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
   
   .notification-modal {
@@ -358,42 +445,78 @@
   }
 }
 
-/* Petits mobiles */
+/* Petits mobiles (iPhone XR 414px, iPhone SE 375px, iPhone 14 Pro Max 430px) */
 @media (max-width: 480px) {
   .header {
-    padding: 0.6rem 0.8rem;
-    gap: 0.5rem;
+    padding: 0.6rem 0.3rem;
+    padding-left: 2.6rem; /* Réduire encore plus */
+    padding-right: 0.9rem; /* Augmenter le padding à droite pour le logout */
+    gap: 0.12rem;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    overflow: visible !important;
   }
   
-  .campaign-btn,
+  .campaign-btn {
+    padding: 0.45rem 0.35rem;
+    font-size: 0.58rem;
+    flex: 0 0 auto;
+    z-index: 1;
+    max-width: 65px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
   .new-project-btn {
-    padding: 0.5rem 0.7rem;
-    font-size: 0.7rem;
-    flex: 1;
+    padding: 0.45rem 0.35rem;
+    font-size: 0.58rem;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  
-  .new-project-btn {
-    max-width: none;
-  }
-  
+
   .header-icons {
-    gap: 0.5rem;
+    gap: 0.2rem;
+    margin-left: auto;
+    margin-right: 0;
+    padding-right: 0;
+    min-width: calc(25px * 3 + 0.2rem * 2); /* Largeur minimale pour 3 icônes de 25px */
+    z-index: 2;
+    flex-shrink: 0;
   }
   
   .notification-bell,
   .profile-pic {
-    width: 32px;
-    height: 32px;
+    width: 25px;
+    height: 25px;
+    flex-shrink: 0;
   }
   
   .notification-bell i {
-    font-size: 0.85rem;
+    font-size: 0.68rem;
+  }
+
+  /* Masquer le texte sur petits mobiles */
+  .logout-text {
+    display: none;
   }
   
   .logout-btn {
-    width: 32px;
-    height: 32px;
-    font-size: 0.8rem;
+    width: 25px;
+    min-width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 0.68rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(220, 53, 69, 0.9);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
   
   .notification-modal {
@@ -404,29 +527,125 @@
   }
 }
 
-/* Très petits mobiles */
-@media (max-width: 360px) {
+/* iPhone SE, XR et 14 Pro Max spécifique */
+@media (max-width: 430px) {
   .header {
-    padding: 0.5rem 0.6rem;
-    gap: 0.4rem;
+    padding: 0.55rem 0.2rem;
+    padding-left: 2.5rem;
+    padding-right: 1rem; /* Augmenter encore plus le padding à droite pour le logout */
+    gap: 0.08rem;
+    overflow: visible !important;
   }
   
-  .campaign-btn,
+  .campaign-btn {
+    padding: 0.4rem 0.3rem;
+    font-size: 0.55rem;
+    max-width: 60px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
   .new-project-btn {
-    padding: 0.4rem 0.6rem;
-    font-size: 0.65rem;
+    padding: 0.4rem 0.3rem;
+    font-size: 0.55rem;
+    max-width: 85px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .header-icons {
+    gap: 0.18rem;
+    margin-right: 0;
+    padding-right: 0;
+    min-width: calc(23px * 3 + 0.18rem * 2); /* Largeur minimale pour 3 icônes de 23px */
+    flex-shrink: 0;
   }
   
   .notification-bell,
+  .profile-pic {
+    width: 23px;
+    height: 23px;
+    flex-shrink: 0;
+  }
+  
+  .notification-bell i {
+    font-size: 0.65rem;
+  }
+  
+  .logout-btn {
+    width: 23px;
+    min-width: 23px;
+    height: 23px;
+    font-size: 0.65rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(220, 53, 69, 1);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Très petits mobiles */
+@media (max-width: 360px) {
+  .header {
+    padding: 0.5rem 0.2rem;
+    padding-left: 2.4rem;
+    padding-right: 0.7rem;
+    gap: 0.08rem;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+  
+  .campaign-btn {
+    padding: 0.35rem 0.3rem;
+    font-size: 0.55rem;
+    flex: 0 0 auto;
+    z-index: 1;
+    max-width: 60px;
+  }
+  
+  .new-project-btn {
+    padding: 0.35rem 0.3rem;
+    font-size: 0.55rem;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    max-width: 85px;
+  }
+
+  .header-icons {
+    gap: 0.15rem;
+    margin-left: auto;
+    margin-right: 0;
+    padding-right: 0;
+    min-width: fit-content;
+    z-index: 2;
+  }
+
+  .notification-bell,
   .profile-pic,
   .logout-btn {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+
+  /* Masquer le texte sur très petits mobiles */
+  .logout-text {
+    display: none;
+  }
+
+  .logout-btn {
+    min-width: 22px;
+    border-radius: 50%;
+    padding: 0;
+    box-shadow: 0 2px 8px rgba(220, 53, 69, 0.9);
   }
   
   .notification-bell i,
   .logout-btn i {
-    font-size: 0.75rem;
+    font-size: 0.65rem;
   }
 }
 
