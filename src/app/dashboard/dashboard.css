@@ -56,27 +56,33 @@ html {
 /* Mobiles */
 @media (max-width: 768px) {
   .dashboard-container {
-    flex-direction: column;
-    height: auto;
+    flex-direction: row;
+    height: 100vh;
     min-height: 100vh;
+    position: relative;
+  }
+  
+  .dashboard-container .sidebar {
+    /* La sidebar est maintenant fixe et gérée par le menu hamburger dans sidebar.css */
+    /* Elle est cachée par défaut avec transform: translateX(-100%) */
   }
   
   .main-content {
     width: 100%;
     flex: 1;
+    margin-left: 0;
   }
   
   .content-area {
-    position: relative;
-    top: 0;
+    position: absolute;
+    top: 70px; /* Hauteur du header sur mobile */
     left: 0;
     right: 0;
     bottom: 0;
     margin: 0;
     padding: 1rem;
     border-radius: 0;
-    min-height: auto;
-    overflow-y: visible;
+    overflow-y: auto;
     overflow-x: hidden;
   }
 }

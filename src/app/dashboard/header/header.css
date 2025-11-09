@@ -5,10 +5,11 @@
   align-items: center;
   justify-content: space-between;
   gap: 1.2rem;
-  width: calc(100% - 79px);
+  width: 100%;
   border-top-left-radius: 35px;
   position: relative;
-
+  transition: all 0.3s ease;
+  flex: 1;
 }
 
 .campaign-btn {
@@ -310,6 +311,8 @@
     flex-wrap: wrap;
     width: 100%;
     border-top-left-radius: 0;
+    margin-left: 0;
+    padding-left: 3.5rem; /* Espace pour le bouton hamburger */
   }
   
   .campaign-btn,
