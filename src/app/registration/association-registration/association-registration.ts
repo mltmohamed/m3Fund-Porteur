@@ -59,6 +59,57 @@ export class AssociationRegistration {
   onFileSelected(event: any, fieldName: string) {
     const file = event.target.files[0];
     if (file) {
+      // Validation du type de fichier selon le champ
+      let isValidType = false;
+      let errorMessage = '';
+
+      switch (fieldName) {
+        case 'associationStatus':
+          // Accepte: PDF, JPG, JPEG, PNG
+          isValidType = ['application/pdf', 'image/jpeg', 'image/png'].includes(file.type);
+          if (!isValidType) {
+            errorMessage = 'Le statut de l\'association doit être au format PDF, JPG ou PNG.';
+          }
+          break;
+        case 'bankStatement':
+          // Accepte: PDF uniquement
+          isValidType = file.type === 'application/pdf';
+          if (!isValidType) {
+            errorMessage = 'Le relevé bancaire doit être au format PDF.';
+          }
+          break;
+        case 'profilePhoto':
+          // Accepte: JPG, JPEG, PNG uniquement
+          isValidType = ['image/jpeg', 'image/png'].includes(file.type);
+          if (!isValidType) {
+            errorMessage = 'La photo de profil doit être au format JPG ou PNG. Le format AVIF et autres formats ne sont pas supportés.';
+          }
+          break;
+      }
+
+      if (!isValidType) {
+        this.errorMessage = errorMessage;
+        // Réinitialiser le champ
+        event.target.value = '';
+        this.registrationForm.patchValue({ [fieldName]: null });
+        
+        // Réinitialiser les variables d'affichage
+        switch (fieldName) {
+          case 'associationStatus':
+            this.associationStatusFileName = '';
+            break;
+          case 'bankStatement':
+            this.bankStatementFileName = '';
+            break;
+          case 'profilePhoto':
+            this.profilePhotoPreview = '';
+            break;
+        }
+        return;
+      }
+
+      // Si le type est valide, continuer le traitement
+      this.errorMessage = '';
       this.registrationForm.get(fieldName)?.setValue(file);
       
       // Mettre à jour le nom du fichier affiché
@@ -127,7 +178,13 @@ export class AssociationRegistration {
           } else if (error.status === 409) {
             this.errorMessage = 'Cet email ou ce numéro de téléphone est déjà utilisé.';
           } else if (error.status === 500) {
-            this.errorMessage = 'Une erreur serveur est survenue. Veuillez réessayer plus tard.';
+            // Afficher le message d'erreur spécifique du serveur si disponible
+            const serverMessage = error.error?.message;
+            if (serverMessage && serverMessage.includes('Type de fichier non pris en charge')) {
+              this.errorMessage = serverMessage + ' Veuillez utiliser uniquement les formats JPG, PNG ou PDF selon le type de document.';
+            } else {
+              this.errorMessage = serverMessage || 'Une erreur serveur est survenue. Veuillez réessayer plus tard.';
+            }
           } else {
             this.errorMessage = error.error?.message || 'Une erreur est survenue lors de l\'inscription.';
           }

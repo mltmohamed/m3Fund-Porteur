@@ -132,7 +132,7 @@
 
 .nav-item:hover {
   background-color: #333;
-  color: #FFD700;
+  color: #E6B800;
   transform: translateX(5px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
@@ -168,7 +168,7 @@
 
 .about-button {
   width: 100%;
-  background-color: #FFD700;
+  background-color: #E6B800;
   color: #333;
   border: none;
   padding: 1rem 1.2rem;
@@ -204,7 +204,7 @@
 
 .about-button:hover {
   background-color: #333;
-  color: #FFD700;
+  color: #E6B800;
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
