@@ -63,34 +63,16 @@
   z-index: 1000;
   transition: transform 0.3s ease;
 }
-.m {
-  font-size: 30px;
-}
-.superscript{
-  font-size: 100px;
-}
-
 .logo {
-  font-size: 1.5rem;
-  font-weight: 700;
   margin-bottom: 2rem;
   text-align: left;
 }
 
-.logo .m {
-  color: #4CAF50;
-}
-
-.logo .superscript {
-  color: #4CAF50;
-  font-size: 0.7em;
-  vertical-align: super;
-  margin-left: -2px;
-}
-
-.logo .fund {
-  color: #333;
-  margin-left: 2px;
+.logo img {
+  max-width: 100%;
+  height: auto;
+  max-height: 60px;
+  object-fit: contain;
 }
 
 .nav-menu {
@@ -226,8 +208,11 @@
   }
   
   .logo {
-    font-size: 1.3rem;
     margin-bottom: 1.5rem;
+  }
+  
+  .logo img {
+    max-height: 50px;
   }
   
   .nav-item {
