@@ -23,9 +23,6 @@
               </select>
               <i class="fas fa-chevron-down"></i>
             </div>
-            <small *ngIf="selectedProjectData && selectedProjectData.launchedAt" style="color: #666; margin-top: 0.5rem; display: block;">
-              Date de fin du projet : {{ selectedProjectData.launchedAt | date:'dd/MM/yyyy' }}
-            </small>
           </div>
           
           <div class="form-group">
@@ -78,13 +75,8 @@
                 [(ngModel)]="endDate"
                 name="endDate"
                 [min]="getMinDate()"
-                [max]="getMaxCampaignDate()"
-                (change)="validateCampaignDate()"
               >
             </div>
-            <small *ngIf="selectedProjectData && selectedProjectData.launchedAt" style="color: #666; margin-top: 0.5rem; display: block;">
-              Maximum : {{ selectedProjectData.launchedAt | date:'dd/MM/yyyy' }}
-            </small>
           </div>
           
           <div class="form-group">

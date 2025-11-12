@@ -19,7 +19,6 @@ export class NouveauProjet {
   projectDomain: string = '';
   projectObjective: string = '';
   startDate: string = '';
-  endDate: string = '';
 
   // Gestion des fichiers
   selectedImages: File[] = [];
@@ -201,7 +200,6 @@ export class NouveauProjet {
     this.projectDomain = '';
     this.projectObjective = '';
     this.startDate = '';
-    this.endDate = '';
     this.selectedImages = [];
     this.selectedVideo = null;
     this.selectedBusinessPlan = null;

@@ -37,7 +37,7 @@ export interface CampaignFilters {
 export interface CampaignCreateRequest {
   endAt: string;
   type: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
-  description?: string;
+  // Note: Le backend n'accepte pas 'description' dans CreateCampaignRequest
   targetVolunteer?: number;
   targetBudget?: number;
   shareOffered?: number;
@@ -64,22 +64,39 @@ export interface CampaignUpdateRequest {
 
 export interface CampaignResponse {
   id: number;
-  projectId: number;
-  title: string;
-  description: string;
+  projectResponse?: {
+    id: number;
+    name: string;
+    description: string;
+    resume: string;
+    domain: string;
+  };
+  owner?: any;
+  launchedAt: string;
+  endAt: string;
   targetBudget: number;
+  targetVolunteer: number;
   shareOffered: number;
-  startDate: string;
-  endDate: string;
-  campaignType: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
-  status: 'PENDING' | 'APPROVED' | 'IN_PROGRESS' | 'COMPLETED' | 'FINISHED' | 'REJECTED';
-  progress: number;
-  fundsRaised: number;
-  collaboratorCount: number;
-  campaignCount: number;
-  netValue: number;
-  createdAt: string;
-  updatedAt: string;
+  type: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
+  state: 'PENDING' | 'IN_PROGRESS' | 'FINISHED';
+  rewards?: any[];
+  currentFund: number;
+  numberOfVolunteer: number;
+  // Champs de compatibilité pour l'ancienne interface
+  projectId?: number;
+  title?: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+  campaignType?: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
+  status?: 'PENDING' | 'APPROVED' | 'IN_PROGRESS' | 'COMPLETED' | 'FINISHED' | 'REJECTED';
+  progress?: number;
+  fundsRaised?: number;
+  collaboratorCount?: number;
+  campaignCount?: number;
+  netValue?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CampaignType {

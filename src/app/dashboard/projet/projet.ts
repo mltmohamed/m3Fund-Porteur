@@ -63,7 +63,11 @@ export class Projet implements OnInit {
         this.backendCampaignsMap.clear();
         backendProjects.forEach(project => {
           const projectCampaigns = backendCampaigns.filter(
-            campaign => campaign.projectId === project.id
+            campaign => {
+              // Le backend peut retourner projectId directement ou via projectResponse.id
+              const campaignProjectId = campaign.projectId || campaign.projectResponse?.id;
+              return campaignProjectId === project.id;
+            }
           );
           this.backendCampaignsMap.set(project.id, projectCampaigns);
         });
@@ -74,7 +78,11 @@ export class Projet implements OnInit {
           
           // Filtrer les campagnes de ce projet
           const projectCampaigns = backendCampaigns.filter(
-            campaign => campaign.projectId === project.id
+            campaign => {
+              // Le backend peut retourner projectId directement ou via projectResponse.id
+              const campaignProjectId = campaign.projectId || campaign.projectResponse?.id;
+              return campaignProjectId === project.id;
+            }
           );
           
           // Calculer le nombre de campagnes
@@ -82,7 +90,10 @@ export class Projet implements OnInit {
           
           // Calculer la somme des parts vendues (seulement pour les campagnes d'investissement)
           const totalSharesSold = projectCampaigns
-            .filter(campaign => campaign.campaignType === 'INVESTMENT')
+            .filter(campaign => {
+              const campaignType = campaign.type || campaign.campaignType;
+              return campaignType === 'INVESTMENT';
+            })
             .reduce((sum, campaign) => sum + (campaign.shareOffered || 0), 0);
           
           transformedProject.shareOffered = totalSharesSold > 0 
@@ -91,7 +102,7 @@ export class Projet implements OnInit {
           
           // Calculer les fonds récoltés totaux
           const totalFundsRaised = projectCampaigns.reduce(
-            (sum, campaign) => sum + (campaign.fundsRaised || 0), 
+            (sum, campaign) => sum + (campaign.currentFund || campaign.fundsRaised || 0), 
             0
           );
           
@@ -340,113 +351,63 @@ export class Projet implements OnInit {
     }
   }
 
-  openProjectModal(project: Project) {
-    this.selectedProject = project;
-    
-    // Récupérer les campagnes du projet
+  // Calculer les valeurs du projet à partir de ses campagnes
+  calculateProjectValues(project: Project): void {
+    // Récupérer les campagnes de ce projet depuis la map
     const projectCampaigns = this.backendCampaignsMap.get(project.id) || [];
     
-    console.log('Campagnes du projet:', projectCampaigns);
-    console.log('Statuts des campagnes:', projectCampaigns.map(c => ({ 
-      id: c.id, 
-      type: c.campaignType, 
-      status: c.status,
-      startDate: c.startDate,
-      endDate: c.endDate,
-      shareOffered: c.shareOffered,
-      targetBudget: c.targetBudget,
-      fundsRaised: c.fundsRaised
-    })));
+    console.log('Campagnes du projet pour calcul:', projectCampaigns);
     
-    // Filtrer les campagnes d'investissement qui sont validées ou en cours
-    // Une campagne est "validée ou en cours" si elle a le statut IN_PROGRESS
-    // On n'inclut QUE les campagnes avec le statut IN_PROGRESS (validées et en cours)
-    // Les campagnes PENDING (non validées) ne sont PAS incluses, même si elles sont actives
+    // Calculer les totaux à partir de toutes les campagnes (pas seulement les investissements)
+    // Budget cible : somme de tous les budgets cibles
+    const totalTargetBudget = projectCampaigns.reduce(
+      (sum, campaign) => sum + (campaign.targetBudget || 0), 
+      0
+    );
+    
+    // Fonds récoltés : somme de tous les fonds récoltés
+    const totalFundsRaised = projectCampaigns.reduce(
+      (sum, campaign) => sum + (campaign.currentFund || campaign.fundsRaised || 0), 
+      0
+    );
+    
+    // Parts vendues : seulement pour les campagnes d'investissement
     const investmentCampaigns = projectCampaigns.filter(campaign => {
-      // Ne garder que les campagnes d'investissement
-      if (campaign.campaignType !== 'INVESTMENT') {
-        return false;
-      }
-      
-      // Inclure uniquement les campagnes avec le statut IN_PROGRESS (validées et en cours)
-      // Exclure toutes les autres (PENDING, FINISHED, COMPLETED, REJECTED, etc.)
-      return campaign.status === 'IN_PROGRESS';
+      const campaignType = campaign.type || campaign.campaignType;
+      return campaignType === 'INVESTMENT';
     });
     
-    console.log('Campagnes d\'investissement filtrées:', investmentCampaigns.map(c => ({
-      id: c.id,
-      status: c.status,
-      shareOffered: c.shareOffered,
-      targetBudget: c.targetBudget,
-      fundsRaised: c.fundsRaised
-    })));
-    console.log('Nombre de campagnes d\'investissement:', investmentCampaigns.length);
-    
-    // Calculer les totaux avec seulement les campagnes d'investissement validées ou en cours
     const totalSharesSold = investmentCampaigns.reduce(
       (sum, campaign) => sum + (campaign.shareOffered || 0), 
       0
     );
     
-    const totalTargetBudget = investmentCampaigns.reduce(
-      (sum, campaign) => sum + (campaign.targetBudget || 0), 
-      0
-    );
-    
-    const totalFundsRaised = investmentCampaigns.reduce(
-      (sum, campaign) => sum + (campaign.fundsRaised || 0), 
-      0
-    );
-    
-    console.log('Totaux calculés:', { 
+    console.log('Totaux calculés pour le projet:', { 
+      projectId: project.id,
       totalSharesSold, 
       totalTargetBudget, 
       totalFundsRaised,
-      nombreCampagnes: investmentCampaigns.length 
+      nombreCampagnes: projectCampaigns.length,
+      nombreInvestissements: investmentCampaigns.length
     });
     
-    // Mettre à jour les valeurs affichées dans le modal
-    if (this.selectedProject) {
-      console.log('Mise à jour du projet sélectionné avec les totaux');
-      // Calculer la date de fin (la date de fin la plus récente des campagnes)
-      let maxEndDate: Date | null = null;
-      
-      for (const campaign of projectCampaigns) {
-        if (campaign.endDate) {
-          try {
-            const endDate = new Date(campaign.endDate);
-            if (!isNaN(endDate.getTime())) {
-              if (maxEndDate === null || endDate.getTime() > maxEndDate.getTime()) {
-                maxEndDate = endDate;
-              }
-            }
-          } catch (e) {
-            console.warn('Erreur lors de la conversion de la date:', campaign.endDate);
-          }
-        }
-      }
-      
-      // Ajouter la date de fin au projet pour l'affichage
-      if (maxEndDate) {
-        const formattedDate = maxEndDate.toLocaleDateString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
-        this.selectedProject.endDate = formattedDate;
-      } else {
-        this.selectedProject.endDate = 'N/A';
-      }
-      
-      // Mettre à jour les totaux dans le projet pour l'affichage
-      this.selectedProject.shareOffered = totalSharesSold > 0 
+    // Mettre à jour les valeurs dans le projet
+    project.shareOffered = totalSharesSold > 0 
         ? `${totalSharesSold.toFixed(2)}%` 
         : '0%';
-      this.selectedProject.targetBudget = `${totalTargetBudget.toLocaleString('fr-FR')} FCFA`;
-      this.selectedProject.fundsRaised = `${totalFundsRaised.toLocaleString('fr-FR')} FCFA`;
+    project.targetBudget = `${totalTargetBudget.toLocaleString('fr-FR')} FCFA`;
+    project.fundsRaised = `${totalFundsRaised.toLocaleString('fr-FR')} FCFA`;
       // Laisser la valeur nette à 0 pour le moment
-      this.selectedProject.netValue = '0 FCFA';
-    }
+    project.netValue = '0 FCFA';
+    // Les projets n'ont pas de date de fin
+    project.endDate = '';
+  }
+
+  openProjectModal(project: Project) {
+    this.selectedProject = project;
+    
+    // Calculer et mettre à jour les valeurs à partir des campagnes
+    this.calculateProjectValues(project);
     
     this.showModal = true;
   }
@@ -480,6 +441,22 @@ export class Projet implements OnInit {
     return false;
   }
 
+  // Vérifier si un projet est clôturé (toutes les campagnes sont FINISHED)
+  isProjectClosed(project: Project): boolean {
+    const projectCampaigns = this.backendCampaignsMap.get(project.id) || [];
+    if (projectCampaigns.length === 0) {
+      // Un projet sans campagnes n'est pas clôturé
+      return false;
+    }
+    // Un projet est clôturé si toutes ses campagnes sont FINISHED
+    return projectCampaigns.every(campaign => campaign.status === 'FINISHED');
+  }
+
+  // Vérifier si un projet peut être modifié
+  canEditProject(project: Project): boolean {
+    return !this.isProjectClosed(project);
+  }
+
   openEditModal(project: Project, event?: Event) {
     console.log('=== openEditModal appelé ===', { projectId: project.id, event });
     
@@ -490,8 +467,19 @@ export class Projet implements OnInit {
       event.stopImmediatePropagation();
     }
     
+    // Vérifier si le projet peut être modifié
+    if (!this.canEditProject(project)) {
+      console.warn('Tentative de modification d\'un projet clôturé - bloquée');
+      this.errorMessage = 'Ce projet est clôturé (toutes les campagnes sont terminées) et ne peut plus être modifié.';
+      return;
+    }
+    
     // S'assurer que le modal s'ouvre immédiatement
     this.selectedProject = project;
+    
+    // Calculer et mettre à jour les valeurs à partir des campagnes avant d'ouvrir le modal
+    this.calculateProjectValues(project);
+    
     this.showEditModal = true;
     this.errorMessage = '';
     

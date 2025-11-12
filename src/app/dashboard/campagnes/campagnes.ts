@@ -196,8 +196,9 @@ export class Campagnes implements OnInit {
   }
 
   // Vérifier si une campagne peut être modifiée
+  // Les campagnes peuvent être modifiées à tous les statuts SAUF si elles sont clôturées
   canEditCampaign(campaign: Campaign): boolean {
-    return !this.isCampaignClosed(campaign) && !this.isCampaignInProgress(campaign);
+    return !this.isCampaignClosed(campaign);
   }
 
   // Vérifier si une campagne est validée (ne peut plus modifier la date de début)
@@ -294,13 +295,8 @@ export class Campagnes implements OnInit {
     
     // Vérifier si la campagne peut être modifiée
     if (!this.canEditCampaign(campaign)) {
-      if (this.isCampaignClosed(campaign)) {
-        console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
-        this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
-      } else if (this.isCampaignInProgress(campaign)) {
-        console.warn('Tentative de modification d\'une campagne en cours - bloquée');
-        this.errorMessage = 'Cette campagne est en cours et ne peut plus être modifiée.';
-      }
+      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
       return;
     }
     
@@ -322,20 +318,28 @@ export class Campagnes implements OnInit {
       this.selectedCampaignRaw = campaignResponse;
       
       // Pré-remplir le formulaire avec les données actuelles
-      // Ne pas pré-remplir startDate si la campagne est validée
+      // Le backend retourne projectResponse.description, pas campaignResponse.description
+      const projectDescription = campaignResponse.projectResponse?.description || campaignResponse.projectResponse?.resume || '';
+      const campaignState = campaignResponse.state || campaignResponse.status || 'IN_PROGRESS';
+      const launchedAt = campaignResponse.launchedAt || campaignResponse.startDate || '';
+      const endAt = campaignResponse.endAt || campaignResponse.endDate || '';
+      
+      // Ne pas pré-remplir startDate si la campagne est validée (IN_PROGRESS ou FINISHED)
+      // Les campagnes PENDING peuvent avoir leur startDate modifiée
       this.editForm = {
-        description: campaignResponse.description || campaign.campaignDescription || '',
+        description: projectDescription || campaign.campaignDescription || '',
         targetBudget: campaignResponse.targetBudget || null,
         shareOffered: campaignResponse.shareOffered || null,
         targetVolunteer: null, // Pas disponible pour les campagnes d'investissement
-        startDate: (campaignResponse.status === 'APPROVED' || campaignResponse.status === 'IN_PROGRESS' || campaignResponse.status === 'COMPLETED' || campaignResponse.status === 'FINISHED') 
+        startDate: (campaignState === 'IN_PROGRESS' || campaignState === 'FINISHED') 
           ? '' 
-          : (campaignResponse.startDate ? this.formatDateForInput(campaignResponse.startDate) : ''),
-        endDate: campaignResponse.endDate ? this.formatDateForInput(campaignResponse.endDate) : ''
+          : (launchedAt ? this.formatDateForInput(launchedAt) : ''),
+        endDate: endAt ? this.formatDateForInput(endAt) : ''
       };
       
       // Récupérer le projet associé depuis la map
-      const project = this.backendProjectsMap.get(campaignResponse.projectId);
+      const projectId = campaignResponse.projectId || campaignResponse.projectResponse?.id;
+      const project = projectId ? this.backendProjectsMap.get(projectId) : undefined;
       if (project) {
         this.selectedCampaignProject = project;
       } else {
@@ -396,18 +400,6 @@ export class Campagnes implements OnInit {
       }
     }
 
-    // Valider la date de fin de campagne avant la soumission
-    if (this.editForm.endDate && this.selectedCampaignProject) {
-      const campaignEndDate = new Date(this.editForm.endDate);
-      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
-      campaignEndDate.setHours(0, 0, 0, 0);
-      projectEndDate.setHours(0, 0, 0, 0);
-      
-      if (campaignEndDate > projectEndDate) {
-        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
-        return;
-      }
-    }
 
     // Préparer les données pour la mise à jour (uniquement les champs modifiés)
     const updateData: any = {
@@ -485,13 +477,8 @@ export class Campagnes implements OnInit {
     
     // Vérifier si la campagne peut être modifiée
     if (!this.canEditCampaign(campaign)) {
-      if (this.isCampaignClosed(campaign)) {
-        console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
-        this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
-      } else if (this.isCampaignInProgress(campaign)) {
-        console.warn('Tentative de modification d\'une campagne en cours - bloquée');
-        this.errorMessage = 'Cette campagne est en cours et ne peut plus être modifiée.';
-      }
+      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
       return;
     }
     
@@ -507,17 +494,23 @@ export class Campagnes implements OnInit {
       this.selectedCampaignRaw = campaignResponse;
       
       // Pré-remplir le formulaire avec les données actuelles
+      // Le backend retourne projectResponse.description, pas campaignResponse.description
+      const projectDescription = campaignResponse.projectResponse?.description || campaignResponse.projectResponse?.resume || '';
+      const launchedAt = campaignResponse.launchedAt || campaignResponse.startDate || '';
+      const endAt = campaignResponse.endAt || campaignResponse.endDate || '';
+      
       this.editForm = {
-        description: campaignResponse.description || campaign.campaignDescription || '',
+        description: projectDescription || campaign.campaignDescription || '',
         targetBudget: campaignResponse.targetBudget || null,
         shareOffered: null, // Pas de parts pour les campagnes de don
         targetVolunteer: null,
-        startDate: campaignResponse.startDate ? this.formatDateForInput(campaignResponse.startDate) : '',
-        endDate: campaignResponse.endDate ? this.formatDateForInput(campaignResponse.endDate) : ''
+        startDate: launchedAt ? this.formatDateForInput(launchedAt) : '',
+        endDate: endAt ? this.formatDateForInput(endAt) : ''
       };
       
       // Récupérer le projet associé depuis la map
-      const project = this.backendProjectsMap.get(campaignResponse.projectId);
+      const projectId = campaignResponse.projectId || campaignResponse.projectResponse?.id;
+      const project = projectId ? this.backendProjectsMap.get(projectId) : undefined;
       if (project) {
         this.selectedCampaignProject = project;
       } else {
@@ -572,18 +565,6 @@ export class Campagnes implements OnInit {
       }
     }
 
-    // Valider la date de fin de campagne avant la soumission
-    if (this.editForm.endDate && this.selectedCampaignProject) {
-      const campaignEndDate = new Date(this.editForm.endDate);
-      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
-      campaignEndDate.setHours(0, 0, 0, 0);
-      projectEndDate.setHours(0, 0, 0, 0);
-      
-      if (campaignEndDate > projectEndDate) {
-        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
-        return;
-      }
-    }
 
     // Préparer les données pour la mise à jour
     const updateData: any = {
@@ -657,13 +638,8 @@ export class Campagnes implements OnInit {
     
     // Vérifier si la campagne peut être modifiée
     if (!this.canEditCampaign(campaign)) {
-      if (this.isCampaignClosed(campaign)) {
-        console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
-        this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
-      } else if (this.isCampaignInProgress(campaign)) {
-        console.warn('Tentative de modification d\'une campagne en cours - bloquée');
-        this.errorMessage = 'Cette campagne est en cours et ne peut plus être modifiée.';
-      }
+      console.warn('Tentative de modification d\'une campagne clôturée - bloquée');
+      this.errorMessage = 'Cette campagne est clôturée et ne peut plus être modifiée.';
       return;
     }
     
@@ -679,20 +655,28 @@ export class Campagnes implements OnInit {
       this.selectedCampaignRaw = campaignResponse;
       
       // Pré-remplir le formulaire avec les données actuelles
-      // Ne pas pré-remplir startDate si la campagne est validée
+      // Le backend retourne projectResponse.description, pas campaignResponse.description
+      const projectDescription = campaignResponse.projectResponse?.description || campaignResponse.projectResponse?.resume || '';
+      const campaignState = campaignResponse.state || campaignResponse.status || 'IN_PROGRESS';
+      const launchedAt = campaignResponse.launchedAt || campaignResponse.startDate || '';
+      const endAt = campaignResponse.endAt || campaignResponse.endDate || '';
+      
+      // Ne pas pré-remplir startDate si la campagne est validée (IN_PROGRESS ou FINISHED)
+      // Les campagnes PENDING peuvent avoir leur startDate modifiée
       this.editForm = {
-        description: campaignResponse.description || campaign.campaignDescription || '',
+        description: projectDescription || campaign.campaignDescription || '',
         targetBudget: null, // Pas de budget pour les campagnes de bénévolat
         shareOffered: null,
-        targetVolunteer: null, // TODO: Récupérer depuis campaignResponse si disponible
-        startDate: (campaignResponse.status === 'APPROVED' || campaignResponse.status === 'IN_PROGRESS' || campaignResponse.status === 'COMPLETED' || campaignResponse.status === 'FINISHED') 
+        targetVolunteer: campaignResponse.targetVolunteer || null,
+        startDate: (campaignState === 'IN_PROGRESS' || campaignState === 'FINISHED') 
           ? '' 
-          : (campaignResponse.startDate ? this.formatDateForInput(campaignResponse.startDate) : ''),
-        endDate: campaignResponse.endDate ? this.formatDateForInput(campaignResponse.endDate) : ''
+          : (launchedAt ? this.formatDateForInput(launchedAt) : ''),
+        endDate: endAt ? this.formatDateForInput(endAt) : ''
       };
       
       // Récupérer le projet associé depuis la map
-      const project = this.backendProjectsMap.get(campaignResponse.projectId);
+      const projectId = campaignResponse.projectId || campaignResponse.projectResponse?.id;
+      const project = projectId ? this.backendProjectsMap.get(projectId) : undefined;
       if (project) {
         this.selectedCampaignProject = project;
       } else {
@@ -747,18 +731,6 @@ export class Campagnes implements OnInit {
       }
     }
 
-    // Valider la date de fin de campagne avant la soumission
-    if (this.editForm.endDate && this.selectedCampaignProject) {
-      const campaignEndDate = new Date(this.editForm.endDate);
-      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
-      campaignEndDate.setHours(0, 0, 0, 0);
-      projectEndDate.setHours(0, 0, 0, 0);
-      
-      if (campaignEndDate > projectEndDate) {
-        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
-        return;
-      }
-    }
 
     // Préparer les données pour la mise à jour
     const updateData: any = {
@@ -914,38 +886,6 @@ export class Campagnes implements OnInit {
     }
   }
 
-  // Valider la date de fin de campagne par rapport à la date de fin du projet
-  validateCampaignEndDate() {
-    if (this.editForm.endDate && this.selectedCampaignProject) {
-      const campaignEndDate = new Date(this.editForm.endDate);
-      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
-      campaignEndDate.setHours(0, 0, 0, 0);
-      projectEndDate.setHours(0, 0, 0, 0);
-      
-      if (campaignEndDate > projectEndDate) {
-        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
-        return false;
-      } else {
-        // Réinitialiser l'erreur si la date est valide
-        if (this.errorMessage && this.errorMessage.includes('date de fin')) {
-          this.errorMessage = '';
-        }
-      }
-    }
-    return true;
-  }
-
-  // Obtenir la date maximale pour la date de fin de campagne (date de fin du projet)
-  getMaxEndDate(): string | null {
-    if (this.selectedCampaignProject && this.selectedCampaignProject.launchedAt) {
-      const projectEndDate = new Date(this.selectedCampaignProject.launchedAt);
-      const year = projectEndDate.getFullYear();
-      const month = String(projectEndDate.getMonth() + 1).padStart(2, '0');
-      const day = String(projectEndDate.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    }
-    return null;
-  }
 
   // Valider la date de début de campagne par rapport à aujourd'hui
   validateCampaignStartDate() {

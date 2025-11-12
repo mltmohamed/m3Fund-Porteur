@@ -41,30 +41,19 @@ export class NouvelleCampagneBenevolat implements OnInit {
     this.loadUserProjects();
   }
 
-  // Charger les projets validés de l'utilisateur (exclure les projets expirés)
+  // Charger les projets validés de l'utilisateur
   loadUserProjects() {
     this.projectService.getMyValidatedProjects().subscribe({
       next: (projects: ProjectResponse[]) => {
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-        
-        // Filtrer les projets non expirés
-        const activeProjects = projects.filter(project => {
-          if (!project.launchedAt) return true;
-          const projectEndDate = new Date(project.launchedAt);
-          projectEndDate.setHours(0, 0, 0, 0);
-          return projectEndDate >= now;
-        });
-        
-        this.projects = activeProjects;
+        this.projects = projects;
         this.projectOptions = [
           { value: '', label: 'Sélectionner un projet' },
-          ...activeProjects.map(project => ({
+          ...projects.map(project => ({
             value: project.id.toString(),
             label: project.name
           }))
         ];
-        console.log('Projets validés chargés:', activeProjects);
+        console.log('Projets validés chargés:', projects);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des projets:', error);
@@ -82,18 +71,6 @@ export class NouvelleCampagneBenevolat implements OnInit {
     }
   }
   
-  // Obtenir la date maximale pour la campagne (date de fin du projet)
-  getMaxCampaignDate(): string {
-    if (!this.selectedProjectData || !this.selectedProjectData.launchedAt) {
-      return '';
-    }
-    const projectEndDate = new Date(this.selectedProjectData.launchedAt);
-    const year = projectEndDate.getFullYear();
-    const month = String(projectEndDate.getMonth() + 1).padStart(2, '0');
-    const day = String(projectEndDate.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-  
   // Obtenir la date minimale (aujourd'hui)
   getMinDate(): string {
     const today = new Date();
@@ -101,27 +78,6 @@ export class NouvelleCampagneBenevolat implements OnInit {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-  }
-  
-  // Valider que la date de fin de campagne ne dépasse pas la date de fin du projet
-  validateCampaignDate() {
-    if (this.endDate && this.selectedProjectData && this.selectedProjectData.launchedAt) {
-      const campaignEndDate = new Date(this.endDate);
-      const projectEndDate = new Date(this.selectedProjectData.launchedAt);
-      campaignEndDate.setHours(0, 0, 0, 0);
-      projectEndDate.setHours(0, 0, 0, 0);
-      
-      if (campaignEndDate > projectEndDate) {
-        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
-        this.endDate = '';
-        return false;
-      }
-    }
-    // Réinitialiser l'erreur si la date est valide
-    if (this.errorMessage && this.errorMessage.includes('date de fin')) {
-      this.errorMessage = '';
-    }
-    return true;
   }
 
   onSubmit() {
@@ -134,24 +90,6 @@ export class NouvelleCampagneBenevolat implements OnInit {
       this.errorMessage = 'Veuillez sélectionner une date de fin';
       return;
     }
-    
-    // Valider que la date de fin de campagne ne dépasse pas la date de fin du projet
-    if (!this.validateCampaignDate()) {
-      return;
-    }
-    
-    // Validation supplémentaire avant soumission
-    if (this.selectedProjectData && this.selectedProjectData.launchedAt) {
-      const campaignEndDate = new Date(this.endDate);
-      const projectEndDate = new Date(this.selectedProjectData.launchedAt);
-      campaignEndDate.setHours(0, 0, 0, 0);
-      projectEndDate.setHours(0, 0, 0, 0);
-      
-      if (campaignEndDate > projectEndDate) {
-        this.errorMessage = `La date de fin de la campagne ne peut pas être supérieure à la date de fin du projet (${projectEndDate.toLocaleDateString('fr-FR')}).`;
-        return;
-      }
-    }
 
     if (!this.targetVolunteer || this.targetVolunteer <= 0) {
       this.errorMessage = 'Veuillez saisir un nombre de bénévoles recherchés';
@@ -163,10 +101,10 @@ export class NouvelleCampagneBenevolat implements OnInit {
     this.successMessage = '';
 
     // Préparer les données de la campagne
+    // Pour VOLUNTEERING, le backend attend targetVolunteer
     const campaignData: CampaignCreateRequest = {
       endAt: new Date(this.endDate).toISOString(),
       type: 'VOLUNTEERING',
-      description: this.campaignDescription,
       targetVolunteer: this.targetVolunteer
     };
 

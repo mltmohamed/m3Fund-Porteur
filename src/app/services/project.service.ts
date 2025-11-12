@@ -182,17 +182,6 @@ export class ProjectService {
   transformProjectData(backendProject: ProjectResponse): Project {
     let status = backendProject.isValidated ? 'APPROVED' : 'PENDING';
     
-    // Vérifier si la date de fin du projet (launchedAt) est dépassée
-    const now = new Date();
-    const projectEndDate = new Date(backendProject.launchedAt);
-    now.setHours(0, 0, 0, 0);
-    projectEndDate.setHours(0, 0, 0, 0);
-    
-    // Si la date de fin du projet est dépassée, marquer comme clôturé
-    if (projectEndDate < now) {
-      status = 'COMPLETED';
-    }
-    
     const images = (backendProject.imagesUrl || []).map(url => this.ensureAbsoluteUrl(url));
     const videoUrl = this.ensureAbsoluteUrl(backendProject.videoUrl || '');
     return {
@@ -206,7 +195,7 @@ export class ProjectService {
       status: this.getStatusLabel(status),
       statusIcon: this.getStatusIcon(status),
       creationDate: new Date(backendProject.createdAt).toLocaleDateString('fr-FR'),
-      endDate: new Date(backendProject.launchedAt).toLocaleDateString('fr-FR'),
+      endDate: '', // Les projets n'ont pas de date de fin
       statusDetail: status,
       collaboratorCount: '0',
       campaignCount: '0',

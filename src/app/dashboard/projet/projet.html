@@ -105,7 +105,13 @@
           <button type="button" class="action-btn info-btn" (click)="openProjectModal(project); $event.stopPropagation()">
             <i class="fas fa-info"></i>
           </button>
-          <button type="button" class="action-btn edit-btn" (click)="openEditModal(project, $event)">
+          <button 
+            type="button" 
+            class="action-btn edit-btn" 
+            [class.disabled]="!canEditProject(project)"
+            [disabled]="!canEditProject(project)"
+            (click)="canEditProject(project) && openEditModal(project, $event)"
+            [title]="!canEditProject(project) ? 'Ce projet est clôturé et ne peut plus être modifié' : 'Modifier'">
             <i class="fas fa-pencil-alt"></i>
           </button>
         </div>

@@ -127,7 +127,7 @@
             [class.disabled]="!canEditCampaign(campaign)"
             [disabled]="!canEditCampaign(campaign)"
             (click)="canEditCampaign(campaign) && (campaign.type === 'Don' ? openEditDonModal(campaign, $event) : campaign.type === 'Benevolat' ? openEditBenevolatModal(campaign, $event) : openEditModal(campaign, $event))" 
-            [title]="!canEditCampaign(campaign) ? (isCampaignClosed(campaign) ? 'Cette campagne est clôturée et ne peut plus être modifiée' : isCampaignInProgress(campaign) ? 'Cette campagne est en cours et ne peut plus être modifiée' : 'Modification non autorisée') : 'Modifier'">
+            [title]="!canEditCampaign(campaign) ? 'Cette campagne est clôturée et ne peut plus être modifiée' : 'Modifier'">
             <i class="fas fa-pencil-alt"></i>
           </button>
         </div>
@@ -316,8 +316,6 @@
                   [(ngModel)]="editForm.endDate"
                   name="endDate"
                   placeholder="Date de fin"
-                  [max]="getMaxEndDate()"
-                  (change)="validateCampaignEndDate()"
                 >
               </div>
               <div *ngIf="errorMessage" class="error-message" style="color: red; margin-top: 5px; font-size: 0.875rem;">

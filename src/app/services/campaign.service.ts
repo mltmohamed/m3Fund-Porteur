@@ -17,11 +17,12 @@ export class CampaignService {
 
   constructor(private http: HttpClient) {}
 
-  // Récupérer toutes les campagnes (ENDPOINT PUBLIC - pour les contributeurs)
+  // Récupérer toutes les campagnes validées et en cours (ENDPOINT PUBLIC - pour les contributeurs)
   getCampaigns(): Observable<CampaignResponse[]> {
     // Ajouter un timestamp pour éviter le cache
     const timestamp = new Date().getTime();
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/dashboard?t=${timestamp}`);
+    // Cet endpoint retourne uniquement les campagnes validées (IN_PROGRESS)
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns?t=${timestamp}`);
   }
 
   // Récupérer les campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
@@ -134,72 +135,116 @@ export class CampaignService {
       },
       {
         title: 'Clôturés',
-        value: stats.completed?.toString() || '0',
+        value: stats.finished?.toString() || '0',
         icon: 'fas fa-times-circle'
       }
     ];
   }
 
   // Transformer les données du backend en format frontend
-  transformCampaignData(backendCampaign: CampaignResponse): Campaign {
-    const collaboratorText = backendCampaign.collaboratorCount === 1 ? 'Collaborateur' : 'Collaborateurs';
-    const volunteerText = backendCampaign.collaboratorCount === 1 ? 'bénévole trouvé' : 'bénévoles trouvés';
+  transformCampaignData(backendCampaign: any): Campaign {
+    // Le backend retourne CampaignResponse avec projectResponse, owner, etc.
+    // Extraire les données nécessaires
+    const project = backendCampaign.projectResponse || {};
+    const projectName = project.name || 'Projet sans nom';
+    const projectDescription = project.description || project.resume || '';
+    const projectDomain = project.domain || 'SANTE';
+    const projectId = project.id || backendCampaign.projectId || 0;
+    
+    // Mapper les champs du backend vers le frontend
+    const campaignType = backendCampaign.type || backendCampaign.campaignType || 'INVESTMENT';
+    const campaignState = backendCampaign.state || backendCampaign.status || 'IN_PROGRESS';
+    const fundsRaised = backendCampaign.currentFund || backendCampaign.fundsRaised || 0;
+    const collaboratorCount = backendCampaign.numberOfVolunteer || backendCampaign.collaboratorCount || 0;
+    const targetBudget = backendCampaign.targetBudget || 0;
+    const shareOffered = backendCampaign.shareOffered || 0;
+    const launchedAt = backendCampaign.launchedAt || backendCampaign.startDate || '';
+    const endAt = backendCampaign.endAt || backendCampaign.endDate || '';
+    
+    // Calculer le progrès
+    let progress = 0;
+    if (campaignType === 'VOLUNTEERING') {
+      const targetVolunteer = backendCampaign.targetVolunteer || 0;
+      progress = targetVolunteer > 0 ? Math.round((collaboratorCount / targetVolunteer) * 100) : 0;
+    } else {
+      progress = targetBudget > 0 ? Math.round((fundsRaised / targetBudget) * 100) : 0;
+    }
+    progress = Math.min(progress, 100); // Limiter à 100%
+    
+    const collaboratorText = collaboratorCount === 1 ? 'Collaborateur' : 'Collaborateurs';
+    const volunteerText = collaboratorCount === 1 ? 'bénévole trouvé' : 'bénévoles trouvés';
     
     // Pour les campagnes de bénévolat, afficher le nombre de bénévoles au lieu des fonds récoltés
     let fundsDisplay: string;
-    if (backendCampaign.campaignType === 'VOLUNTEERING') {
-      fundsDisplay = `${backendCampaign.collaboratorCount} ${volunteerText}`;
+    if (campaignType === 'VOLUNTEERING') {
+      fundsDisplay = `${collaboratorCount} ${volunteerText}`;
     } else {
-      fundsDisplay = `${backendCampaign.fundsRaised.toLocaleString('fr-FR')} FCFA récoltés`;
+      fundsDisplay = `${fundsRaised.toLocaleString('fr-FR')} FCFA récoltés`;
     }
     
     // Vérifier si la date de fin de la campagne est dépassée
-    let campaignStatus = backendCampaign.status;
+    let campaignStatus = campaignState;
     const now = new Date();
-    const campaignEndDate = new Date(backendCampaign.endDate);
-    const campaignStartDate = new Date(backendCampaign.startDate);
     now.setHours(0, 0, 0, 0);
-    campaignEndDate.setHours(0, 0, 0, 0);
-    campaignStartDate.setHours(0, 0, 0, 0);
     
-    // Vérifier si la date de début est dans le passé (ne devrait jamais arriver, mais on vérifie quand même)
-    if (campaignStartDate < now) {
-      console.warn(`Campagne ${backendCampaign.id}: La date de début (${backendCampaign.startDate}) est dans le passé.`);
-      // On peut marquer la campagne comme ayant un problème, mais pour l'instant on laisse le statut tel quel
+    // Vérifier les dates seulement si elles sont présentes
+    if (endAt) {
+      const campaignEndDate = new Date(endAt);
+      campaignEndDate.setHours(0, 0, 0, 0);
+      
+      // Si la date de fin est dépassée et que la campagne n'est pas déjà clôturée, marquer comme clôturée
+      if (campaignEndDate < now && campaignStatus !== 'COMPLETED' && campaignStatus !== 'FINISHED' && campaignStatus !== 'REJECTED') {
+        campaignStatus = 'COMPLETED';
+      }
     }
     
-    // Si la date de fin est dépassée et que la campagne n'est pas déjà clôturée, marquer comme clôturée
-    if (campaignEndDate < now && campaignStatus !== 'COMPLETED' && campaignStatus !== 'FINISHED' && campaignStatus !== 'REJECTED') {
-      campaignStatus = 'COMPLETED';
-    }
+    // Obtenir le label du domaine
+    const domainLabel = this.getDomainLabel(projectDomain);
     
     return {
       id: backendCampaign.id,
-      title: backendCampaign.title,
+      title: projectName,
       funds: fundsDisplay,
-      sector: 'SANTE', // TODO: Récupérer le secteur réel du projet
-      collaborators: `${backendCampaign.collaboratorCount} ${collaboratorText}`,
-      progress: Math.round(backendCampaign.progress),
+      sector: domainLabel,
+      collaborators: `${collaboratorCount} ${collaboratorText}`,
+      progress: progress,
       status: this.getStatusLabel(campaignStatus),
       statusIcon: this.getStatusIcon(campaignStatus),
-      type: this.getCampaignTypeLabel(backendCampaign.campaignType),
-      typeIcon: this.getCampaignTypeIcon(backendCampaign.campaignType),
-      endDate: new Date(backendCampaign.endDate).toLocaleDateString('fr-FR'),
-      creationDate: new Date(backendCampaign.createdAt).toLocaleDateString('fr-FR'),
+      type: this.getCampaignTypeLabel(campaignType),
+      typeIcon: this.getCampaignTypeIcon(campaignType),
+      endDate: endAt ? new Date(endAt).toLocaleDateString('fr-FR') : '',
+      creationDate: launchedAt ? new Date(launchedAt).toLocaleDateString('fr-FR') : '',
       statusDetail: campaignStatus,
-      collaboratorCount: backendCampaign.collaboratorCount.toString(),
-      campaignCount: backendCampaign.campaignCount.toString(),
-      campaignSummary: backendCampaign.description && typeof backendCampaign.description === 'string' && backendCampaign.description.trim().length > 0 
-        ? (backendCampaign.description.length > 150 ? backendCampaign.description.substring(0, 150) + '...' : backendCampaign.description)
+      collaboratorCount: collaboratorCount.toString(),
+      campaignCount: '0', // Non disponible dans CampaignResponse
+      campaignSummary: projectDescription && typeof projectDescription === 'string' && projectDescription.trim().length > 0 
+        ? (projectDescription.length > 150 ? projectDescription.substring(0, 150) + '...' : projectDescription)
         : '',
-      targetBudget: `${backendCampaign.targetBudget.toLocaleString('fr-FR')} FCFA`,
-      shareOffered: `${backendCampaign.shareOffered}%`,
-      netValue: `${backendCampaign.netValue.toLocaleString('fr-FR')} FCFA`,
-      fundsRaised: `${backendCampaign.fundsRaised.toLocaleString('fr-FR')} FCFA`,
-      campaignDescription: backendCampaign.description && typeof backendCampaign.description === 'string' && backendCampaign.description.trim().length > 0 
-        ? backendCampaign.description.trim() 
+      targetBudget: `${targetBudget.toLocaleString('fr-FR')} FCFA`,
+      shareOffered: `${shareOffered}%`,
+      netValue: '0 FCFA', // Non disponible dans CampaignResponse
+      fundsRaised: `${fundsRaised.toLocaleString('fr-FR')} FCFA`,
+      campaignDescription: projectDescription && typeof projectDescription === 'string' && projectDescription.trim().length > 0 
+        ? projectDescription.trim() 
         : ''
     };
+  }
+  
+  // Obtenir le label du domaine
+  private getDomainLabel(domain: string): string {
+    const domainMap: { [key: string]: string } = {
+      'SANTE': 'SANTE',
+      'EDUCATION': 'EDUCATION',
+      'AGRICULTURE': 'AGRICULTURE',
+      'TECHNOLOGY': 'TECHNOLOGIE',
+      'SHOPPING': 'COMMERCE',
+      'ENERGY': 'ENERGIE',
+      'TRANSPORT': 'TRANSPORT',
+      'TOURISM': 'TOURISME',
+      'REAL_ESTATE': 'IMMOBILIER',
+      'FOOD': 'ALIMENTATION'
+    };
+    return domainMap[domain] || domain;
   }
 
   // Transformer les données de résumé du backend
