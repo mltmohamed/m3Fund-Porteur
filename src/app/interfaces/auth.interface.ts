@@ -1,6 +1,7 @@
 export interface LoginRequest {
   email: string;
   password: string;
+  platform: 'WEB_PROJECT_OWNER' | 'WEB_ADMIN' | 'MOBILE_CONTRIBUTOR';
 }
 
 export interface LoginResponse {

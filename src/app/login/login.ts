@@ -34,7 +34,8 @@ export class Login {
 
       const loginData: LoginRequest = {
         email: this.loginForm.value.email,
-        password: this.loginForm.value.password
+        password: this.loginForm.value.password,
+        platform: 'WEB_PROJECT_OWNER'
       };
 
       this.authService.login(loginData).subscribe({
