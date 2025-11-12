@@ -39,10 +39,10 @@ export class Campaigns implements OnInit {
         const summaryCards = this.dashboardService.transformStatsToSummary(stats);
         this.campaignStats = summaryCards.find(card => card.title === 'Total Campagnes') || null;
         
-        // Vérifier s'il n'y a aucune campagne
-        if (stats.totalCampaigns === 0) {
-          this.errorMessage = 'Aucune campagne trouvée';
-        }
+        // Ne pas afficher de message d'erreur si aucune campagne, on affichera le bouton de création
+        // if (stats.totalCampaigns === 0) {
+        //   this.errorMessage = 'Aucune campagne trouvée';
+        // }
         
         this.isLoading = false;
         console.log('Statistiques des campagnes chargées:', stats);
@@ -66,6 +66,10 @@ export class Campaigns implements OnInit {
     this.viewChange.emit('campagnes');
   }
 
+  createNewCampaign() {
+    this.viewChange.emit('nouvelle-campagne');
+  }
+
   refreshStats() {
     this.loadCampaignStats();
   }
@@ -75,14 +79,19 @@ export class Campaigns implements OnInit {
   }
 
   loadRecentCampaigns() {
-    this.campaignService.getActiveCampaigns().subscribe({
+    // Utiliser getMyCampaigns() pour récupérer uniquement les campagnes du porteur connecté
+    this.campaignService.getMyCampaigns().subscribe({
       next: (backendCampaigns) => {
+        // Filtrer pour ne garder que les campagnes actives (en cours)
+        const activeCampaigns = backendCampaigns.filter(campaign => 
+          campaign.status === 'IN_PROGRESS' || campaign.status === 'APPROVED'
+        );
         // Prendre les 3 campagnes les plus récentes en cours
-        this.campaigns = backendCampaigns.slice(0, 3).map(campaign => 
+        this.campaigns = activeCampaigns.slice(0, 3).map(campaign => 
           this.campaignService.transformCampaignData(campaign)
         );
         this.hasCampaigns = this.campaigns.length > 0;
-        console.log('Campagnes actives chargées:', this.campaigns);
+        console.log('Campagnes actives du porteur chargées:', this.campaigns);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des campagnes actives:', error);

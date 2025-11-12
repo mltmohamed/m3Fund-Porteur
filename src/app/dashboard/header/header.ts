@@ -77,11 +77,6 @@ export class Header implements OnInit {
         console.log('=== HEADER - Chargement de l\'image ===');
         console.log('Profil reçu dans header:', JSON.stringify(profile, null, 2));
         
-        // Vérifier tous les champs possibles
-        console.log('profilePictureUrl:', profile.profilePictureUrl);
-        console.log('profilePhoto:', profile.profilePhoto);
-        console.log('profilePicture:', profile.profilePicture);
-        
         // Le backend retourne profilePictureUrl
         let photoUrl = profile.profilePictureUrl;
         
@@ -89,15 +84,8 @@ export class Header implements OnInit {
         
         // Vérifier si la photo existe et est valide
         if (photoUrl && photoUrl.trim() !== '') {
-          // Si c'est un chemin relatif, ajouter l'URL du backend
-          if (!photoUrl.startsWith('http')) {
-            // Gérer les cas où l'URL commence ou non par /
-            if (!photoUrl.startsWith('/')) {
-              photoUrl = '/' + photoUrl;
-            }
-            photoUrl = 'http://localhost:7878' + photoUrl;
-          }
-          
+          // Convertir le chemin en URL HTTP via l'endpoint /public/download
+          photoUrl = this.convertFilePathToUrl(photoUrl);
           console.log('URL de photo complète dans header:', photoUrl);
           this.profileImageUrl = photoUrl;
         } else {
@@ -112,6 +100,24 @@ export class Header implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private convertFilePathToUrl(filePath: string): string {
+    // Si c'est déjà une URL HTTP/HTTPS, la retourner telle quelle
+    if (/^https?:\/\//i.test(filePath)) {
+      return filePath;
+    }
+    
+    // Si c'est un chemin absolu Windows (commence par C:\ ou D:\ etc.) ou Unix (/)
+    // Le convertir en URL via l'endpoint /public/download
+    if (/^[A-Za-z]:\\/.test(filePath) || /^\/[^\/]/.test(filePath)) {
+      const encodedPath = encodeURIComponent(filePath);
+      return `http://localhost:7878/api/v1/public/download?absolutePath=${encodedPath}`;
+    }
+    
+    // Si c'est un chemin relatif, essayer de construire l'URL
+    const normalizedPath = filePath.startsWith('/') ? filePath : `/${filePath}`;
+    return `http://localhost:7878${normalizedPath}`;
   }
 
   getDefaultProfileImage(): string {

@@ -169,14 +169,8 @@ export class NouveauProjet {
       return false;
     }
     
-    // Valider que la date de début n'est pas dans le passé
-    const startDateObj = new Date(this.startDate);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    startDateObj.setHours(0, 0, 0, 0);
-    
-    if (startDateObj < today) {
-      this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+    // Valider que la date de lancement n'est pas dans le futur (doit être dans le passé ou aujourd'hui)
+    if (!this.validateStartDate()) {
       return false;
     }
     
@@ -306,15 +300,17 @@ export class NouveauProjet {
     if (this.startDate) {
       const startDateObj = new Date(this.startDate);
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      today.setHours(23, 59, 59, 999); // Fin de la journée d'aujourd'hui
       startDateObj.setHours(0, 0, 0, 0);
       
-      if (startDateObj < today) {
-        this.errorMessage = 'La date de début ne peut pas être antérieure à aujourd\'hui.';
+      // La date de lancement doit être dans le passé ou aujourd'hui (pas dans le futur)
+      // @PastOrPresent dans le backend signifie: date <= aujourd'hui
+      if (startDateObj.getTime() > today.getTime()) {
+        this.errorMessage = 'La date de lancement ne peut pas être supérieure à aujourd\'hui.';
         return false;
       } else {
         // Réinitialiser l'erreur si la date est valide
-        if (this.errorMessage && this.errorMessage.includes('date de début')) {
+        if (this.errorMessage && (this.errorMessage.includes('date de lancement') || this.errorMessage.includes('date de début'))) {
           this.errorMessage = '';
         }
       }
@@ -322,8 +318,15 @@ export class NouveauProjet {
     return true;
   }
 
-  // Obtenir la date minimale (aujourd'hui)
+  // Obtenir la date minimale (il n'y a pas de minimum, on peut mettre une date passée)
+  // Mais on limite la date maximale à aujourd'hui
   getMinDate(): string {
+    // Pas de minimum, on peut sélectionner n'importe quelle date passée
+    return '';
+  }
+
+  // Obtenir la date maximale (aujourd'hui - la date de lancement ne peut pas être dans le futur)
+  getMaxDate(): string {
     const today = new Date();
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');

@@ -35,15 +35,8 @@ export class NotificationService {
 
   // Récupérer les notifications récentes (pour le header)
   getRecentNotifications(): Observable<NotificationResponse[]> {
-    // TODO: Remplacer par l'endpoint réel du backend quand il sera disponible
-    // return this.http.get<NotificationResponse[]>(`${this.apiUrl}/notifications/recent`);
-    
-    // Retourner un tableau vide pour l'instant
-    return new Observable(observer => {
-      observer.next([]);
-      observer.complete();
-    }).pipe(
-      tap((notifications: any) => {
+    return this.http.get<NotificationResponse[]>(`${this.apiUrl}/notifications`).pipe(
+      tap((notifications: NotificationResponse[]) => {
         const unreadCount = notifications.filter((n: NotificationResponse) => !n.read).length;
         this.unreadCountSubject.next(unreadCount);
       })
@@ -52,36 +45,19 @@ export class NotificationService {
 
   // Récupérer toutes les notifications
   getAllNotifications(): Observable<NotificationResponse[]> {
-    // TODO: Remplacer par l'endpoint réel du backend quand il sera disponible
-    // return this.http.get<NotificationResponse[]>(`${this.apiUrl}/notifications`);
-    
-    // Retourner un tableau vide pour l'instant
-    return new Observable(observer => {
-      observer.next([]);
-      observer.complete();
-    });
+    return this.http.get<NotificationResponse[]>(`${this.apiUrl}/notifications`);
   }
 
   // Marquer une notification comme lue
   markAsRead(notificationId: number): Observable<void> {
-    // TODO: Remplacer par l'endpoint réel du backend
-    // return this.http.put<void>(`${this.apiUrl}/notifications/${notificationId}/read`, {});
-    
-    return new Observable(observer => {
-      observer.next();
-      observer.complete();
-    });
+    // Note: Cet endpoint n'existe peut-être pas encore dans le backend
+    return this.http.patch<void>(`${this.apiUrl}/notifications/${notificationId}/read`, {});
   }
 
   // Marquer toutes les notifications comme lues
   markAllAsRead(): Observable<void> {
-    // TODO: Remplacer par l'endpoint réel du backend
-    // return this.http.put<void>(`${this.apiUrl}/notifications/read-all`, {});
-    
-    return new Observable(observer => {
-      observer.next();
-      observer.complete();
-    });
+    // Note: Cet endpoint n'existe peut-être pas encore dans le backend
+    return this.http.patch<void>(`${this.apiUrl}/notifications/read-all`, {});
   }
 
   // Transformer les notifications du backend en format d'affichage

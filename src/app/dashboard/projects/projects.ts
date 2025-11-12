@@ -44,10 +44,10 @@ export class Projects implements OnInit {
           color: '#10B981'
         };
 
-        // Vérifier s'il n'y a aucun projet validé
-        if (stats.activeProjects === 0) {
-          this.errorMessage = 'Aucun projet validé pour l\'instant';
-        }
+        // Ne pas afficher de message d'erreur si aucun projet, on affichera le bouton de création
+        // if (stats.activeProjects === 0) {
+        //   this.errorMessage = 'Aucun projet validé pour l\'instant';
+        // }
         
         this.isLoading = false;
         console.log('Statistiques des projets chargées:', stats);
@@ -69,6 +69,10 @@ export class Projects implements OnInit {
 
   goToProjects() {
     this.viewChange.emit('projet');
+  }
+
+  createNewProject() {
+    this.viewChange.emit('nouveau-projet');
   }
 
   refreshStats() {

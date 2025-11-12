@@ -27,7 +27,7 @@ export class CampaignService {
   // Récupérer les campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
   getMyCampaigns(): Observable<CampaignResponse[]> {
     const timestamp = new Date().getTime();
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/my-campaigns?t=${timestamp}`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine?t=${timestamp}`);
   }
 
   // Récupérer les campagnes actives (en cours)
@@ -37,7 +37,8 @@ export class CampaignService {
 
   // Récupérer une campagne par ID
   getCampaignById(id: number): Observable<CampaignResponse> {
-    return this.http.get<CampaignResponse>(`${this.API_URL}/campaigns/${id}`);
+    // Note: Cet endpoint n'existe peut-être pas dans le backend, à vérifier
+    return this.http.get<CampaignResponse>(`${this.API_URL}/projects/campaigns/${id}`);
   }
 
   // Créer une nouvelle campagne
@@ -47,17 +48,18 @@ export class CampaignService {
 
   // Mettre à jour une campagne
   updateCampaign(campaignData: CampaignUpdateRequest): Observable<CampaignResponse> {
-    return this.http.put<CampaignResponse>(`${this.API_URL}/campaigns/${campaignData.id}`, campaignData);
+    return this.http.patch<CampaignResponse>(`${this.API_URL}/projects/campaigns/${campaignData.id}`, campaignData);
   }
 
   // Supprimer une campagne
   deleteCampaign(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.API_URL}/campaigns/${id}`);
+    // Note: Cet endpoint n'existe peut-être pas dans le backend, à vérifier
+    return this.http.delete<void>(`${this.API_URL}/projects/campaigns/${id}`);
   }
 
   // Récupérer les statistiques des campagnes
   getCampaignSummary(): Observable<CampaignSummary[]> {
-    return this.http.get<CampaignSummary[]>(`${this.API_URL}/campaigns/summary`);
+    return this.http.get<CampaignSummary[]>(`${this.API_URL}/projects/campaigns/stats`);
   }
 
   // Rechercher des campagnes (ENDPOINT PUBLIC - pour les contributeurs)
@@ -67,7 +69,7 @@ export class CampaignService {
 
   // Rechercher les campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
   searchMyCampaigns(searchTerm: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/my-campaigns/search?q=${encodeURIComponent(searchTerm)}`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/search?q=${encodeURIComponent(searchTerm)}`);
   }
 
   // Filtrer les campagnes par projet (ENDPOINT PUBLIC - pour les contributeurs)
@@ -77,7 +79,7 @@ export class CampaignService {
 
   // Filtrer les campagnes du porteur par projet (ENDPOINT PRIVÉ)
   filterMyCampaignsByProject(projectId: number): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/my-campaigns/project/${projectId}`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/${projectId}/campaigns`);
   }
 
   // Filtrer les campagnes par statut (ENDPOINT PUBLIC - pour les contributeurs)
@@ -87,7 +89,14 @@ export class CampaignService {
 
   // Filtrer les campagnes du porteur par statut (ENDPOINT PRIVÉ)
   filterMyCampaignsByStatus(status: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/campaigns/my-campaigns/status/${status}`);
+    // Utiliser l'endpoint des campagnes actives ou terminées selon le statut
+    if (status === 'IN_PROGRESS' || status === 'ACTIVE') {
+      return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-active`);
+    } else if (status === 'COMPLETED' || status === 'FINISHED') {
+      return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-finished`);
+    }
+    // Pour les autres statuts, retourner toutes les campagnes
+    return this.getMyCampaigns();
   }
 
   // Filtrer les campagnes par type
@@ -102,7 +111,7 @@ export class CampaignService {
 
   // Récupérer les statistiques des campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
   getMyCampaignStats(): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}/campaigns/my-campaigns/stats`);
+    return this.http.get<any>(`${this.API_URL}/projects/campaigns/stats`);
   }
 
   // Transformer les statistiques en cartes de résumé

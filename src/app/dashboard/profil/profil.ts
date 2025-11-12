@@ -141,14 +141,8 @@ export class Profil implements OnInit, OnDestroy, OnChanges {
         console.log('URL de la photo du backend:', photoUrl);
         
         if (photoUrl && photoUrl.trim() !== '') {
-          // Si c'est un chemin relatif, ajouter l'URL du backend
-          if (!photoUrl.startsWith('http')) {
-            // Gérer les cas où l'URL commence ou non par /
-            if (!photoUrl.startsWith('/')) {
-              photoUrl = '/' + photoUrl;
-            }
-            photoUrl = 'http://localhost:7878' + photoUrl;
-          }
+          // Convertir le chemin en URL HTTP via l'endpoint /public/download
+          photoUrl = this.convertFilePathToUrl(photoUrl);
           this.profileImageUrl = photoUrl;
           console.log('URL complète de l\'image de profil:', this.profileImageUrl);
         } else {
@@ -466,5 +460,23 @@ export class Profil implements OnInit, OnDestroy, OnChanges {
   // Getters pour le formulaire de mot de passe
   get newPassword() { return this.passwordForm.get('newPassword'); }
   get confirmPassword() { return this.passwordForm.get('confirmPassword'); }
+
+  private convertFilePathToUrl(filePath: string): string {
+    // Si c'est déjà une URL HTTP/HTTPS, la retourner telle quelle
+    if (/^https?:\/\//i.test(filePath)) {
+      return filePath;
+    }
+    
+    // Si c'est un chemin absolu Windows (commence par C:\ ou D:\ etc.) ou Unix (/)
+    // Le convertir en URL via l'endpoint /public/download
+    if (/^[A-Za-z]:\\/.test(filePath) || /^\/[^\/]/.test(filePath)) {
+      const encodedPath = encodeURIComponent(filePath);
+      return `http://localhost:7878/api/v1/public/download?absolutePath=${encodedPath}`;
+    }
+    
+    // Si c'est un chemin relatif, essayer de construire l'URL
+    const normalizedPath = filePath.startsWith('/') ? filePath : `/${filePath}`;
+    return `http://localhost:7878${normalizedPath}`;
+  }
 }
 

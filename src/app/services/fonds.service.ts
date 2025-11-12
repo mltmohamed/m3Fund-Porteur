@@ -55,12 +55,24 @@ export class FondsService {
 
   constructor(private http: HttpClient) {}
 
+  // Note: Ces endpoints n'existent pas encore dans le backend pour les project owners
+  // Les gifts sont liés aux campagnes, donc ils peuvent être récupérés via les campagnes
   getMyGifts(): Observable<GiftResponse[]> {
-    return this.http.get<GiftResponse[]>(`${this.apiUrl}/projects/campaigns/my-gifts`);
+    // TODO: Implémenter un endpoint dans le backend pour récupérer les gifts reçus par les project owners
+    // Pour l'instant, retourner un tableau vide ou utiliser les campagnes
+    return new Observable(observer => {
+      observer.next([]);
+      observer.complete();
+    });
   }
 
   getMyTransactions(): Observable<TransactionResponse[]> {
-    return this.http.get<TransactionResponse[]>(`${this.apiUrl}/projects/campaigns/my-transactions`);
+    // TODO: Implémenter un endpoint dans le backend pour récupérer les transactions reçues par les project owners
+    // Pour l'instant, retourner un tableau vide
+    return new Observable(observer => {
+      observer.next([]);
+      observer.complete();
+    });
   }
 
   // Méthode pour transformer les TransactionResponse en format frontend

@@ -66,53 +66,39 @@ export class ProjectService {
 
   // Mettre à jour un projet
   updateProject(projectId: number, projectData: ProjectUpdateRequest): Observable<ProjectResponse> {
-    const formData = new FormData();
+    // Le backend attend PATCH avec @RequestBody (JSON), pas PUT avec FormData
+    // Construire l'objet JSON (sans les fichiers car @RequestBody ne peut pas les recevoir)
+    const updatePayload: any = {};
     
-    // Ajouter les champs texte si présents et non vides
     if (projectData.name && projectData.name.trim()) {
-      formData.append('name', projectData.name.trim());
+      updatePayload.name = projectData.name.trim();
     }
     if (projectData.resume && projectData.resume.trim()) {
-      formData.append('resume', projectData.resume.trim());
+      updatePayload.resume = projectData.resume.trim();
     }
     if (projectData.description && projectData.description.trim()) {
-      formData.append('description', projectData.description.trim());
+      updatePayload.description = projectData.description.trim();
     }
-    if (projectData.domain && projectData.domain.trim()) {
-      formData.append('domain', projectData.domain.trim());
+    if (projectData.domain) {
+      updatePayload.domain = projectData.domain;
     }
     if (projectData.objective && projectData.objective.trim()) {
-      formData.append('objective', projectData.objective.trim());
+      updatePayload.objective = projectData.objective.trim();
     }
     if (projectData.websiteLink && projectData.websiteLink.trim()) {
-      formData.append('websiteLink', projectData.websiteLink.trim());
+      updatePayload.websiteLink = projectData.websiteLink.trim();
     }
     if (projectData.launchedAt) {
-      formData.append('launchedAt', projectData.launchedAt);
+      // Convertir en format ISO si nécessaire
+      updatePayload.launchedAt = projectData.launchedAt;
     }
     
-    // Ajouter les fichiers UNIQUEMENT s'ils sont présents et valides
-    if (projectData.images && projectData.images.length > 0) {
-      // Filtrer les fichiers vides ou invalides
-      const validImages = projectData.images.filter(img => img && img.size > 0);
-      if (validImages.length > 0) {
-        validImages.forEach(image => {
-          formData.append('images', image);
-        });
-      }
-    }
+    // Note: Les images, vidéo et business plan ne peuvent pas être mis à jour via cet endpoint
+    // car le backend utilise @RequestBody qui ne supporte pas les fichiers multipart
     
-    if (projectData.video && projectData.video.size > 0) {
-      formData.append('video', projectData.video);
-    }
+    console.log('JSON envoyé pour update:', updatePayload);
     
-    if (projectData.businessPlan && projectData.businessPlan.size > 0) {
-      formData.append('businessPlan', projectData.businessPlan);
-    }
-    
-    console.log('FormData envoyé pour update:', Array.from(formData.keys()));
-    
-    return this.http.put<ProjectResponse>(`${this.API_URL}/projects/${projectId}`, formData);
+    return this.http.patch<ProjectResponse>(`${this.API_URL}/projects/${projectId}`, updatePayload);
   }
 
   // Supprimer un projet
@@ -122,12 +108,12 @@ export class ProjectService {
 
   // Récupérer tous les projets de l'utilisateur connecté
   getMyProjects(): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects`);
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine`);
   }
 
   // Récupérer les projets validés de l'utilisateur connecté
   getMyValidatedProjects(): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/validated`);
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-validated`);
   }
 
   // Récupérer les statistiques des projets depuis le backend (public)
@@ -137,12 +123,12 @@ export class ProjectService {
 
   // Récupérer les statistiques des projets de l'utilisateur connecté (privé)
   getMyProjectStats(): Observable<ProjectStats> {
-    return this.http.get<ProjectStats>(`${this.API_URL}/projects/my-projects/stats`);
+    return this.http.get<ProjectStats>(`${this.API_URL}/projects/stats`);
   }
 
   // Ancienne méthode (à garder pour compatibilité si nécessaire)
   getProjectSummary(): Observable<ProjectSummary[]> {
-    return this.http.get<ProjectSummary[]>(`${this.API_URL}/projects/summary`);
+    return this.http.get<ProjectSummary[]>(`${this.API_URL}/projects/stats`);
   }
 
   // Rechercher des projets (public)
@@ -152,7 +138,7 @@ export class ProjectService {
 
   // Rechercher des projets de l'utilisateur connecté (privé)
   searchMyProjects(searchTerm: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/search?q=${encodeURIComponent(searchTerm)}`);
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/search?q=${encodeURIComponent(searchTerm)}`);
   }
 
   // Filtrer les projets par statut (public)
@@ -162,7 +148,14 @@ export class ProjectService {
 
   // Filtrer les projets de l'utilisateur connecté par statut (privé)
   filterMyProjectsByStatus(status: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/status/${status}`);
+    // Utiliser l'endpoint approprié selon le statut
+    if (status === 'VALIDATED' || status === 'APPROVED') {
+      return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-validated`);
+    } else if (status === 'PENDING' || status === 'UNVALIDATED') {
+      return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-unvalidated`);
+    }
+    // Pour les autres statuts, retourner tous les projets
+    return this.getMyProjects();
   }
 
   // Filtrer les projets par secteur/domaine (public)
@@ -172,7 +165,7 @@ export class ProjectService {
 
   // Filtrer les projets de l'utilisateur connecté par secteur/domaine (privé)
   filterMyProjectsBySector(sector: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/my-projects/domain/${sector}`);
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/domain?d=${encodeURIComponent(sector)}`);
   }
 
   // Récupérer les projets validés
@@ -307,9 +300,20 @@ export class ProjectService {
     if (!url) {
       return '';
     }
+    // Si c'est déjà une URL HTTP/HTTPS, la retourner telle quelle
     if (/^https?:\/\//i.test(url)) {
       return url;
     }
+    
+    // Si c'est un chemin absolu Windows (commence par C:\ ou D:\ etc.) ou Unix (/)
+    // Le convertir en URL via l'endpoint /public/download
+    if (/^[A-Za-z]:\\/.test(url) || /^\/[^\/]/.test(url)) {
+      // Encoder le chemin pour l'URL
+      const encodedPath = encodeURIComponent(url);
+      return `${this.API_URL}/public/download?absolutePath=${encodedPath}`;
+    }
+    
+    // Si c'est un chemin relatif, essayer de le normaliser
     const normalizedPath = url.startsWith('/') ? url : `/${url}`;
     if (normalizedPath.startsWith('/api')) {
       return `${this.API_ORIGIN}${normalizedPath}`;

@@ -26,14 +26,18 @@ export class ProfileService {
     if (profileData.email) formData.append('email', profileData.email);
     if (profileData.phone) formData.append('phone', profileData.phone);
     if (profileData.address) formData.append('address', profileData.address);
-    if (profileData.profilePhoto) formData.append('profilePhoto', profileData.profilePhoto);
-    if (profileData.currentPassword) formData.append('currentPassword', profileData.currentPassword);
+    // Le backend attend 'profilePicture' et non 'profilePhoto'
+    if (profileData.profilePhoto) formData.append('profilePicture', profileData.profilePhoto);
+    // Le backend attend 'password' et non 'currentPassword'
+    if (profileData.currentPassword) formData.append('password', profileData.currentPassword);
 
-    return this.http.put<ProfileResponse>(`${this.API_URL}/users/me`, formData);
+    // Utiliser l'endpoint project-owners pour la mise à jour
+    return this.http.patch<ProfileResponse>(`${this.API_URL}/project-owners`, formData);
   }
 
   // Changer le mot de passe
   changePassword(passwordData: PasswordChangeRequest): Observable<any> {
+    // Note: Cet endpoint n'existe peut-être pas encore dans le backend
     return this.http.post<any>(`${this.API_URL}/users/me/change-password`, passwordData);
   }
 
@@ -54,6 +58,7 @@ export class ProfileService {
 
   // Supprimer le compte
   deleteAccount(): Observable<void> {
+    // Note: Cet endpoint n'existe peut-être pas encore dans le backend
     return this.http.delete<void>(`${this.API_URL}/users/me`);
   }
 
