@@ -474,6 +474,62 @@
   font-size: 1.2rem;
 }
 
+/* Avertissement de vérification */
+.verification-warning {
+  background: linear-gradient(135deg, rgba(230, 184, 0, 0.15), rgba(230, 184, 0, 0.08));
+  border: 2px solid #E6B800;
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(230, 184, 0, 0.2);
+}
+
+.verification-warning i {
+  font-size: 1.5rem;
+  color: #E6B800;
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+.warning-content {
+  flex: 1;
+}
+
+.warning-content strong {
+  display: block;
+  font-size: 1rem;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+.warning-content p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Désactiver le formulaire si l'utilisateur n'est pas vérifié */
+.project-form.disabled,
+.campaign-form.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.project-form.disabled input,
+.project-form.disabled textarea,
+.project-form.disabled select,
+.campaign-form.disabled input,
+.campaign-form.disabled textarea,
+.campaign-form.disabled select {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
 /* Styles pour les fichiers sélectionnés */
 .file-selected {
   color: #06a664;

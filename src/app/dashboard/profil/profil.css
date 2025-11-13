@@ -417,6 +417,106 @@
   font-size: 0.8rem;
 }
 
+.verification-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  letter-spacing: 0.3px;
+}
+
+.verification-status.verified {
+  background: linear-gradient(135deg, #06A664 0%, #05A05A 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(6, 166, 100, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(6, 166, 100, 0.3);
+}
+
+.verification-status.verified:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(6, 166, 100, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.verification-status.verified i {
+  font-size: 1rem;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.verification-status.not-verified {
+  background: #FFF9E6;
+  color: #8B6914;
+  border: 2px solid #FFD700;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.15), inset 0 0 0 1px rgba(255, 215, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.verification-status.not-verified::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+  transition: left 0.6s ease;
+}
+
+.verification-status.not-verified:hover::before {
+  left: 100%;
+}
+
+.verification-status.not-verified:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.25), inset 0 0 0 1px rgba(255, 215, 0, 0.15);
+  border-color: #FFC107;
+}
+
+.verification-status.not-verified i {
+  font-size: 1rem;
+  color: #FFA500;
+  position: relative;
+  z-index: 1;
+}
+
+.verification-status.not-verified::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0.6rem;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: #FFA500;
+  border-radius: 50%;
+  animation: blink 1.5s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 0.8;
+    transform: translateY(-50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1.2);
+  }
+}
+
+.verification-status i {
+  position: relative;
+  z-index: 1;
+}
+
 /* Section changement de mot de passe */
 .password-section {
   margin-top: 3rem;

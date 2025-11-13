@@ -40,6 +40,10 @@
           {{ profileService.getUserTypeLabel(userProfile.userType) }}
         </span>
         <span class="member-since">Membre depuis {{ userProfile.createdAt | date:'MMM yyyy' }}</span>
+        <span class="verification-status" [class.verified]="userProfile.state === 'ACTIVE'" [class.not-verified]="userProfile.state !== 'ACTIVE'">
+          <i [class]="profileService.getVerificationStatusIcon(userProfile.state)"></i>
+          {{ profileService.getVerificationStatusLabel(userProfile.state) }}
+        </span>
       </div>
     </div>
 

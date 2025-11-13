@@ -8,6 +8,7 @@ export interface UserProfile {
   address: string;
   profilePhoto?: string;
   userType: 'INDIVIDUAL' | 'COMPANY' | 'ASSOCIATION';
+  state?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   createdAt: string;
   updatedAt: string;
 }
@@ -38,6 +39,7 @@ export interface ProfileResponse {
   address: string;
   profilePictureUrl?: string;  // Le backend retourne profilePictureUrl
   userType: string;
+  state?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   createdAt: string;
   updatedAt: string;
 }

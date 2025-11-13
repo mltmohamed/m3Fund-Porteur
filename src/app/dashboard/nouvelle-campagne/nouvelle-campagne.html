@@ -3,7 +3,22 @@
     <h1 class="form-title">Créer une nouvelle campagne</h1>
     <p class="form-subtitle">Bienvenu ! Prêt à lancer votre campagne ? remplissez les champs ci-dessus.</p>
 
-    <form class="campaign-form" (ngSubmit)="onSubmit()">
+    <!-- Messages d'erreur -->
+    <div *ngIf="errorMessage" class="error-message" (click)="clearError()">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ errorMessage }}
+    </div>
+
+    <!-- Avertissement si l'utilisateur n'est pas vérifié -->
+    <div *ngIf="!isUserVerified" class="verification-warning">
+      <i class="fas fa-exclamation-triangle"></i>
+      <div class="warning-content">
+        <strong>Compte non vérifié</strong>
+        <p>Votre compte doit être vérifié par un administrateur avant de pouvoir créer des campagnes. Veuillez patienter pendant que votre compte est en cours de vérification.</p>
+      </div>
+    </div>
+
+    <form class="campaign-form" (ngSubmit)="onSubmit()" [class.disabled]="!isUserVerified">
       <div class="form-columns">
         <!-- Colonne gauche -->
         <div class="form-column">
@@ -120,7 +135,7 @@
 
       <!-- Bouton de soumission -->
       <div class="form-submit">
-        <button type="submit" class="submit-btn">
+        <button type="submit" class="submit-btn" [disabled]="isLoading || !isUserVerified">
           Soumettre
         </button>
       </div>

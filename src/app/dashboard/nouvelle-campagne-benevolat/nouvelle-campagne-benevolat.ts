@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CampaignService } from '../../services/campaign.service';
 import { ProjectService } from '../../services/project.service';
+import { ProfileService } from '../../services/profile.service';
 import { CampaignCreateRequest } from '../../interfaces/campaign.interface';
 import { ProjectResponse } from '../../interfaces/project.interface';
 
@@ -22,6 +23,9 @@ export class NouvelleCampagneBenevolat implements OnInit {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  
+  // Statut de vérification de l'utilisateur
+  isUserVerified = false;
 
   // Options pour les projets (chargées depuis le backend)
   projectOptions: { value: string, label: string }[] = [
@@ -34,11 +38,34 @@ export class NouvelleCampagneBenevolat implements OnInit {
 
   constructor(
     private campaignService: CampaignService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private profileService: ProfileService
   ) {}
 
   ngOnInit() {
     this.loadUserProjects();
+    // Vérifier le statut de vérification de l'utilisateur
+    this.checkUserVerificationStatus();
+  }
+
+  // Vérifier le statut de vérification de l'utilisateur
+  checkUserVerificationStatus() {
+    this.profileService.getCurrentProfile().subscribe({
+      next: (profile) => {
+        const userProfile = this.profileService.transformProfileData(profile);
+        this.isUserVerified = this.profileService.isUserVerified(userProfile);
+        
+        if (!this.isUserVerified) {
+          this.errorMessage = 'Votre compte n\'est pas encore vérifié. Vous devez être vérifié par un administrateur avant de pouvoir créer des campagnes.';
+        }
+      },
+      error: (error) => {
+        console.error('Erreur lors de la vérification du statut:', error);
+        // En cas d'erreur, considérer comme non vérifié par sécurité
+        this.isUserVerified = false;
+        this.errorMessage = 'Impossible de vérifier votre statut. Veuillez réessayer plus tard.';
+      }
+    });
   }
 
   // Charger les projets validés de l'utilisateur
@@ -81,6 +108,12 @@ export class NouvelleCampagneBenevolat implements OnInit {
   }
 
   onSubmit() {
+    // Vérifier si l'utilisateur est vérifié
+    if (!this.isUserVerified) {
+      this.errorMessage = 'Votre compte n\'est pas encore vérifié. Vous devez être vérifié par un administrateur avant de pouvoir créer des campagnes.';
+      return;
+    }
+    
     if (!this.selectedProject) {
       this.errorMessage = 'Veuillez sélectionner un projet';
       return;
@@ -130,6 +163,10 @@ export class NouvelleCampagneBenevolat implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  clearError() {
+    this.errorMessage = '';
   }
 
   resetForm() {

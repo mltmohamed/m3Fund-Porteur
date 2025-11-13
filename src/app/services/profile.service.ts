@@ -74,9 +74,43 @@ export class ProfileService {
       address: backendProfile.address,
       profilePhoto: backendProfile.profilePictureUrl,
       userType: backendProfile.userType as 'INDIVIDUAL' | 'COMPANY' | 'ASSOCIATION',
+      state: backendProfile.state as 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | undefined,
       createdAt: backendProfile.createdAt || '',
       updatedAt: backendProfile.updatedAt || ''
     };
+  }
+  
+  // Vérifier si l'utilisateur est vérifié (ACTIVE)
+  isUserVerified(userProfile: UserProfile | null): boolean {
+    return userProfile?.state === 'ACTIVE';
+  }
+  
+  // Obtenir le label du statut de vérification
+  getVerificationStatusLabel(state?: string): string {
+    switch (state) {
+      case 'ACTIVE':
+        return 'Vérifié';
+      case 'INACTIVE':
+        return 'Non vérifié';
+      case 'SUSPENDED':
+        return 'Suspendu';
+      default:
+        return 'Non vérifié';
+    }
+  }
+  
+  // Obtenir l'icône du statut de vérification
+  getVerificationStatusIcon(state?: string): string {
+    switch (state) {
+      case 'ACTIVE':
+        return 'fas fa-check-circle';
+      case 'INACTIVE':
+        return 'fas fa-clock';
+      case 'SUSPENDED':
+        return 'fas fa-ban';
+      default:
+        return 'fas fa-clock';
+    }
   }
 
   // Obtenir le type d'utilisateur en français

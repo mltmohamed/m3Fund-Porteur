@@ -14,7 +14,16 @@
       {{ successMessage }}
     </div>
 
-    <form class="project-form" (ngSubmit)="onSubmit()">
+    <!-- Avertissement si l'utilisateur n'est pas vérifié -->
+    <div *ngIf="!isUserVerified" class="verification-warning">
+      <i class="fas fa-exclamation-triangle"></i>
+      <div class="warning-content">
+        <strong>Compte non vérifié</strong>
+        <p>Votre compte doit être vérifié par un administrateur avant de pouvoir créer des projets. Veuillez patienter pendant que votre compte est en cours de vérification.</p>
+      </div>
+    </div>
+
+    <form class="project-form" (ngSubmit)="onSubmit()" [class.disabled]="!isUserVerified">
       <div class="form-columns">
         <!-- Colonne gauche -->
         <div class="form-column">
@@ -149,7 +158,7 @@
 
       <!-- Bouton de soumission -->
       <div class="form-submit">
-        <button type="submit" class="submit-btn" [disabled]="isLoading">
+        <button type="submit" class="submit-btn" [disabled]="isLoading || !isUserVerified">
           <i *ngIf="isLoading" class="fas fa-spinner fa-spin"></i>
           <span *ngIf="!isLoading">Soumettre le projet</span>
           <span *ngIf="isLoading">Création en cours...</span>

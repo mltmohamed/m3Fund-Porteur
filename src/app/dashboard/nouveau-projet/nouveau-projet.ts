@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
+import { ProfileService } from '../../services/profile.service';
 import { ProjectCreateRequest } from '../../interfaces/project.interface';
 
 @Component({
@@ -10,7 +11,7 @@ import { ProjectCreateRequest } from '../../interfaces/project.interface';
   templateUrl: './nouveau-projet.html',
   styleUrl: './nouveau-projet.css'
 })
-export class NouveauProjet {
+export class NouveauProjet implements OnInit {
   // Données du formulaire
   projectName: string = '';
   projectSummary: string = '';
@@ -32,6 +33,9 @@ export class NouveauProjet {
   
   // Modal de succès
   showSuccessModal = false;
+  
+  // Statut de vérification de l'utilisateur
+  isUserVerified = false;
 
   // Options pour le domaine (correspondant aux enums du backend)
   domainOptions = [
@@ -49,9 +53,43 @@ export class NouveauProjet {
     { value: 'SOCIAL', label: 'Social' }
   ];
 
-  constructor(private projectService: ProjectService) {}
+  constructor(
+    private projectService: ProjectService,
+    private profileService: ProfileService
+  ) {}
+
+  ngOnInit() {
+    // Vérifier le statut de vérification de l'utilisateur
+    this.checkUserVerificationStatus();
+  }
+
+  // Vérifier le statut de vérification de l'utilisateur
+  checkUserVerificationStatus() {
+    this.profileService.getCurrentProfile().subscribe({
+      next: (profile) => {
+        const userProfile = this.profileService.transformProfileData(profile);
+        this.isUserVerified = this.profileService.isUserVerified(userProfile);
+        
+        if (!this.isUserVerified) {
+          this.errorMessage = 'Votre compte n\'est pas encore vérifié. Vous devez être vérifié par un administrateur avant de pouvoir créer des projets.';
+        }
+      },
+      error: (error) => {
+        console.error('Erreur lors de la vérification du statut:', error);
+        // En cas d'erreur, considérer comme non vérifié par sécurité
+        this.isUserVerified = false;
+        this.errorMessage = 'Impossible de vérifier votre statut. Veuillez réessayer plus tard.';
+      }
+    });
+  }
 
   onSubmit() {
+    // Vérifier si l'utilisateur est vérifié
+    if (!this.isUserVerified) {
+      this.errorMessage = 'Votre compte n\'est pas encore vérifié. Vous devez être vérifié par un administrateur avant de pouvoir créer des projets.';
+      return;
+    }
+    
     // Validation des champs obligatoires
     if (!this.validateForm()) {
       return;
