@@ -31,6 +31,9 @@ export class Projet implements OnInit {
 
   // Données des projets
   projects: Project[] = [];
+  
+  // Stocker tous les projets chargés (non filtrés) pour le filtrage local
+  allProjects: Project[] = [];
 
   constructor(
     private projectService: ProjectService,
@@ -73,7 +76,7 @@ export class Projet implements OnInit {
         });
         
         // Transformer les projets et enrichir avec les données des campagnes
-        this.projects = backendProjects.map(project => {
+        const transformedProjects = backendProjects.map(project => {
           const transformedProject = this.projectService.transformProjectData(project);
           
           // Filtrer les campagnes de ce projet
@@ -133,6 +136,12 @@ export class Projet implements OnInit {
           
           return transformedProject;
         });
+        
+        // Stocker tous les projets transformés (non filtrés)
+        this.allProjects = transformedProjects;
+        
+        // Appliquer les filtres actuels
+        this.applyFilters();
         
         this.isLoading = false;
       },
@@ -279,7 +288,8 @@ export class Projet implements OnInit {
   statusOptions = [
     { value: '', label: 'Tous les statuts' },
     { value: 'validated', label: 'Validé' },
-    { value: 'pending', label: 'Non validé' }
+    { value: 'pending', label: 'Non validé' },
+    { value: 'in_progress', label: 'En cours' }
   ];
 
   sectorOptions = [
@@ -297,58 +307,97 @@ export class Projet implements OnInit {
     { value: 'SOCIAL', label: 'Social' }
   ];
 
-  onSearch() {
+  // Appliquer tous les filtres localement
+  applyFilters() {
+    let filteredProjects = [...this.allProjects];
+    
+    // Filtre par recherche (nom, description, résumé)
     if (this.searchTerm.trim()) {
-      this.projectService.searchMyProjects(this.searchTerm).subscribe({
-        next: (backendProjects: ProjectResponse[]) => {
-          this.projects = backendProjects.map(project => 
-            this.projectService.transformProjectData(project)
-          );
-        },
-        error: (error) => {
-          this.errorMessage = 'Erreur lors de la recherche';
-          console.error('Erreur:', error);
-        }
+      const searchLower = this.searchTerm.toLowerCase().trim();
+      filteredProjects = filteredProjects.filter(project => {
+        const title = (project.title || '').toLowerCase();
+        const description = (project.description || '').toLowerCase();
+        const summary = (project.projectSummary || '').toLowerCase();
+        const projectDescription = (project.projectDescription || '').toLowerCase();
+        
+        return title.includes(searchLower) || 
+               description.includes(searchLower) || 
+               summary.includes(searchLower) ||
+               projectDescription.includes(searchLower);
       });
-    } else {
-      this.loadProjects();
     }
+    
+    // Filtre par statut
+    if (this.selectedStatus) {
+      if (this.selectedStatus === 'validated') {
+        filteredProjects = filteredProjects.filter(project => {
+          const status = project.statusDetail || project.status || '';
+          return status === 'APPROVED' || status === 'VALIDATED' || project.status === 'Validé';
+        });
+      } else if (this.selectedStatus === 'pending') {
+        filteredProjects = filteredProjects.filter(project => {
+          const status = project.statusDetail || project.status || '';
+          return status === 'PENDING' || status === 'UNVALIDATED' || project.status === 'Non validé';
+        });
+      } else if (this.selectedStatus === 'in_progress') {
+        // Un projet est "en cours" s'il a au moins une campagne avec le statut IN_PROGRESS
+        filteredProjects = filteredProjects.filter(project => {
+          const projectCampaigns = this.backendCampaignsMap.get(project.id) || [];
+          return projectCampaigns.some(campaign => {
+            const campaignState = campaign.state || campaign.status;
+            return campaignState === 'IN_PROGRESS';
+          });
+        });
+      }
+    }
+    
+    // Filtre par secteur/domaine
+    if (this.selectedSector) {
+      // Mapper les valeurs du backend vers les labels affichés
+      const backendToLabelMap: { [key: string]: string } = {
+        'AGRICULTURE': 'Agriculture',
+        'BREEDING': 'Élevage',
+        'EDUCATION': 'Éducation',
+        'HEALTH': 'Santé',
+        'MINE': 'Mine',
+        'CULTURE': 'Culture',
+        'ENVIRONMENT': 'Environnement',
+        'COMPUTER_SCIENCE': 'Informatique',
+        'SOLIDARITY': 'Solidarité',
+        'SHOPPING': 'Commerce',
+        'SOCIAL': 'Social'
+      };
+      
+      // Obtenir le label correspondant au secteur sélectionné
+      const selectedLabel = backendToLabelMap[this.selectedSector] || this.selectedSector;
+      
+      filteredProjects = filteredProjects.filter(project => {
+        // Le secteur du projet est déjà transformé en label par transformProjectData
+        const projectSector = (project.sector || '').trim();
+        
+        // Comparer le label du projet avec le label attendu
+        return projectSector === selectedLabel || 
+               projectSector.toLowerCase() === selectedLabel.toLowerCase();
+      });
+    }
+    
+    // Mettre à jour la liste des projets affichés
+    this.projects = filteredProjects;
+  }
+
+  onSearch() {
+    // Appliquer tous les filtres localement
+    this.applyFilters();
   }
 
   onStatusChange() {
-    if (this.selectedStatus) {
-      this.projectService.filterMyProjectsByStatus(this.selectedStatus).subscribe({
-        next: (backendProjects: ProjectResponse[]) => {
-          this.projects = backendProjects.map(project => 
-            this.projectService.transformProjectData(project)
-          );
-        },
-        error: (error) => {
-          this.errorMessage = 'Erreur lors du filtrage par statut';
-          console.error('Erreur:', error);
-        }
-      });
-    } else {
-      this.loadProjects();
-    }
+    // Appliquer tous les filtres localement
+    this.applyFilters();
   }
 
   onSectorChange() {
-    if (this.selectedSector) {
-      this.projectService.filterMyProjectsBySector(this.selectedSector).subscribe({
-        next: (backendProjects: ProjectResponse[]) => {
-          this.projects = backendProjects.map(project => 
-            this.projectService.transformProjectData(project)
-          );
-        },
-        error: (error) => {
-          this.errorMessage = 'Erreur lors du filtrage par secteur';
-          console.error('Erreur:', error);
-        }
-      });
-    } else {
-      this.loadProjects();
-    }
+    // Appliquer tous les filtres localement
+    this.applyFilters();
   }
 
   // Calculer les valeurs du projet à partir de ses campagnes
