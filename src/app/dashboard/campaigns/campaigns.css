@@ -321,15 +321,16 @@
 
 .campaign-card {
   background-color: white;
-  border-radius: 18px;
-  padding: 1.75rem;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
+  border-radius: 20px;
+  padding: 0;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08), 0 4px 24px rgba(0, 0, 0, 0.04);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   height: 100%;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .campaign-card::before {
@@ -339,8 +340,27 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(6, 166, 100, 0.05), transparent);
+  background: linear-gradient(135deg, rgba(6, 166, 100, 0.03), rgba(230, 184, 0, 0.03));
   transition: left 0.6s ease;
+  z-index: 0;
+}
+
+.campaign-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #06A664, #E6B800, #06A664);
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+  z-index: 1;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .campaign-card:hover::before {
@@ -348,8 +368,9 @@
 }
 
 .campaign-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(6, 166, 100, 0.15);
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(6, 166, 100, 0.2), 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: rgba(6, 166, 100, 0.2);
 }
 
 /* En-tête de la carte */
@@ -357,194 +378,357 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.25rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid rgba(45, 45, 45, 0.1);
+  margin-bottom: 1.5rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  padding-top: 1.5rem;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
 }
 
 .campaign-title {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #2D2D2D;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #1a1a1a;
   margin: 0;
   flex: 1;
-  line-height: 1.3;
+  line-height: 1.4;
   transition: all 0.3s ease;
+  letter-spacing: -0.02em;
 }
 
 .campaign-card:hover .campaign-title {
   color: #06A664;
+  transform: translateX(2px);
 }
 
 .sector-badge {
-  padding: 0.4rem 0.9rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  font-size: 0.7rem;
+  font-weight: 700;
   color: white;
   white-space: nowrap;
   margin-left: 0.75rem;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  background: linear-gradient(135deg, #06A664, #05A05A);
+  box-shadow: 0 2px 8px rgba(6, 166, 100, 0.25);
+  position: relative;
+  overflow: hidden;
 }
 
-.sector-badge.sante {
+.sector-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.sector-badge:hover::before {
+  left: 100%;
+}
+
+/* Styles pour tous les domaines */
+.sector-badge.sante,
+.sector-badge.santé {
+  background: linear-gradient(135deg, #E6B800, #D4A600);
+  box-shadow: 0 2px 8px rgba(230, 184, 0, 0.25);
+}
+
+.sector-badge.education,
+.sector-badge.éducation {
+  background: #06A664;
+}
+
+.sector-badge.agriculture {
+  background: #06A664;
+}
+
+.sector-badge.technology,
+.sector-badge.technologie,
+.sector-badge.informatique {
+  background: #06A664;
+}
+
+.sector-badge.shopping,
+.sector-badge.commerce {
+  background: #06A664;
+}
+
+.sector-badge.energy,
+.sector-badge.energie {
+  background: #E6B800;
+}
+
+.sector-badge.transport {
+  background: #06A664;
+}
+
+.sector-badge.tourism,
+.sector-badge.tourisme {
+  background: #E6B800;
+}
+
+.sector-badge.environnement {
+  background: #06A664;
+}
+
+.sector-badge.culture {
+  background: #E6B800;
+}
+
+.sector-badge.solidarité {
+  background: #E6B800;
+}
+
+.sector-badge.social {
+  background: #06A664;
+}
+
+.sector-badge.mine {
+  background: #E6B800;
+}
+
+.sector-badge.élevage {
   background: #E6B800;
 }
 
 .campaign-card:hover .sector-badge {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(6, 166, 100, 0.35);
 }
 
 /* Section principale avec fonds et progression */
 .card-main {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 2;
 }
 
 .funds-section {
-  margin-bottom: 1rem;
-  padding: 0.75rem;
-  background: #FFFFFF;
-  border-radius: 10px;
-  border-left: 3px solid #06A664;
+  margin-bottom: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(6, 166, 100, 0.08), rgba(6, 166, 100, 0.03));
+  border-radius: 16px;
+  border: 2px solid rgba(6, 166, 100, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+.funds-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(180deg, #06A664, #E6B800);
+  border-radius: 0 5px 5px 0;
 }
 
 .funds-info {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  font-weight: 600;
+  gap: 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: #06A664;
   transition: all 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
 .funds-info i {
-  font-size: 1rem;
+  font-size: 1.3rem;
   color: #06A664;
+  background: rgba(6, 166, 100, 0.1);
+  padding: 0.5rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
 .campaign-card:hover .funds-info {
-  color: #06A664;
+  color: #05A05A;
+  transform: translateX(3px);
 }
 
 .campaign-card:hover .funds-info i {
-  transform: scale(1.1);
+  transform: scale(1.15) rotate(5deg);
+  background: rgba(6, 166, 100, 0.2);
+  box-shadow: 0 4px 12px rgba(6, 166, 100, 0.2);
 }
 
 .progress-section {
-  margin-top: 1rem;
+  margin-top: 0;
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .progress-label {
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #2D2D2D;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #666;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
 }
 
 .percentage {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 800;
   color: #06A664;
-  background-color: #FFFFFF;
-  padding: 0.25rem 0.6rem;
-  border-radius: 12px;
-  transition: all 0.3s ease;
-  border: 1px solid #06A664;
+  background: linear-gradient(135deg, rgba(6, 166, 100, 0.1), rgba(6, 166, 100, 0.05));
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(6, 166, 100, 0.2);
+  box-shadow: 0 2px 8px rgba(6, 166, 100, 0.15);
 }
 
 .campaign-card:hover .percentage {
-  background-color: #06A664;
+  background: linear-gradient(135deg, #06A664, #05A05A);
   color: white;
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 4px 16px rgba(6, 166, 100, 0.3);
+  border-color: #06A664;
 }
 
 .progress-bar {
   width: 100%;
-  height: 10px;
-  background-color: #FFFFFF;
-  border: 1px solid #2D2D2D;
-  border-radius: 10px;
+  height: 14px;
+  background: linear-gradient(135deg, #f0f0f0, #e8e8e8);
+  border-radius: 20px;
   overflow: hidden;
-  margin-bottom: 0.75rem;
-  box-shadow: inset 0 2px 4px rgba(45, 45, 45, 0.1);
+  margin-bottom: 1rem;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .progress-fill {
   height: 100%;
-  background: #06A664;
-  border-radius: 10px;
-  transition: all 0.5s ease;
-  box-shadow: 0 2px 8px rgba(6, 166, 100, 0.3);
+  background: linear-gradient(90deg, #06A664, #05A05A, #06A664);
+  background-size: 200% 100%;
+  border-radius: 20px;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 10px rgba(6, 166, 100, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .campaign-card:hover .progress-fill {
-  background: #06A664;
-  box-shadow: 0 2px 12px rgba(6, 166, 100, 0.4);
+  background: linear-gradient(90deg, #06A664, #E6B800, #06A664);
+  background-size: 200% 100%;
+  animation: gradientMove 2s ease infinite;
+  box-shadow: 0 3px 15px rgba(6, 166, 100, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+@keyframes gradientMove {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .collaborators {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+  gap: 0.6rem;
+  font-size: 0.9rem;
   color: #2D2D2D;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
+  padding: 0.5rem 0.75rem;
+  background: rgba(6, 166, 100, 0.05);
+  border-radius: 12px;
+  width: fit-content;
 }
 
 .collaborators i {
   color: #06A664;
-  font-size: 0.9rem;
+  font-size: 1rem;
   transition: all 0.3s ease;
+  background: rgba(6, 166, 100, 0.1);
+  padding: 0.4rem;
+  border-radius: 10px;
 }
 
 .campaign-card:hover .collaborators {
   color: #06A664;
+  background: rgba(6, 166, 100, 0.1);
+  transform: translateX(2px);
 }
 
 .campaign-card:hover .collaborators i {
-  transform: scale(1.15);
+  transform: scale(1.2) rotate(-5deg);
+  background: rgba(6, 166, 100, 0.2);
+  box-shadow: 0 2px 8px rgba(6, 166, 100, 0.2);
 }
 
 /* Contenu avec description */
 .card-content {
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: 0 1.5rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(45, 45, 45, 0.1);
+  border-top: 1px solid rgba(45, 45, 45, 0.08);
+  position: relative;
+  z-index: 2;
 }
 
 .campaign-description {
-  font-size: 0.9rem;
-  color: #2D2D2D;
+  font-size: 0.95rem;
+  color: #555;
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.7;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
+  transition: all 0.3s ease;
+}
+
+.campaign-card:hover .campaign-description {
+  color: #333;
 }
 
 /* Pied de carte */
 .card-footer {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  padding-top: 1rem;
-  border-top: 2px solid rgba(45, 45, 45, 0.1);
+  gap: 1.25rem;
+  padding: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 2px solid rgba(45, 45, 45, 0.08);
   margin-top: auto;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.8));
 }
 
 .footer-top {
@@ -565,28 +749,49 @@
 .status-badge {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 25px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.status-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.status-badge:hover::before {
+  left: 100%;
 }
 
 .status-badge.en-cours {
-  background: #06A664;
+  background: linear-gradient(135deg, #06A664, #05A05A);
   color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(6, 166, 100, 0.3);
 }
 
 .status-badge.pending {
-  background: #E6B800;
-  color: #2D2D2D;
+  background: linear-gradient(135deg, #E6B800, #D4A600);
+  color: #1a1a1a;
+  box-shadow: 0 3px 10px rgba(230, 184, 0, 0.3);
 }
 
 .status-badge.finished {
-  background: #2D2D2D;
+  background: linear-gradient(135deg, #2D2D2D, #1a1a1a);
   color: #FFFFFF;
+  box-shadow: 0 3px 10px rgba(45, 45, 45, 0.3);
 }
 
 .status-badge i {
@@ -594,56 +799,82 @@
 }
 
 .campaign-card:hover .status-badge {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .type-badge {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  background: #E6B800;
-  color: #2D2D2D;
-  transition: all 0.3s ease;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 25px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #E6B800, #D4A600);
+  color: #1a1a1a;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(230, 184, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.type-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s ease;
+}
+
+.type-badge:hover::before {
+  left: 100%;
 }
 
 .type-badge i {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
 }
 
 .campaign-card:hover .type-badge {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(230, 184, 0, 0.3);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(230, 184, 0, 0.4);
 }
 
 .end-date {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   font-size: 0.8rem;
-  color: #2D2D2D;
-  font-weight: 600;
-  padding: 0.4rem 0.75rem;
-  background: #E6B800;
-  border-radius: 20px;
-  transition: all 0.3s ease;
+  color: #1a1a1a;
+  font-weight: 700;
+  padding: 0.5rem 0.9rem;
+  background: linear-gradient(135deg, rgba(230, 184, 0, 0.15), rgba(230, 184, 0, 0.08));
+  border: 2px solid rgba(230, 184, 0, 0.3);
+  border-radius: 25px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(230, 184, 0, 0.2);
 }
 
 .end-date i {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+  color: #E6B800;
 }
 
 .campaign-card:hover .end-date {
-  background: #E6B800;
-  color: #2D2D2D;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(230, 184, 0, 0.3);
+  background: linear-gradient(135deg, #E6B800, #D4A600);
+  color: #1a1a1a;
+  border-color: #E6B800;
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 16px rgba(230, 184, 0, 0.4);
+}
+
+.campaign-card:hover .end-date i {
+  color: #1a1a1a;
 }
 
 /* Tablettes */

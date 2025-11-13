@@ -146,10 +146,18 @@ export class CampaignService {
     // Le backend retourne CampaignResponse avec projectResponse, owner, etc.
     // Extraire les données nécessaires
     const project = backendCampaign.projectResponse || {};
-    const projectName = project.name || 'Projet sans nom';
-    const projectDescription = project.description || project.resume || '';
+    const projectName = project.name || backendCampaign.title || 'Projet sans nom';
+    const projectDescription = project.description || project.resume || backendCampaign.description || '';
+    // Le domaine doit être extrait du projectResponse, avec une valeur par défaut si absent
     const projectDomain = project.domain || 'SANTE';
     const projectId = project.id || backendCampaign.projectId || 0;
+    
+    console.log('Transformation campagne:', {
+      campaignId: backendCampaign.id,
+      projectDomain: projectDomain,
+      project: project,
+      hasProjectResponse: !!backendCampaign.projectResponse
+    });
     
     // Mapper les champs du backend vers le frontend
     const campaignType = backendCampaign.type || backendCampaign.campaignType || 'INVESTMENT';

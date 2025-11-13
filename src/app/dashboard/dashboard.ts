@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Sidebar } from './sidebar/sidebar';
 import { Header } from './header/header';
@@ -23,17 +23,35 @@ import { DashboardData, DashboardSummary } from '../interfaces/dashboard.interfa
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   currentView: string = 'dashboard';
   isLoading = false;
   errorMessage = '';
   dashboardData: DashboardData | null = null;
   summaryCards: DashboardSummary[] = [];
+  private viewChangeListener?: (event: Event) => void;
 
   constructor(private dashboardService: DashboardService) {}
 
   ngOnInit() {
     this.loadDashboardData();
+    
+    // Écouter les événements viewChanged émis par les composants enfants
+    this.viewChangeListener = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const newView = customEvent.detail;
+      console.log('Dashboard - Événement viewChanged reçu:', newView);
+      this.setView(newView);
+    };
+    
+    document.addEventListener('viewChanged', this.viewChangeListener);
+  }
+
+  ngOnDestroy() {
+    // Nettoyer le listener lors de la destruction du composant
+    if (this.viewChangeListener) {
+      document.removeEventListener('viewChanged', this.viewChangeListener);
+    }
   }
 
   loadDashboardData() {

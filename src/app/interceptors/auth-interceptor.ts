@@ -7,13 +7,22 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   const authService = inject(AuthService);
   const token = authService.getToken();
 
-  // Ne pas ajouter le token pour les routes d'authentification
-  const isAuthRoute = req.url.includes('/auth/');
+  // Ne pas ajouter le token pour les routes d'authentification (login, register, refresh)
+  const isAuthRoute = req.url.includes('/auth/login') || 
+                      req.url.includes('/auth/register') || 
+                      req.url.includes('/auth/refresh');
   
   let authReq = req;
+  // Ne jamais ajouter le token pour les routes d'authentification
   if (token && !isAuthRoute) {
     authReq = req.clone({
       headers: req.headers.set('Authorization', `Bearer ${token}`)
+    });
+  } else if (isAuthRoute && token) {
+    // Pour les routes d'authentification, s'assurer qu'aucun token n'est envoyé
+    // Enlever le header Authorization s'il existe déjà
+    authReq = req.clone({
+      headers: req.headers.delete('Authorization')
     });
   }
 

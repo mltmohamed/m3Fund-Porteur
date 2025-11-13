@@ -79,20 +79,27 @@ export class Campaigns implements OnInit {
   }
 
   loadRecentCampaigns() {
-    // Utiliser getCampaigns() pour récupérer les campagnes validées et en cours (IN_PROGRESS) du dashboard public
-    // Ces campagnes sont déjà filtrées côté backend pour ne retourner que les campagnes validées
-    this.campaignService.getCampaigns().subscribe({
+    // Utiliser getMyCampaigns() pour récupérer uniquement les campagnes de l'utilisateur connecté
+    this.campaignService.getMyCampaigns().subscribe({
       next: (backendCampaigns) => {
-        // Prendre les 3 campagnes les plus récentes
-        this.campaigns = backendCampaigns.slice(0, 3).map(campaign => 
+        // Filtrer uniquement les campagnes en cours (IN_PROGRESS) et prendre les 3 plus récentes
+        const activeCampaigns = backendCampaigns
+          .filter(campaign => {
+            const state = campaign.state || campaign.status;
+            return state === 'IN_PROGRESS';
+          })
+          .slice(0, 3);
+        
+        this.campaigns = activeCampaigns.map(campaign => 
           this.campaignService.transformCampaignData(campaign)
         );
         this.hasCampaigns = this.campaigns.length > 0;
-        console.log('Campagnes validées et en cours chargées:', this.campaigns);
+        console.log('Mes campagnes en cours chargées:', this.campaigns);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des campagnes:', error);
         this.hasCampaigns = false;
+        this.campaigns = [];
       }
     });
   }
