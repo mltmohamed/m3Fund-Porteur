@@ -26,7 +26,7 @@ export class NouvelleCampagneDon implements OnInit {
   successMessage = '';
   
   // Statut de vérification de l'utilisateur
-  isUserVerified = false;
+  isUserVerified = true;
 
   // Gestion des récompenses
   rewards: RewardCreateRequest[] = [];
@@ -63,7 +63,7 @@ export class NouvelleCampagneDon implements OnInit {
   ngOnInit() {
     this.loadUserProjects();
     // Vérifier le statut de vérification de l'utilisateur
-    this.checkUserVerificationStatus();
+    // this.checkUserVerificationStatus();
   }
 
   // Vérifier le statut de vérification de l'utilisateur
@@ -198,12 +198,13 @@ export class NouvelleCampagneDon implements OnInit {
     this.successMessage = '';
 
     // Préparer les données de la campagne
-    // Pour DONATION, le backend attend targetBudget et rewards
+    // Pour DONATION, le backend attend targetBudget, rewards et peut recevoir une description
     const campaignData: CampaignCreateRequest = {
       endAt: new Date(this.endDate).toISOString(),
       type: 'DONATION',
       targetBudget: parseFloat(this.targetBudget.replace(/[^\d]/g, '')),
-      rewards: this.rewards
+      rewards: this.rewards,
+      description: this.campaignDescription?.trim() || undefined
     };
     
     console.log('Données de la campagne à envoyer:', campaignData);

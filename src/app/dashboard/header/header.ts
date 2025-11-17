@@ -112,12 +112,12 @@ export class Header implements OnInit {
     // Le convertir en URL via l'endpoint /public/download
     if (/^[A-Za-z]:\\/.test(filePath) || /^\/[^\/]/.test(filePath)) {
       const encodedPath = encodeURIComponent(filePath);
-      return `http://localhost:7878/api/v1/public/download?absolutePath=${encodedPath}`;
+      return `https://m3fund-api.onrender.com/api/v1/public/download?absolutePath=${encodedPath}`;
     }
     
     // Si c'est un chemin relatif, essayer de construire l'URL
     const normalizedPath = filePath.startsWith('/') ? filePath : `/${filePath}`;
-    return `http://localhost:7878${normalizedPath}`;
+    return `https://m3fund-api.onrender.com/${normalizedPath}`;
   }
 
   getDefaultProfileImage(): string {

@@ -33,7 +33,7 @@ export class Login {
       this.errorMessage = '';
 
       const loginData: LoginRequest = {
-        email: this.loginForm.value.email,
+        username: this.loginForm.value.email,
         password: this.loginForm.value.password,
         platform: 'WEB_PROJECT_OWNER'
       };

@@ -2,12 +2,13 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { UserProfile, ProfileUpdateRequest, PasswordChangeRequest, ProfileResponse, ProfileStats } from '../interfaces/profile.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ProfileService {
-  private readonly API_URL = 'http://localhost:7878/api/v1';
+  private readonly API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 

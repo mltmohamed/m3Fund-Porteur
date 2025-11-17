@@ -318,8 +318,9 @@ export class Campagnes implements OnInit {
       this.selectedCampaignRaw = campaignResponse;
       
       // Pré-remplir le formulaire avec les données actuelles
-      // Le backend retourne projectResponse.description, pas campaignResponse.description
+      const campaignDescription = typeof campaignResponse.description === 'string' ? campaignResponse.description : '';
       const projectDescription = campaignResponse.projectResponse?.description || campaignResponse.projectResponse?.resume || '';
+      const descriptionForForm = campaignDescription || projectDescription || '';
       const campaignState = campaignResponse.state || campaignResponse.status || 'IN_PROGRESS';
       const launchedAt = campaignResponse.launchedAt || campaignResponse.startDate || '';
       const endAt = campaignResponse.endAt || campaignResponse.endDate || '';
@@ -327,7 +328,7 @@ export class Campagnes implements OnInit {
       // Ne pas pré-remplir startDate si la campagne est validée (IN_PROGRESS ou FINISHED)
       // Les campagnes PENDING peuvent avoir leur startDate modifiée
       this.editForm = {
-        description: projectDescription || campaign.campaignDescription || '',
+        description: descriptionForForm || campaign.campaignDescription || '',
         targetBudget: campaignResponse.targetBudget || null,
         shareOffered: campaignResponse.shareOffered || null,
         targetVolunteer: null, // Pas disponible pour les campagnes d'investissement
@@ -408,7 +409,7 @@ export class Campagnes implements OnInit {
 
     // Ajouter les champs modifiés
     if (this.editForm.description && this.editForm.description.trim()) {
-      updateData.description = this.editForm.description;
+      updateData.description = this.editForm.description.trim();
     }
     
     if (this.editForm.targetBudget !== null && this.editForm.targetBudget > 0) {
@@ -494,13 +495,14 @@ export class Campagnes implements OnInit {
       this.selectedCampaignRaw = campaignResponse;
       
       // Pré-remplir le formulaire avec les données actuelles
-      // Le backend retourne projectResponse.description, pas campaignResponse.description
+      const campaignDescription = typeof campaignResponse.description === 'string' ? campaignResponse.description : '';
       const projectDescription = campaignResponse.projectResponse?.description || campaignResponse.projectResponse?.resume || '';
+      const descriptionForForm = campaignDescription || projectDescription || '';
       const launchedAt = campaignResponse.launchedAt || campaignResponse.startDate || '';
       const endAt = campaignResponse.endAt || campaignResponse.endDate || '';
       
       this.editForm = {
-        description: projectDescription || campaign.campaignDescription || '',
+        description: descriptionForForm || campaign.campaignDescription || '',
         targetBudget: campaignResponse.targetBudget || null,
         shareOffered: null, // Pas de parts pour les campagnes de don
         targetVolunteer: null,
@@ -573,7 +575,7 @@ export class Campagnes implements OnInit {
 
     // Ajouter les champs modifiés
     if (this.editForm.description && this.editForm.description.trim()) {
-      updateData.description = this.editForm.description;
+      updateData.description = this.editForm.description.trim();
     }
     
     if (this.editForm.targetBudget !== null && this.editForm.targetBudget > 0) {
@@ -655,8 +657,9 @@ export class Campagnes implements OnInit {
       this.selectedCampaignRaw = campaignResponse;
       
       // Pré-remplir le formulaire avec les données actuelles
-      // Le backend retourne projectResponse.description, pas campaignResponse.description
+      const campaignDescription = typeof campaignResponse.description === 'string' ? campaignResponse.description : '';
       const projectDescription = campaignResponse.projectResponse?.description || campaignResponse.projectResponse?.resume || '';
+      const descriptionForForm = campaignDescription || projectDescription || '';
       const campaignState = campaignResponse.state || campaignResponse.status || 'IN_PROGRESS';
       const launchedAt = campaignResponse.launchedAt || campaignResponse.startDate || '';
       const endAt = campaignResponse.endAt || campaignResponse.endDate || '';
@@ -664,7 +667,7 @@ export class Campagnes implements OnInit {
       // Ne pas pré-remplir startDate si la campagne est validée (IN_PROGRESS ou FINISHED)
       // Les campagnes PENDING peuvent avoir leur startDate modifiée
       this.editForm = {
-        description: projectDescription || campaign.campaignDescription || '',
+        description: descriptionForForm || campaign.campaignDescription || '',
         targetBudget: null, // Pas de budget pour les campagnes de bénévolat
         shareOffered: null,
         targetVolunteer: campaignResponse.targetVolunteer || null,
@@ -739,7 +742,7 @@ export class Campagnes implements OnInit {
 
     // Ajouter les champs modifiés
     if (this.editForm.description && this.editForm.description.trim()) {
-      updateData.description = this.editForm.description;
+      updateData.description = this.editForm.description.trim();
     }
     
     if (this.editForm.targetVolunteer !== null && this.editForm.targetVolunteer > 0) {

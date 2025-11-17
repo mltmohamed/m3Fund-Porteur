@@ -37,11 +37,11 @@ export interface CampaignFilters {
 export interface CampaignCreateRequest {
   endAt: string;
   type: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
-  // Note: Le backend n'accepte pas 'description' dans CreateCampaignRequest
   targetVolunteer?: number;
   targetBudget?: number;
   shareOffered?: number;
   rewards?: RewardCreateRequest[];
+  description?: string;
 }
 
 export interface RewardCreateRequest {
@@ -78,7 +78,7 @@ export interface CampaignResponse {
   targetVolunteer: number;
   shareOffered: number;
   type: 'INVESTMENT' | 'DONATION' | 'VOLUNTEERING';
-  state: 'PENDING' | 'IN_PROGRESS' | 'FINISHED';
+  state: 'IN_PROGRESS' | 'FINISHED';
   rewards?: any[];
   currentFund: number;
   numberOfVolunteer: number;

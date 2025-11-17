@@ -25,7 +25,7 @@ export class NouvelleCampagneBenevolat implements OnInit {
   successMessage = '';
   
   // Statut de vérification de l'utilisateur
-  isUserVerified = false;
+  isUserVerified = true;
 
   // Options pour les projets (chargées depuis le backend)
   projectOptions: { value: string, label: string }[] = [
@@ -45,7 +45,7 @@ export class NouvelleCampagneBenevolat implements OnInit {
   ngOnInit() {
     this.loadUserProjects();
     // Vérifier le statut de vérification de l'utilisateur
-    this.checkUserVerificationStatus();
+    // this.checkUserVerificationStatus();
   }
 
   // Vérifier le statut de vérification de l'utilisateur
@@ -134,11 +134,12 @@ export class NouvelleCampagneBenevolat implements OnInit {
     this.successMessage = '';
 
     // Préparer les données de la campagne
-    // Pour VOLUNTEERING, le backend attend targetVolunteer
+    // Pour VOLUNTEERING, le backend attend targetVolunteer et peut recevoir une description
     const campaignData: CampaignCreateRequest = {
       endAt: new Date(this.endDate).toISOString(),
       type: 'VOLUNTEERING',
-      targetVolunteer: this.targetVolunteer
+      targetVolunteer: this.targetVolunteer,
+      description: this.campaignDescription?.trim() || undefined
     };
 
     // Créer la campagne

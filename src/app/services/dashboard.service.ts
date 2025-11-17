@@ -4,12 +4,13 @@ import { Observable, forkJoin } from 'rxjs';
 import { DashboardStats, DashboardSummary, RecentActivity, DashboardData } from '../interfaces/dashboard.interface';
 import { ProjectService } from './project.service';
 import { CampaignService } from './campaign.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class DashboardService {
-  private readonly API_URL = 'http://localhost:7878/api/v1';
+  private readonly API_URL = environment.apiUrl;
 
   constructor(
     private http: HttpClient,

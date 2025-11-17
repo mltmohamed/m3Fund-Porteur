@@ -33,6 +33,8 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.API_URL}/auth/login`, credentials)
       .pipe(
         tap(response => {
+          localStorage.setItem('access_token', response.accessToken);
+          localStorage.setItem('refresh_token', response.refreshToken);
           this.setTokens(response.accessToken, response.refreshToken);
           this.isAuthenticatedSubject.next(true);
         })

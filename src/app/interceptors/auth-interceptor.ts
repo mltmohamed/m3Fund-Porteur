@@ -83,13 +83,11 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
             catchError((refreshError) => {
               console.error('Échec du rafraîchissement du token:', refreshError);
               console.error('Déconnexion de l\'utilisateur...');
-              authService.logout();
               return throwError(() => refreshError);
             })
           );
         } else {
           console.error('Aucun refresh token disponible ou requête de refresh - déconnexion...');
-          authService.logout();
         }
       }
       

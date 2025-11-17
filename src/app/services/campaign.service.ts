@@ -8,12 +8,13 @@ import {
   CampaignUpdateRequest, 
   CampaignResponse 
 } from '../interfaces/campaign.interface';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CampaignService {
-  private readonly API_URL = 'http://localhost:7878/api/v1';
+  private readonly API_URL = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -21,80 +22,128 @@ export class CampaignService {
   getCampaigns(): Observable<CampaignResponse[]> {
     // Ajouter un timestamp pour éviter le cache
     const timestamp = new Date().getTime();
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
     // Cet endpoint retourne uniquement les campagnes validées (IN_PROGRESS)
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns?t=${timestamp}`);
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine`, {headers});
   }
 
   // Récupérer les campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
   getMyCampaigns(): Observable<CampaignResponse[]> {
     const timestamp = new Date().getTime();
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine?t=${timestamp}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine`, {headers});
   }
 
   // Récupérer les campagnes actives (en cours)
   getActiveCampaigns(): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/active`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-active`, {headers});
   }
 
   // Récupérer une campagne par ID
   getCampaignById(id: number): Observable<CampaignResponse> {
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
     // Note: Cet endpoint n'existe peut-être pas dans le backend, à vérifier
-    return this.http.get<CampaignResponse>(`${this.API_URL}/projects/campaigns/${id}`);
+    return this.http.get<CampaignResponse>(`${this.API_URL}/projects/campaigns/${id}`, {headers});
   }
 
   // Créer une nouvelle campagne
   createCampaign(projectId: number, campaignData: CampaignCreateRequest): Observable<CampaignResponse> {
-    return this.http.post<CampaignResponse>(`${this.API_URL}/projects/${projectId}/campaigns`, campaignData);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.post<CampaignResponse>(`${this.API_URL}/projects/${projectId}/campaigns`, campaignData, {headers});
   }
 
   // Mettre à jour une campagne
   updateCampaign(campaignData: CampaignUpdateRequest): Observable<CampaignResponse> {
-    return this.http.patch<CampaignResponse>(`${this.API_URL}/projects/campaigns/${campaignData.id}`, campaignData);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.patch<CampaignResponse>(`${this.API_URL}/projects/campaigns/${campaignData.id}`, campaignData, {headers});
   }
 
   // Supprimer une campagne
   deleteCampaign(id: number): Observable<void> {
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
     // Note: Cet endpoint n'existe peut-être pas dans le backend, à vérifier
-    return this.http.delete<void>(`${this.API_URL}/projects/campaigns/${id}`);
+    return this.http.delete<void>(`${this.API_URL}/projects/campaigns/${id}`, {headers});
   }
 
   // Récupérer les statistiques des campagnes
   getCampaignSummary(): Observable<CampaignSummary[]> {
-    return this.http.get<CampaignSummary[]>(`${this.API_URL}/projects/campaigns/stats`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<CampaignSummary[]>(`${this.API_URL}/projects/campaigns/stats`, {headers});
   }
 
   // Rechercher des campagnes (ENDPOINT PUBLIC - pour les contributeurs)
   searchCampaigns(searchTerm: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/search?q=${encodeURIComponent(searchTerm)}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/search?q=${encodeURIComponent(searchTerm)}`, {headers});
   }
 
   // Rechercher les campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
   searchMyCampaigns(searchTerm: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/search?q=${encodeURIComponent(searchTerm)}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/search?q=${encodeURIComponent(searchTerm)}`, {headers});
   }
 
   // Filtrer les campagnes par projet (ENDPOINT PUBLIC - pour les contributeurs)
   filterCampaignsByProject(projectId: number): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/project/${projectId}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/${projectId}/campaigns`, {headers});
   }
 
   // Filtrer les campagnes du porteur par projet (ENDPOINT PRIVÉ)
   filterMyCampaignsByProject(projectId: number): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/${projectId}/campaigns`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/${projectId}/campaigns`, {headers});
   }
 
   // Filtrer les campagnes par statut (ENDPOINT PUBLIC - pour les contributeurs)
   filterCampaignsByStatus(status: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/status/${status}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    if (status === 'IN_PROGRESS' || status === 'ACTIVE') {
+      return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-active`, {headers});
+    } else if (status === 'COMPLETED' || status === 'FINISHED') {
+      return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-finished`, {headers});
+    }
+    // Pour les autres statuts, retourner toutes les campagnes
+    return this.getMyCampaigns();
   }
 
   // Filtrer les campagnes du porteur par statut (ENDPOINT PRIVÉ)
   filterMyCampaignsByStatus(status: string): Observable<CampaignResponse[]> {
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
     // Utiliser l'endpoint des campagnes actives ou terminées selon le statut
     if (status === 'IN_PROGRESS' || status === 'ACTIVE') {
-      return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-active`);
+      return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-active`, {headers});
     } else if (status === 'COMPLETED' || status === 'FINISHED') {
-      return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-finished`);
+      return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/mine-finished`, {headers});
     }
     // Pour les autres statuts, retourner toutes les campagnes
     return this.getMyCampaigns();
@@ -102,17 +151,26 @@ export class CampaignService {
 
   // Filtrer les campagnes par type
   filterCampaignsByType(type: string): Observable<CampaignResponse[]> {
-    return this.http.get<CampaignResponse[]>(`${this.API_URL}/public/campaigns/type/${type}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<CampaignResponse[]>(`${this.API_URL}/projects/campaigns/type?t=${encodeURIComponent(type)}`, {headers});
   }
 
   // Récupérer les statistiques des campagnes (ENDPOINT PUBLIC - pour les contributeurs)
   getCampaignStats(): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}/public/campaigns/stats`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<any>(`${this.API_URL}/projects/campaigns/stats`, {headers});
   }
 
   // Récupérer les statistiques des campagnes du porteur de projet connecté (ENDPOINT PRIVÉ)
   getMyCampaignStats(): Observable<any> {
-    return this.http.get<any>(`${this.API_URL}/projects/campaigns/stats`);
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<any>(`${this.API_URL}/projects/campaigns/stats`, {headers});
   }
 
   // Transformer les statistiques en cartes de résumé
@@ -147,7 +205,13 @@ export class CampaignService {
     // Extraire les données nécessaires
     const project = backendCampaign.projectResponse || {};
     const projectName = project.name || backendCampaign.title || 'Projet sans nom';
-    const projectDescription = project.description || project.resume || backendCampaign.description || '';
+    // Description spécifique à la campagne (backendCampaign.description)
+    const campaignDescription = typeof backendCampaign.description === 'string' ? backendCampaign.description : '';
+    // Description / résumé du projet
+    const projectDescription = typeof project.description === 'string' ? project.description : '';
+    const projectResume = typeof project.resume === 'string' ? project.resume : '';
+    // Pour les affichages de campagne, on privilégie toujours la description de campagne
+    const descriptionSource = campaignDescription || projectDescription || projectResume || '';
     // Le domaine doit être extrait du projectResponse, avec une valeur par défaut si absent
     const projectDomain = project.domain || 'SANTE';
     const projectId = project.id || backendCampaign.projectId || 0;
@@ -225,15 +289,15 @@ export class CampaignService {
       statusDetail: campaignStatus,
       collaboratorCount: collaboratorCount.toString(),
       campaignCount: '0', // Non disponible dans CampaignResponse
-      campaignSummary: projectDescription && typeof projectDescription === 'string' && projectDescription.trim().length > 0 
-        ? (projectDescription.length > 150 ? projectDescription.substring(0, 150) + '...' : projectDescription)
+      campaignSummary: descriptionSource && descriptionSource.trim().length > 0 
+        ? (descriptionSource.length > 150 ? descriptionSource.substring(0, 150) + '...' : descriptionSource)
         : '',
       targetBudget: `${targetBudget.toLocaleString('fr-FR')} FCFA`,
       shareOffered: `${shareOffered}%`,
       netValue: '0 FCFA', // Non disponible dans CampaignResponse
       fundsRaised: `${fundsRaised.toLocaleString('fr-FR')} FCFA`,
-      campaignDescription: projectDescription && typeof projectDescription === 'string' && projectDescription.trim().length > 0 
-        ? projectDescription.trim() 
+      campaignDescription: descriptionSource && descriptionSource.trim().length > 0 
+        ? descriptionSource.trim() 
         : ''
     };
   }

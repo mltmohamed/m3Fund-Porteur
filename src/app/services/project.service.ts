@@ -22,7 +22,13 @@ export class ProjectService {
 
   // Récupérer tous les projets
   getProjects(): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects`);
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectResponse[]>(
+      `${this.API_URL}/projects/mine`,
+      {headers}
+    );
   }
 
   // Récupérer un projet par ID
@@ -108,7 +114,13 @@ export class ProjectService {
 
   // Récupérer tous les projets de l'utilisateur connecté
   getMyProjects(): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine`);
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectResponse[]>(
+      `${this.API_URL}/projects/mine`,
+      {headers}
+    );
   }
 
   // Récupérer les projets validés de l'utilisateur connecté
@@ -118,41 +130,69 @@ export class ProjectService {
 
   // Récupérer les statistiques des projets depuis le backend (public)
   getProjectStats(): Observable<ProjectStats> {
-    return this.http.get<ProjectStats>(`${this.API_URL}/public/projects/stats`);
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectStats>(`${this.API_URL}/projects/stats`);
+    {headers}
   }
 
   // Récupérer les statistiques des projets de l'utilisateur connecté (privé)
   getMyProjectStats(): Observable<ProjectStats> {
-    return this.http.get<ProjectStats>(`${this.API_URL}/projects/stats`);
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectStats>(`${this.API_URL}/projects/stats`, {headers});
   }
 
   // Ancienne méthode (à garder pour compatibilité si nécessaire)
   getProjectSummary(): Observable<ProjectSummary[]> {
-    return this.http.get<ProjectSummary[]>(`${this.API_URL}/projects/stats`);
+    const headers = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectSummary[]>(`${this.API_URL}/projects/stats`, {headers});
   }
 
   // Rechercher des projets (public)
   searchProjects(searchTerm: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/search?q=${encodeURIComponent(searchTerm)}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/search?q=${encodeURIComponent(searchTerm)}`, {headers});
   }
 
   // Rechercher des projets de l'utilisateur connecté (privé)
   searchMyProjects(searchTerm: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/search?q=${encodeURIComponent(searchTerm)}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/search?q=${encodeURIComponent(searchTerm)}`, {headers});
   }
 
   // Filtrer les projets par statut (public)
   filterProjectsByStatus(status: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/${status}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    if (status === 'VALIDATED' || status === 'APPROVED') {
+      return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-validated`, {headers});
+    } else if (status === 'PENDING' || status === 'UNVALIDATED') {
+      return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-unvalidated`, {headers});
+    }
+    // Pour les autres statuts, retourner tous les projets
+    return this.getMyProjects();
   }
 
   // Filtrer les projets de l'utilisateur connecté par statut (privé)
   filterMyProjectsByStatus(status: string): Observable<ProjectResponse[]> {
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
     // Utiliser l'endpoint approprié selon le statut
     if (status === 'VALIDATED' || status === 'APPROVED') {
-      return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-validated`);
+      return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-validated`, {headers});
     } else if (status === 'PENDING' || status === 'UNVALIDATED') {
-      return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-unvalidated`);
+      return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-unvalidated`, {headers});
     }
     // Pour les autres statuts, retourner tous les projets
     return this.getMyProjects();
@@ -160,22 +200,34 @@ export class ProjectService {
 
   // Filtrer les projets par secteur/domaine (public)
   filterProjectsBySector(sector: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/domain/${sector}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/domain?d=${encodeURIComponent(sector)}`, {headers});
   }
 
   // Filtrer les projets de l'utilisateur connecté par secteur/domaine (privé)
   filterMyProjectsBySector(sector: string): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/domain?d=${encodeURIComponent(sector)}`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/domain?d=${encodeURIComponent(sector)}`, {headers});
   }
 
   // Récupérer les projets validés
   getValidatedProjects(): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/validated`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-validated`, {headers});
   }
 
   // Récupérer les projets en attente
   getPendingProjects(): Observable<ProjectResponse[]> {
-    return this.http.get<ProjectResponse[]>(`${this.API_URL}/public/projects/pending`);
+    const headers : HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.get<ProjectResponse[]>(`${this.API_URL}/projects/mine-unvalidated`, {headers});
   }
 
   // Transformer les données du backend en format frontend

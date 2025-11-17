@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:7878/api/v1'
+  apiUrl: 'https://m3fund-api.onrender.com/api/v1'
 };

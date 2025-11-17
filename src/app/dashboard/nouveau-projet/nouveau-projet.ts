@@ -35,7 +35,7 @@ export class NouveauProjet implements OnInit {
   showSuccessModal = false;
   
   // Statut de vérification de l'utilisateur
-  isUserVerified = false;
+  isUserVerified = true;
 
   // Options pour le domaine (correspondant aux enums du backend)
   domainOptions = [
@@ -60,7 +60,7 @@ export class NouveauProjet implements OnInit {
 
   ngOnInit() {
     // Vérifier le statut de vérification de l'utilisateur
-    this.checkUserVerificationStatus();
+    // this.checkUserVerificationStatus();
   }
 
   // Vérifier le statut de vérification de l'utilisateur

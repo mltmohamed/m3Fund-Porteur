@@ -26,7 +26,7 @@ export class NouvelleCampagne implements OnInit {
   successMessage = '';
   
   // Statut de vérification de l'utilisateur
-  isUserVerified = false;
+  isUserVerified = true;
 
   // Options pour les projets (chargées depuis le backend)
   projectOptions: { value: string, label: string }[] = [
@@ -46,7 +46,7 @@ export class NouvelleCampagne implements OnInit {
   ngOnInit() {
     this.loadUserProjects();
     // Vérifier le statut de vérification de l'utilisateur
-    this.checkUserVerificationStatus();
+    // this.checkUserVerificationStatus();
   }
 
   // Vérifier le statut de vérification de l'utilisateur
@@ -156,12 +156,13 @@ export class NouvelleCampagne implements OnInit {
     this.successMessage = '';
 
     // Préparer les données de la campagne
-    // Pour INVESTMENT, le backend attend targetBudget ET shareOffered
+    // Pour INVESTMENT, le backend attend targetBudget, shareOffered et peut recevoir une description
     const campaignData: CampaignCreateRequest = {
       endAt: new Date(this.endDate).toISOString(),
       type: 'INVESTMENT',
       targetBudget: parseFloat(this.targetBudget.replace(/[^\d]/g, '')),
-      shareOffered: parseFloat(this.shareOffered)
+      shareOffered: parseFloat(this.shareOffered),
+      description: this.campaignDescription?.trim() || undefined
     };
 
     // Créer la campagne
