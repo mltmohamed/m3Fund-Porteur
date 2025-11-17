@@ -82,5 +82,6 @@ export interface ProjectResponse {
   businessPlanUrl: string;
   launchedAt: string;
   createdAt: string;
+  updatedAt?: string;
   isValidated: boolean;
 }

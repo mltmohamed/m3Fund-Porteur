@@ -234,8 +234,9 @@ export class ProjectService {
   transformProjectData(backendProject: ProjectResponse): Project {
     let status = backendProject.isValidated ? 'APPROVED' : 'PENDING';
     
-    const images = (backendProject.imagesUrl || []).map(url => this.ensureAbsoluteUrl(url));
-    const videoUrl = this.ensureAbsoluteUrl(backendProject.videoUrl || '');
+    const cacheKey = backendProject.updatedAt;
+    const images = (backendProject.imagesUrl || []).map(url => this.ensureAbsoluteUrl(url, cacheKey));
+    const videoUrl = this.ensureAbsoluteUrl(backendProject.videoUrl || '', cacheKey);
     return {
       id: backendProject.id,
       title: backendProject.name,
@@ -337,13 +338,13 @@ export class ProjectService {
     return iconMap[status] || 'fas fa-question';
   }
 
-  private ensureAbsoluteUrl(url?: string): string {
+  private ensureAbsoluteUrl(url?: string, cacheKey?: string): string {
     if (!url) {
       return '';
     }
     // Si c'est déjà une URL HTTP/HTTPS, la retourner telle quelle
     if (/^https?:\/\//i.test(url)) {
-      return url;
+      return this.addCacheBusting(url, cacheKey);
     }
     
     // Si c'est un chemin absolu Windows (commence par C:\ ou D:\ etc.) ou Unix (/)
@@ -351,16 +352,27 @@ export class ProjectService {
     if (/^[A-Za-z]:\\/.test(url) || /^\/[^\/]/.test(url)) {
       // Encoder le chemin pour l'URL
       const encodedPath = encodeURIComponent(url);
-      return `${this.API_URL}/public/download?absolutePath=${encodedPath}`;
+      return this.addCacheBusting(`${this.API_URL}/public/download?absolutePath=${encodedPath}`, cacheKey);
     }
     
     // Si c'est un chemin relatif, essayer de le normaliser
     const normalizedPath = url.startsWith('/') ? url : `/${url}`;
     if (normalizedPath.startsWith('/api')) {
-      return `${this.API_ORIGIN}${normalizedPath}`;
+      return this.addCacheBusting(`${this.API_ORIGIN}${normalizedPath}`, cacheKey);
     }
     const base = this.API_URL.replace(/\/$/, '');
-    return `${base}${normalizedPath}`;
+    const absoluteUrl = `${base}${normalizedPath}`;
+    return this.addCacheBusting(absoluteUrl, cacheKey);
+  }
+
+  private addCacheBusting(url: string, cacheKey?: string): string {
+    if (url.includes('cb=')) {
+      return url;
+    }
+    const parsedTime = cacheKey ? Date.parse(cacheKey) : NaN;
+    const cacheToken = !Number.isNaN(parsedTime) ? parsedTime.toString() : (cacheKey ?? Date.now().toString());
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}cb=${cacheToken}`;
   }
 
   private extractApiOrigin(apiUrl: string): string {
