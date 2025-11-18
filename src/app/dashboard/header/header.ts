@@ -137,6 +137,11 @@ export class Header implements OnInit {
     }
   }
 
+  openNotificationsPage() {
+    this.showNotifications = false;
+    this.viewChange.emit('notifications');
+  }
+
   goToNewProject() {
     this.viewChange.emit('nouveau-projet');
   }

@@ -98,7 +98,18 @@ export class ProjectService {
       // Convertir en format ISO si nécessaire
       updatePayload.launchedAt = projectData.launchedAt;
     }
-    
+
+    if(projectData.images && projectData.images.length > 0) {
+      updatePayload.images = projectData.images;
+    }
+
+    if(projectData.video) {
+      updatePayload.video = projectData.video;
+    }
+
+    if(projectData.businessPlan) {
+      updatePayload.businessPlan = projectData.businessPlan;
+    }
     // Note: Les images, vidéo et business plan ne peuvent pas être mis à jour via cet endpoint
     // car le backend utilise @RequestBody qui ne supporte pas les fichiers multipart
     

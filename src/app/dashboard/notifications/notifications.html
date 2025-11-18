@@ -1,7 +1,6 @@
 <div class="notifications-container">
-  <!-- Header -->
-  <div class="notifications-header">
-    <div class="header-title">
+  <div class="page-header">
+    <div class="page-title">
       <h1>Notifications</h1>
       <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
     </div>
@@ -17,39 +16,7 @@
     </div>
   </div>
 
-  <!-- Statistiques -->
-  <div class="stats-cards">
-    <div class="stat-card">
-      <div class="stat-icon all">
-        <i class="fas fa-inbox"></i>
-      </div>
-      <div class="stat-info">
-        <div class="stat-value">{{ totalNotifications }}</div>
-        <div class="stat-label">Total</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon unread">
-        <i class="fas fa-envelope"></i>
-      </div>
-      <div class="stat-info">
-        <div class="stat-value">{{ unreadCount }}</div>
-        <div class="stat-label">Non lues</div>
-      </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon read">
-        <i class="fas fa-envelope-open"></i>
-      </div>
-      <div class="stat-info">
-        <div class="stat-value">{{ readCount }}</div>
-        <div class="stat-label">Lues</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filtres -->
-  <div class="filters-section">
+  <div class="filters-row">
     <div class="filter-tabs">
       <button 
         class="filter-tab" 
@@ -83,13 +50,14 @@
     <div 
       class="notification-item" 
       *ngFor="let notification of filteredNotifications"
-      [class.unread]="!notification.read">
+      [class.unread]="!notification.read"
+      [ngClass]="'type-' + notification.type">
       
       <!-- Indicateur non lu -->
       <div class="unread-indicator" *ngIf="!notification.read"></div>
 
       <!-- Icône -->
-      <div class="notification-icon" [style.background-color]="notification.color">
+      <div class="notification-icon">
         <i [class]="notification.icon"></i>
       </div>
 

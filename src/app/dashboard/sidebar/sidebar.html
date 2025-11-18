@@ -28,6 +28,10 @@
       <i class="fas fa-envelope"></i>
       <span>Message</span>
     </a>
+    <a href="#" class="nav-item" [class.active]="currentView === 'notifications'" (click)="setView('notifications'); $event.preventDefault()">
+      <i class="fas fa-bell"></i>
+      <span>Notifications</span>
+    </a>
     <a href="#" class="nav-item" [class.active]="currentView === 'fonds'" (click)="setView('fonds'); $event.preventDefault()">
       <i class="fas fa-dollar-sign"></i>
       <span>Fonds</span>

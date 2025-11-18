@@ -16,10 +16,11 @@ import { Parametres } from './parametres/parametres';
 import { Message } from './message/message';
 import { DashboardService } from '../services/dashboard.service';
 import { DashboardData, DashboardSummary } from '../interfaces/dashboard.interface';
+import { Notifications } from './notifications/notifications';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule, Sidebar, Header, Projects, Campaigns, Projet, Fonds, NouveauProjet, NouvelleCampagne, NouvelleCampagneDon, NouvelleCampagneBenevolat, Campagnes, Profil, Parametres, Message],
+  imports: [CommonModule, Sidebar, Header, Projects, Campaigns, Projet, Fonds, NouveauProjet, NouvelleCampagne, NouvelleCampagneDon, NouvelleCampagneBenevolat, Campagnes, Profil, Parametres, Message, Notifications],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css'
 })

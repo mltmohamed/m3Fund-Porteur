@@ -18,6 +18,12 @@
         <div class="no-notifications" *ngIf="notifications.length === 0">
           <p>Aucune notification</p>
         </div>
+        <div class="notification-footer-actions">
+          <button class="view-all-btn" (click)="openNotificationsPage()">
+            Voir toutes les notifications
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
       </div>
     </div>
     <div class="profile-pic" (click)="goToProfil()">

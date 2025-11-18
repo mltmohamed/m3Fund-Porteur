@@ -226,6 +226,7 @@ export class Notifications implements OnInit {
     }
 
     this.filteredNotifications = filtered;
+    this.notificationService.updateUnreadCount(this.unreadCount);
   }
 
   selectFilter(filter: string) {

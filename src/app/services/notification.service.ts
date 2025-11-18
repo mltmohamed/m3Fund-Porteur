@@ -72,6 +72,11 @@ export class NotificationService {
     }));
   }
 
+  // Permettre aux composants de synchroniser manuellement le compteur
+  updateUnreadCount(count: number): void {
+    this.unreadCountSubject.next(count);
+  }
+
   // Obtenir le nom de l'expéditeur selon le type
   private getSenderFromType(type: string): string {
     const senderMap: { [key: string]: string } = {
