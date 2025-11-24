@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { FondsService, Transaction } from '../../services/fonds.service';
 import { ProfileService } from '../../services/profile.service';
 import { ProfileResponse } from '../../interfaces/profile.interface';
+import { CampaignService } from '../../services/campaign.service';
+import { CampaignResponse } from '../../interfaces/campaign.interface';
 
 @Component({
   selector: 'app-fonds',
@@ -21,10 +23,17 @@ export class Fonds implements OnInit {
   error: string = '';
   totalFund: number = 0;
   totalFundDisplay: string = '';
+  availableToDisburseTotal: number = 0;
+  availableOM: string = '0 FCFA';
+  availableMoov: string = '0 FCFA';
+  availableCard: string = '0 FCFA';
 
   // Données des transactions
   transactions: Transaction[] = [];
   filteredTransactions: Transaction[] = [];
+  transactionsSuccess: Transaction[] = [];
+  transactionsPending: Transaction[] = [];
+  transactionsFailed: Transaction[] = [];
 
   // Données de test (à supprimer après intégration)
   mockTransactions: Transaction[] = [
@@ -94,10 +103,11 @@ export class Fonds implements OnInit {
     }
   ];
 
-  constructor(private fondsService: FondsService, private profileService: ProfileService) {}
+  constructor(private fondsService: FondsService, private profileService: ProfileService, private campaignService: CampaignService) {}
 
   ngOnInit() {
     this.loadUserFund();
+    this.loadAvailableToDisburse();
     this.loadTransactions();
   }
 
@@ -109,6 +119,7 @@ export class Fonds implements OnInit {
       next: (transactions) => {
         this.transactions = this.fondsService.transformTransactionsData(transactions);
         this.filteredTransactions = [...this.transactions];
+        this.categorizeTransactions();
         this.loading = false;
         console.log('Transactions chargées:', this.transactions);
       },
@@ -118,6 +129,7 @@ export class Fonds implements OnInit {
         // Utiliser les données de test en cas d'erreur
         this.transactions = this.mockTransactions;
         this.filteredTransactions = [...this.transactions];
+        this.categorizeTransactions();
         this.loading = false;
       }
     });
@@ -193,6 +205,7 @@ export class Fonds implements OnInit {
     }
 
     this.filteredTransactions = filtered;
+    this.categorizeTransactions();
   }
 
   getStatusClass(status: string) {
@@ -243,5 +256,29 @@ export class Fonds implements OnInit {
         this.totalFundDisplay = '0 FCFA';
       }
     });
+  }
+
+  private loadAvailableToDisburse() {
+    this.campaignService.filterMyCampaignsByStatus('FINISHED').subscribe({
+      next: (campaigns: CampaignResponse[]) => {
+        const totalContributed = campaigns.reduce((sum, c) => sum + (c.currentFund || 0), 0);
+        this.availableToDisburseTotal = Math.floor(totalContributed * 0.9);
+        this.availableOM = `${this.availableToDisburseTotal.toLocaleString('fr-FR')} FCFA`;
+        this.availableMoov = `${this.availableToDisburseTotal.toLocaleString('fr-FR')} FCFA`;
+        this.availableCard = `${this.availableToDisburseTotal.toLocaleString('fr-FR')} FCFA`;
+      },
+      error: () => {
+        this.availableToDisburseTotal = 0;
+        this.availableOM = '0 FCFA';
+        this.availableMoov = '0 FCFA';
+        this.availableCard = '0 FCFA';
+      }
+    });
+  }
+
+  private categorizeTransactions() {
+    this.transactionsSuccess = this.filteredTransactions.filter(t => t.status === 'success');
+    this.transactionsPending = this.filteredTransactions.filter(t => t.status === 'pending');
+    this.transactionsFailed = this.filteredTransactions.filter(t => t.status === 'failed');
   }
 }
