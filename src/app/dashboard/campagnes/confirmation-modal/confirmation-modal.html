@@ -1,19 +1,31 @@
 <div class="confirmation-modal-overlay" *ngIf="isVisible" (click)="closeModal()">
   <div class="confirmation-modal-content" (click)="$event.stopPropagation()">
-    <div class="confirmation-icon" [class.success]="isSuccess" [class.error]="!isSuccess">
-      <i *ngIf="isSuccess" class="fas fa-check-circle"></i>
-      <i *ngIf="!isSuccess" class="fas fa-times-circle"></i>
-    </div>
-    
-    <h2 class="confirmation-title" [class.success]="isSuccess" [class.error]="!isSuccess">
-      {{ isSuccess ? 'Modification réussie !' : 'Erreur de modification' }}
-    </h2>
-    
-    <p class="confirmation-message">{{ message }}</p>
-    
-    <button class="confirmation-btn" (click)="closeModal()" [class.success]="isSuccess" [class.error]="!isSuccess">
-      {{ isSuccess ? 'Continuer' : 'Réessayer' }}
-    </button>
+    <ng-container *ngIf="!confirmMode; else confirmTpl">
+      <div class="confirmation-icon" [class.success]="isSuccess" [class.error]="!isSuccess">
+        <i *ngIf="isSuccess" class="fas fa-check-circle"></i>
+        <i *ngIf="!isSuccess" class="fas fa-times-circle"></i>
+      </div>
+      <h2 class="confirmation-title" [class.success]="isSuccess" [class.error]="!isSuccess">
+        {{ isSuccess ? 'Modification réussie !' : 'Erreur de modification' }}
+      </h2>
+      <p class="confirmation-message">{{ message }}</p>
+      <button class="confirmation-btn" (click)="closeModal()" [class.success]="isSuccess" [class.error]="!isSuccess">
+        {{ isSuccess ? 'Continuer' : 'Réessayer' }}
+      </button>
+    </ng-container>
+    <ng-template #confirmTpl>
+      <div class="confirmation-icon">
+        <i class="fas fa-flag-checkered"></i>
+      </div>
+      <h2 class="confirmation-title">
+        {{ confirmTitle || 'Clôturer la campagne ?' }}
+      </h2>
+      <p class="confirmation-message">{{ message }}</p>
+      <div class="confirmation-modal-actions" style="display:flex; gap:0.75rem; justify-content:center;">
+        <button class="confirmation-btn error" (click)="closeModal()">Annuler</button>
+        <button class="confirmation-btn success" (click)="proceed()">{{ confirmProceedText }}</button>
+      </div>
+    </ng-template>
   </div>
 </div>
 

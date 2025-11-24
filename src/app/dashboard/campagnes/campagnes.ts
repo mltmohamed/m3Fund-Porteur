@@ -35,6 +35,10 @@ export class Campagnes implements OnInit {
   showConfirmationModal = false;
   confirmationSuccess = true;
   confirmationMessage = '';
+  isConfirmationMode = false;
+  confirmationTitle = '';
+  confirmationProceedText = '';
+  pendingCloseCampaign: Campaign | null = null;
   
   // Données du formulaire de modification
   editForm = {
@@ -200,6 +204,54 @@ export class Campagnes implements OnInit {
   canEditCampaign(campaign: Campaign): boolean {
     return !this.isCampaignClosed(campaign);
   }
+
+  // Vérifier si une campagne peut être clôturée
+  canCloseCampaign(campaign: Campaign): boolean {
+    return this.isCampaignInProgress(campaign) && !this.isCampaignClosed(campaign);
+  }
+
+  // Clôturer une campagne
+  openConfirmCloseModal(campaign: Campaign) {
+    if (!campaign || !this.canCloseCampaign(campaign)) return;
+    this.pendingCloseCampaign = campaign;
+    this.isConfirmationMode = true;
+    this.confirmationSuccess = true;
+    this.confirmationTitle = 'Clôturer la campagne ?';
+    this.confirmationMessage = 'Cette action va clôturer définitivement la campagne. Voulez-vous continuer ?';
+    this.confirmationProceedText = 'Clôturer';
+    this.showConfirmationModal = true;
+  }
+
+  onConfirmClose() {
+    if (!this.pendingCloseCampaign) { this.closeConfirmationModal(); return; }
+    const campaign = this.pendingCloseCampaign;
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.showConfirmationModal = false;
+    this.isConfirmationMode = false;
+    this.campaignService.finishCampaign(campaign.id).subscribe({
+      next: (response) => {
+        this.confirmationSuccess = true;
+        this.confirmationMessage = 'Campagne clôturée avec succès';
+        this.showConfirmationModal = true;
+        this.isLoading = false;
+        this.loadCampaigns();
+        this.loadCampaignSummary();
+        setTimeout(() => {
+          this.showConfirmationModal = false;
+        }, 2000);
+      },
+      error: (error) => {
+        this.confirmationSuccess = false;
+        this.errorMessage = error.error?.message || 'Une erreur est survenue lors de la clôture de la campagne.';
+        this.confirmationMessage = this.errorMessage;
+        this.showConfirmationModal = true;
+        this.isLoading = false;
+      }
+    });
+  }
+
+  
 
   // Vérifier si une campagne est validée (ne peut plus modifier la date de début)
   isCampaignValidated(): boolean {
@@ -831,6 +883,8 @@ export class Campagnes implements OnInit {
   // Fermer le modal de confirmation
   closeConfirmationModal() {
     this.showConfirmationModal = false;
+    this.isConfirmationMode = false;
+    this.pendingCloseCampaign = null;
   }
 
   // Formater la date pour l'input de type date (format YYYY-MM-DD)

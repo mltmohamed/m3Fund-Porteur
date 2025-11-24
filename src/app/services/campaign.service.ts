@@ -173,6 +173,14 @@ export class CampaignService {
     return this.http.get<any>(`${this.API_URL}/projects/campaigns/stats`, {headers});
   }
 
+  // Clôturer une campagne manuellement
+  finishCampaign(campaignId: number): Observable<CampaignResponse> {
+    const headers: HttpHeaders = new HttpHeaders({
+      "Authorization": `Bearer ${localStorage.getItem('access_token')}`
+    });
+    return this.http.post<CampaignResponse>(`${this.API_URL}/projects/campaigns/${campaignId}/finish`, {}, { headers });
+  }
+
   // Transformer les statistiques en cartes de résumé
   transformStatsToSummary(stats: any): CampaignSummary[] {
     return [

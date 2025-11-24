@@ -130,6 +130,15 @@
             [title]="!canEditCampaign(campaign) ? 'Cette campagne est clôturée et ne peut plus être modifiée' : 'Modifier'">
             <i class="fas fa-pencil-alt"></i>
           </button>
+          <button 
+            type="button" 
+            class="action-btn edit-btn" 
+            [class.disabled]="!canCloseCampaign(campaign)"
+            [disabled]="!canCloseCampaign(campaign)"
+            (click)="canCloseCampaign(campaign) && openConfirmCloseModal(campaign)" 
+            title="Clôturer la campagne">
+            <i class="fas fa-flag-checkered"></i>
+          </button>
         </div>
       </div>
     </div>
@@ -542,6 +551,10 @@
     [isVisible]="showConfirmationModal"
     [isSuccess]="confirmationSuccess"
     [message]="confirmationMessage"
+    [confirmMode]="isConfirmationMode"
+    [confirmTitle]="confirmationTitle"
+    [confirmProceedText]="confirmationProceedText"
     (close)="closeConfirmationModal()"
+    (confirm)="onConfirmClose()"
   ></app-confirmation-modal>
 </div>
