@@ -70,53 +70,43 @@ export class ProjectService {
     return this.http.post<ProjectResponse>(`${this.API_URL}/projects`, formData);
   }
 
-  // Mettre à jour un projet
+
+  // Mettre à jour un projet (multipart pour gérer les médias)
   updateProject(projectId: number, projectData: ProjectUpdateRequest): Observable<ProjectResponse> {
-    // Le backend attend PATCH avec @RequestBody (JSON), pas PUT avec FormData
-    // Construire l'objet JSON (sans les fichiers car @RequestBody ne peut pas les recevoir)
-    const updatePayload: any = {};
-    
-    if (projectData.name && projectData.name.trim()) {
-      updatePayload.name = projectData.name.trim();
-    }
-    if (projectData.resume && projectData.resume.trim()) {
-      updatePayload.resume = projectData.resume.trim();
-    }
-    if (projectData.description && projectData.description.trim()) {
-      updatePayload.description = projectData.description.trim();
-    }
-    if (projectData.domain) {
-      updatePayload.domain = projectData.domain;
-    }
-    if (projectData.objective && projectData.objective.trim()) {
-      updatePayload.objective = projectData.objective.trim();
-    }
-    if (projectData.websiteLink && projectData.websiteLink.trim()) {
-      updatePayload.websiteLink = projectData.websiteLink.trim();
-    }
-    if (projectData.launchedAt) {
-      // Convertir en format ISO si nécessaire
-      updatePayload.launchedAt = projectData.launchedAt;
+    const formData = new FormData();
+
+    const appendIfPresent = (key: string, value?: string) => {
+      if (value !== undefined && value !== null) {
+        const trimmed = value.toString().trim();
+        if (trimmed.length > 0) {
+          formData.append(key, trimmed);
+        }
+      }
+    };
+
+    appendIfPresent('name', projectData.name);
+    appendIfPresent('resume', projectData.resume);
+    appendIfPresent('description', projectData.description);
+    appendIfPresent('domain', projectData.domain);
+    appendIfPresent('objective', projectData.objective);
+    appendIfPresent('websiteLink', projectData.websiteLink);
+    appendIfPresent('launchedAt', projectData.launchedAt);
+
+    projectData.images?.filter(file => !!file && file.size > 0)
+      .forEach(file => formData.append('images', file, file.name));
+
+    if (projectData.video && projectData.video.size > 0) {
+      formData.append('video', projectData.video, projectData.video.name);
     }
 
-    if(projectData.images && projectData.images.length > 0) {
-      updatePayload.images = projectData.images;
+    if (projectData.businessPlan && projectData.businessPlan.size > 0) {
+      formData.append('businessPlan', projectData.businessPlan, projectData.businessPlan.name);
     }
 
-    if(projectData.video) {
-      updatePayload.video = projectData.video;
-    }
-
-    if(projectData.businessPlan) {
-      updatePayload.businessPlan = projectData.businessPlan;
-    }
-    // Note: Les images, vidéo et business plan ne peuvent pas être mis à jour via cet endpoint
-    // car le backend utilise @RequestBody qui ne supporte pas les fichiers multipart
-    
-    console.log('JSON envoyé pour update:', updatePayload);
-    
-    return this.http.patch<ProjectResponse>(`${this.API_URL}/projects/${projectId}`, updatePayload);
+    return this.http.patch<ProjectResponse>(`${this.API_URL}/projects/${projectId}`, formData);
   }
+
+
 
   // Supprimer un projet
   deleteProject(id: number): Observable<void> {
