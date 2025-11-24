@@ -1,4 +1,17 @@
 <div class="fonds-container">
+  <!-- Carte récapitulatif -->
+  <div class="summary-cards">
+    <div class="summary-card">
+      <div class="card-icon">
+        <i class="fas fa-wallet"></i>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ totalFundDisplay || '0 FCFA' }}</div>
+        <div class="card-title">Total encaissé</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Barre de recherche et filtres -->
   <div class="search-filters">
     <div class="search-bar">
@@ -21,10 +34,7 @@
           {{ option.label }}
         </option>
       </select>
-      <button class="refresh-btn" (click)="refreshTransactions()" [disabled]="loading">
-        <i class="fas fa-sync-alt" [class.fa-spin]="loading"></i>
-        Actualiser
-      </button>
+      
     </div>
   </div>
 

@@ -6,11 +6,15 @@ import { environment } from '../../environments/environment';
 
 export interface NotificationResponse {
   id: number;
-  type: 'CAMPAIGN' | 'PROJECT' | 'PAYMENT' | 'SYSTEM';
+  type: 'CAMPAIGN' | 'PROJECT' | 'PAYMENT' | 'SYSTEM' | string;
   title: string;
-  message: string;
-  createdAt: string;
-  read: boolean;
+  message?: string;
+  content?: string;
+  createdAt?: string;
+  sentAt?: string;
+  read?: boolean;
+  isRead?: boolean;
+  senderName?: string;
   actionUrl?: string;
 }
 
@@ -62,14 +66,26 @@ export class NotificationService {
 
   // Transformer les notifications du backend en format d'affichage
   transformNotificationsForDisplay(notifications: NotificationResponse[]): NotificationDisplay[] {
-    return notifications.map(notification => ({
-      id: notification.id,
-      sender: this.getSenderFromType(notification.type),
-      message: notification.message,
-      time: this.getTimeAgo(new Date(notification.createdAt)),
-      read: notification.read,
-      type: notification.type
-    }));
+    return notifications.map(notification => {
+      const timeStr = (notification.sentAt || notification.createdAt || '');
+      const msg = notification.message || notification.content || '';
+      const read = (notification.read ?? notification.isRead ?? false);
+      let date: Date;
+      try {
+        const normalized = typeof timeStr === 'string' && timeStr.includes('T') ? timeStr : String(timeStr).replace(' ', 'T');
+        date = new Date(normalized);
+      } catch {
+        date = new Date();
+      }
+      return {
+        id: notification.id,
+        sender: notification.senderName || this.getSenderFromType(notification.type),
+        message: msg,
+        time: this.getTimeAgo(date),
+        read,
+        type: notification.type
+      };
+    });
   }
 
   // Permettre aux composants de synchroniser manuellement le compteur

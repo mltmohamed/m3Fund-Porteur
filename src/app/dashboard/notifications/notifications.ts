@@ -75,38 +75,55 @@ export class Notifications implements OnInit {
 
   transformBackendNotifications(backendNotifications: NotificationResponse[]): Notification[] {
     return backendNotifications.map(n => {
-      const typeMap: { [key: string]: 'campaign' | 'project' | 'payment' | 'system' } = {
+      const rawType = (n.type || '').toString();
+      const categoryMap: { [key: string]: 'campaign' | 'project' | 'payment' | 'system' } = {
         'CAMPAIGN': 'campaign',
         'PROJECT': 'project',
         'PAYMENT': 'payment',
         'SYSTEM': 'system'
       };
+      const category: Notification['type'] = categoryMap[rawType] || (rawType.includes('CONTRIBUTION') ? 'campaign' : 'system');
 
       const colorMap: { [key: string]: string } = {
-        'CAMPAIGN': '#06A664',
-        'PROJECT': '#4a90e2',
-        'PAYMENT': '#0066cc',
-        'SYSTEM': '#9c27b0'
+        'campaign': '#06A664',
+        'project': '#4a90e2',
+        'payment': '#0066cc',
+        'system': '#9c27b0'
       };
 
       const iconMap: { [key: string]: string } = {
-        'CAMPAIGN': 'fas fa-bullhorn',
-        'PROJECT': 'fas fa-project-diagram',
-        'PAYMENT': 'fas fa-dollar-sign',
-        'SYSTEM': 'fas fa-cog'
+        'campaign': 'fas fa-bullhorn',
+        'project': 'fas fa-project-diagram',
+        'payment': 'fas fa-dollar-sign',
+        'system': 'fas fa-cog'
       };
+
+      const msg = (n.message ?? n.content ?? '');
+      const timeStr = (n.sentAt ?? n.createdAt ?? '');
+      let ts: Date;
+      try {
+        const normalized = typeof timeStr === 'string' && timeStr.includes('T') ? timeStr : String(timeStr).replace(' ', 'T');
+        ts = new Date(normalized);
+        if (isNaN(ts.getTime())) {
+          ts = new Date();
+        }
+      } catch {
+        ts = new Date();
+      }
+
+      const read = (n.read ?? n.isRead ?? false);
 
       return {
         id: n.id,
-        type: typeMap[n.type] || 'info',
+        type: category,
         title: n.title,
-        message: n.message,
-        timestamp: new Date(n.createdAt),
-        read: n.read,
+        message: msg,
+        timestamp: ts,
+        read,
         actionUrl: n.actionUrl,
         actionLabel: n.actionUrl ? 'Voir plus' : undefined,
-        icon: iconMap[n.type] || 'fas fa-info-circle',
-        color: colorMap[n.type] || '#666'
+        icon: iconMap[category] || 'fas fa-info-circle',
+        color: colorMap[category] || '#666'
       };
     });
   }

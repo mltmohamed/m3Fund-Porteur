@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FondsService, Transaction } from '../../services/fonds.service';
+import { ProfileService } from '../../services/profile.service';
+import { ProfileResponse } from '../../interfaces/profile.interface';
 
 @Component({
   selector: 'app-fonds',
@@ -17,6 +19,8 @@ export class Fonds implements OnInit {
   selectedTransaction: any = null;
   loading: boolean = false;
   error: string = '';
+  totalFund: number = 0;
+  totalFundDisplay: string = '';
 
   // Données des transactions
   transactions: Transaction[] = [];
@@ -90,9 +94,10 @@ export class Fonds implements OnInit {
     }
   ];
 
-  constructor(private fondsService: FondsService) {}
+  constructor(private fondsService: FondsService, private profileService: ProfileService) {}
 
   ngOnInit() {
+    this.loadUserFund();
     this.loadTransactions();
   }
 
@@ -225,5 +230,18 @@ export class Fonds implements OnInit {
 
   refreshTransactions() {
     this.loadTransactions();
+  }
+
+  private loadUserFund() {
+    this.profileService.getCurrentProfile().subscribe({
+      next: (profile: ProfileResponse) => {
+        this.totalFund = Number(profile.fund || 0);
+        this.totalFundDisplay = `${this.totalFund.toLocaleString('fr-FR')} FCFA`;
+      },
+      error: () => {
+        this.totalFund = 0;
+        this.totalFundDisplay = '0 FCFA';
+      }
+    });
   }
 }

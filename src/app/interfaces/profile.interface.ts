@@ -42,6 +42,7 @@ export interface ProfileResponse {
   state?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   createdAt: string;
   updatedAt: string;
+  fund: number;
 }
 
 export interface ProfileStats {
