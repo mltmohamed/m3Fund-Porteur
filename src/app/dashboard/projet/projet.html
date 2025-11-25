@@ -111,7 +111,7 @@
             [class.disabled]="!canEditProject(project)"
             [disabled]="!canEditProject(project)"
             (click)="canEditProject(project) && openEditModal(project, $event)"
-            [title]="!canEditProject(project) ? 'Ce projet est clôturé et ne peut plus être modifié' : 'Modifier'">
+            [title]="!canEditProject(project) ? (isProjectValidatedById(project.id) ? 'Ce projet est validé et ne peut plus être modifié' : 'Ce projet est clôturé et ne peut plus être modifié') : 'Modifier'">
             <i class="fas fa-pencil-alt"></i>
           </button>
         </div>

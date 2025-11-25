@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
 import { CampaignService } from '../../services/campaign.service';
+import { NotificationService } from '../../services/notification.service';
 import { Project, ProjectSummary, ProjectResponse, ProjectUpdateRequest } from '../../interfaces/project.interface';
 import { CampaignResponse } from '../../interfaces/campaign.interface';
 import { forkJoin } from 'rxjs';
@@ -37,7 +38,8 @@ export class Projet implements OnInit {
 
   constructor(
     private projectService: ProjectService,
-    private campaignService: CampaignService
+    private campaignService: CampaignService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit() {
@@ -133,6 +135,16 @@ export class Projet implements OnInit {
             // Note: collaboratorCount est déjà calculé par campagne, on doit agréger
             // Pour l'instant, on prend le max ou la somme selon la logique métier
           });
+          
+          // Pour obtenir le vrai nombre de contributeurs uniques, nous devrions appeler un endpoint
+          // qui nous donne cette information. Pour le moment, on utilise une approximation
+          const totalCollaborators = projectCampaigns.reduce(
+            (sum, campaign) => sum + (campaign.numberOfVolunteer || campaign.collaboratorCount || 0), 
+            0
+          );
+          
+          transformedProject.collaborators = `${totalCollaborators} Collaborateurs`;
+          transformedProject.collaboratorCount = totalCollaborators.toString();
           
           return transformedProject;
         });
@@ -450,6 +462,49 @@ export class Projet implements OnInit {
     project.netValue = '0 FCFA';
     // Les projets n'ont pas de date de fin
     project.endDate = '';
+    
+    // Mettre à jour le nombre de collaborateurs/contributeurs uniques
+    const uniqueContributors = this.calculateRealUniqueContributors(project.id);
+    project.collaboratorCount = uniqueContributors.toString();
+    project.collaborators = `${uniqueContributors} Collaborateurs`;
+  }
+
+  // Calculer le nombre réel de contributeurs uniques pour un projet
+  private calculateRealUniqueContributors(projectId: number): number {
+    // Obtenir les campagnes de ce projet
+    const projectCampaigns = this.backendCampaignsMap.get(projectId) || [];
+    
+    // Compter le nombre de campagnes avec des fonds récoltés
+    // Chaque campagne avec des fonds représente au moins un contributeur unique
+    const campaignsWuthContributions = projectCampaigns.filter(
+      campaign => (campaign.currentFund || campaign.fundsRaised || 0) > 0
+    );
+    
+    // Si aucune campagne n'a de contributions, retourner 0
+    if (campaignsWuthContributions.length === 0) {
+      return 0;
+    }
+    
+    // Pour une estimation plus réaliste, on peut considérer que chaque campagne
+    // avec des fonds a eu au moins un contributeur, mais on évite de compter
+    // trop haut en se basant juste sur le nombre de campagnes
+    // On retourne le nombre de campagnes avec des contributions
+    return campaignsWuthContributions.length;
+  }
+
+  // Calculer le nombre de contributeurs uniques pour un projet
+  private calculateUniqueContributors(projectId: number): number {
+    // Pour obtenir le vrai nombre de contributeurs uniques, nous devons analyser les notifications
+    // Pour le moment, nous utilisons une approximation basée sur les campagnes
+    const projectCampaigns = this.backendCampaignsMap.get(projectId) || [];
+    
+    // Approximation : somme des collaborateurs de toutes les campagnes
+    const totalCollaborators = projectCampaigns.reduce(
+      (sum, campaign) => sum + (campaign.numberOfVolunteer || campaign.collaboratorCount || 0), 
+      0
+    );
+    
+    return totalCollaborators;
   }
 
   openProjectModal(project: Project) {
@@ -490,6 +545,15 @@ export class Projet implements OnInit {
     return false;
   }
 
+  // Vérifier si un projet est validé par son ID
+  isProjectValidatedById(projectId: number): boolean {
+    const projectResponse = this.backendProjectsMap.get(projectId);
+    if (projectResponse) {
+      return projectResponse.isValidated === true;
+    }
+    return false;
+  }
+
   // Vérifier si un projet est clôturé (toutes les campagnes sont FINISHED)
   isProjectClosed(project: Project): boolean {
     const projectCampaigns = this.backendCampaignsMap.get(project.id) || [];
@@ -503,6 +567,11 @@ export class Projet implements OnInit {
 
   // Vérifier si un projet peut être modifié
   canEditProject(project: Project): boolean {
+    // Un projet ne peut pas être modifié s'il est validé ou s'il est clôturé
+    const projectResponse = this.backendProjectsMap.get(project.id);
+    if (projectResponse && projectResponse.isValidated === true) {
+      return false;
+    }
     return !this.isProjectClosed(project);
   }
 
@@ -518,8 +587,8 @@ export class Projet implements OnInit {
     
     // Vérifier si le projet peut être modifié
     if (!this.canEditProject(project)) {
-      console.warn('Tentative de modification d\'un projet clôturé - bloquée');
-      this.errorMessage = 'Ce projet est clôturé (toutes les campagnes sont terminées) et ne peut plus être modifié.';
+      console.warn('Tentative de modification d\'un projet clôturé ou validé - bloquée');
+      this.errorMessage = 'Ce projet est validé et ne peut plus être modifié.';
       return;
     }
     

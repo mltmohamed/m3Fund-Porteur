@@ -652,6 +652,30 @@
   box-shadow: 0 4px 12px rgba(230, 184, 0, 0.3);
 }
 
+/* Style spécifique pour le bouton d'édition désactivé */
+.action-btn.disabled,
+.action-btn:disabled {
+  background-color: #CCCCCC !important;
+  color: #666666 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  opacity: 0.6;
+  box-shadow: none !important;
+}
+
+.action-btn.disabled:hover,
+.action-btn:disabled:hover {
+  background-color: #CCCCCC !important;
+  color: #666666 !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.action-btn.disabled::before,
+.action-btn:disabled::before {
+  display: none;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .projet-container {
