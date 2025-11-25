@@ -7,6 +7,7 @@ import { ProfileResponse } from '../../interfaces/profile.interface';
 import { CampaignService } from '../../services/campaign.service';
 import { CampaignResponse } from '../../interfaces/campaign.interface';
 import { NotificationService, NotificationResponse } from '../../services/notification.service';
+import jsPDF from 'jspdf';
 
 @Component({
   selector: 'app-fonds',
@@ -16,7 +17,7 @@ import { NotificationService, NotificationResponse } from '../../services/notifi
 })
 export class Fonds implements OnInit {
   searchTerm: string = '';
-  selectedStatus: string = '';
+  selectedProject: string = '';
   selectedPeriod: string = '';
   selectedSourceType: string = '';
   showTransactionModal: boolean = false;
@@ -36,6 +37,9 @@ export class Fonds implements OnInit {
   transactionsSuccess: Transaction[] = [];
   transactionsPending: Transaction[] = [];
   transactionsFailed: Transaction[] = [];
+  
+  // Liste des projets uniques pour le filtre
+  projectOptions: Array<{value: string, label: string}> = [];
 
   // Données de test (à supprimer après intégration)
   mockTransactions: Transaction[] = [
@@ -163,7 +167,15 @@ export class Fonds implements OnInit {
             
             // Combiner les deux types de transactions
             this.transactions = [...contributionTransactions, ...adminTransactions];
+            
+            // Trier par date décroissante (les plus récentes en premier)
+            this.sortTransactionsByDate();
+            
             this.filteredTransactions = [...this.transactions];
+            
+            // Extraire les projets uniques pour le filtre
+            this.buildProjectOptions();
+            
             this.categorizeTransactions();
             this.loading = false;
             console.log('Transactions chargées (contributions + admin):', this.transactions);
@@ -172,7 +184,9 @@ export class Fonds implements OnInit {
             console.error('Erreur lors du chargement des notifications:', error);
             // Même si les notifications échouent, afficher les transactions admin
             this.transactions = adminTransactions;
+            this.sortTransactionsByDate();
             this.filteredTransactions = [...this.transactions];
+            this.buildProjectOptions();
             this.categorizeTransactions();
             this.loading = false;
           }
@@ -183,19 +197,14 @@ export class Fonds implements OnInit {
         this.error = 'Erreur lors du chargement des transactions';
         // Utiliser les données de test en cas d'erreur
         this.transactions = this.mockTransactions;
+        this.sortTransactionsByDate();
         this.filteredTransactions = [...this.transactions];
+        this.buildProjectOptions();
         this.categorizeTransactions();
         this.loading = false;
       }
     });
   }
-
-  statusOptions = [
-    { value: '', label: 'Tous les statuts' },
-    { value: 'success', label: 'Réussi' },
-    { value: 'pending', label: 'En attente' },
-    { value: 'failed', label: 'Échoué' }
-  ];
 
   periodOptions = [
     { value: '', label: 'Toutes les périodes' },
@@ -215,7 +224,7 @@ export class Fonds implements OnInit {
     this.applyFilters();
   }
 
-  onStatusChange() {
+  onProjectChange() {
     this.applyFilters();
   }
 
@@ -240,9 +249,12 @@ export class Fonds implements OnInit {
       );
     }
 
-    // Filtre par statut
-    if (this.selectedStatus) {
-      filtered = filtered.filter(transaction => transaction.status === this.selectedStatus);
+    // Filtre par projet
+    if (this.selectedProject) {
+      filtered = filtered.filter(transaction => {
+        const projectName = this.extractProjectName(transaction.project);
+        return projectName === this.selectedProject;
+      });
     }
 
     // Filtre par type de source
@@ -254,11 +266,20 @@ export class Fonds implements OnInit {
     if (this.selectedPeriod) {
       const now = new Date();
       filtered = filtered.filter(transaction => {
-        const transactionDate = new Date(transaction.date);
+        // Parser la date au format français (jj/mm/aaaa)
+        const dateParts = transaction.date.split('/');
+        if (dateParts.length !== 3) return false;
+        
+        const day = parseInt(dateParts[0], 10);
+        const month = parseInt(dateParts[1], 10) - 1; // Les mois commencent à 0 en JavaScript
+        const year = parseInt(dateParts[2], 10);
+        const transactionDate = new Date(year, month, day);
         
         switch (this.selectedPeriod) {
           case 'today':
-            return transactionDate.toDateString() === now.toDateString();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+            return transactionDate >= todayStart && transactionDate <= todayEnd;
           case 'week':
             const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
             return transactionDate >= weekAgo;
@@ -307,8 +328,164 @@ export class Fonds implements OnInit {
   }
 
   downloadReport() {
-    console.log('Téléchargement du rapport pour:', this.selectedTransaction);
-    // Ici vous pouvez implémenter la logique de téléchargement
+    if (!this.selectedTransaction) {
+      console.error('Aucune transaction sélectionnée');
+      return;
+    }
+
+    console.log('Génération du rapport PDF pour:', this.selectedTransaction);
+
+    // Créer un nouveau document PDF
+    const doc = new jsPDF();
+    
+    // Configurer les couleurs
+    const primaryColor: [number, number, number] = [6, 166, 100]; // Vert M3Fund
+    const darkGray: [number, number, number] = [51, 51, 51];
+    const lightGray: [number, number, number] = [128, 128, 128];
+    
+    let yPosition = 20;
+    
+    // En-tête du rapport
+    doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.rect(0, 0, 210, 30, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(20);
+    doc.setFont('helvetica', 'bold');
+    doc.text('RAPPORT DE TRANSACTION', 105, 15, { align: 'center' });
+    doc.setFontSize(12);
+    doc.text('M3FUND', 105, 22, { align: 'center' });
+    
+    yPosition = 45;
+    
+    // Informations de base
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`ID Transaction: ${this.selectedTransaction.id}`, 20, yPosition);
+    doc.text(`Date: ${this.selectedTransaction.transactionDate}`, 120, yPosition);
+    yPosition += 6;
+    doc.text(`Heure: ${this.selectedTransaction.time}`, 120, yPosition);
+    
+    yPosition += 15;
+    
+    // Section: Informations de la transaction
+    this.addSectionTitle(doc, 'INFORMATIONS DE LA TRANSACTION', yPosition, primaryColor);
+    yPosition += 10;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Projet/Campagne:', 20, yPosition);
+    doc.setFont('helvetica', 'normal');
+    yPosition += 6;
+    const projectLines = doc.splitTextToSize(this.selectedTransaction.project, 170);
+    doc.text(projectLines, 25, yPosition);
+    yPosition += projectLines.length * 6 + 4;
+    
+    if (this.selectedTransaction.projectDomain) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Type:', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+      doc.text(this.selectedTransaction.projectDomain, 40, yPosition);
+      yPosition += 8;
+    }
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Montant:', 20, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(this.selectedTransaction.amount, 45, yPosition);
+    doc.setFontSize(10);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    doc.setFont('helvetica', 'normal');
+    yPosition += 10;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Statut:', 20, yPosition);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(0, 150, 0);
+    doc.text(this.selectedTransaction.transactionStatus, 40, yPosition);
+    doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+    yPosition += 15;
+    
+    // Section: Détails du paiement
+    this.addSectionTitle(doc, 'DÉTAILS DU PAIEMENT', yPosition, primaryColor);
+    yPosition += 10;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Moyen de paiement:', 20, yPosition);
+    doc.setFont('helvetica', 'normal');
+    yPosition += 6;
+    doc.text(this.selectedTransaction.paymentMethodDetail, 25, yPosition);
+    yPosition += 8;
+    
+    if (this.selectedTransaction.contributorName) {
+      doc.setFont('helvetica', 'bold');
+      doc.text('Contributeur:', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
+      yPosition += 6;
+      doc.text(this.selectedTransaction.contributorName, 25, yPosition);
+      yPosition += 8;
+    }
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Destinataire:', 20, yPosition);
+    doc.setFont('helvetica', 'normal');
+    yPosition += 6;
+    doc.text(this.selectedTransaction.recipientNumber, 25, yPosition);
+    yPosition += 15;
+    
+    // Section: Description
+    this.addSectionTitle(doc, 'DESCRIPTION', yPosition, primaryColor);
+    yPosition += 10;
+    
+    doc.setFont('helvetica', 'normal');
+    const reasonLines = doc.splitTextToSize(this.selectedTransaction.transactionReason, 170);
+    doc.text(reasonLines, 20, yPosition);
+    yPosition += reasonLines.length * 6 + 15;
+    
+    // Pied de page
+    doc.setTextColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.setFontSize(8);
+    const generatedDate = `Rapport généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}`;
+    doc.text(generatedDate, 105, 280, { align: 'center' });
+    
+    // Télécharger le PDF
+    const fileName = `Rapport_Transaction_${this.selectedTransaction.id}_${this.selectedTransaction.date.replace(/\//g, '-')}.pdf`;
+    doc.save(fileName);
+    
+    console.log('✓ Rapport PDF téléchargé:', fileName);
+  }
+
+  private addSectionTitle(doc: jsPDF, title: string, yPosition: number, color: [number, number, number]) {
+    doc.setFillColor(color[0], color[1], color[2]);
+    doc.rect(15, yPosition - 5, 180, 8, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, 20, yPosition);
+    doc.setTextColor(51, 51, 51);
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+  }
+
+  getCategoryClass(domain: string): string {
+    // Retourner une classe CSS en fonction du domaine
+    const domainLower = domain.toLowerCase();
+    if (domainLower.includes('contribution') || domainLower.includes('donation')) {
+      return 'category-contribution';
+    }
+    if (domainLower.includes('admin') || domainLower.includes('encaissement')) {
+      return 'category-admin';
+    }
+    if (domainLower.includes('investment') || domainLower.includes('investissement')) {
+      return 'category-investment';
+    }
+    if (domainLower.includes('volunteer') || domainLower.includes('volontariat')) {
+      return 'category-volunteer';
+    }
+    return 'category-default';
   }
 
   refreshTransactions() {
@@ -353,6 +530,61 @@ export class Fonds implements OnInit {
     this.transactionsSuccess = this.filteredTransactions.filter(t => t.status === 'success');
     this.transactionsPending = this.filteredTransactions.filter(t => t.status === 'pending');
     this.transactionsFailed = this.filteredTransactions.filter(t => t.status === 'failed');
+  }
+
+  private sortTransactionsByDate() {
+    this.transactions.sort((a, b) => {
+      // Parser les dates au format français (jj/mm/aaaa)
+      const parseDate = (dateStr: string): Date => {
+        const parts = dateStr.split('/');
+        if (parts.length !== 3) return new Date(0);
+        const day = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const year = parseInt(parts[2], 10);
+        return new Date(year, month, day);
+      };
+      
+      const dateA = parseDate(a.date);
+      const dateB = parseDate(b.date);
+      
+      // Si les dates sont égales, trier par heure
+      if (dateA.getTime() === dateB.getTime()) {
+        const timeA = a.time || '00:00';
+        const timeB = b.time || '00:00';
+        return timeB.localeCompare(timeA); // Ordre décroissant
+      }
+      
+      // Trier par date décroissante (les plus récentes en premier)
+      return dateB.getTime() - dateA.getTime();
+    });
+  }
+
+  private buildProjectOptions() {
+    // Extraire tous les noms de projets uniques
+    const projectNames = new Set<string>();
+    
+    this.transactions.forEach(transaction => {
+      const projectName = this.extractProjectName(transaction.project);
+      if (projectName) {
+        projectNames.add(projectName);
+      }
+    });
+    
+    // Créer les options de filtre
+    this.projectOptions = [
+      { value: '', label: 'Tous les projets' },
+      ...Array.from(projectNames).map(name => ({
+        value: name,
+        label: name
+      }))
+    ];
+  }
+
+  private extractProjectName(projectText: string): string {
+    // Extraire le nom du projet en enlevant la date et l'heure
+    // Format attendu: "Nom du Projet - 24/11/2025 à 16:24" ou "Nom du Projet 24/11/2025"
+    const match = projectText.match(/^(.+?)\s*[-–]?\s*\d{2}\/\d{2}\/\d{4}/);
+    return match ? match[1].trim() : projectText.split(' - ')[0].trim();
   }
 
   private buildTransactionsFromCampaigns(campaigns: CampaignResponse[]): Transaction[] {
@@ -456,7 +688,8 @@ export class Fonds implements OnInit {
           transactionReason: content,
           sourceType: 'CONTRIBUTION',
           contributorName: contributorName,
-          contributorInitials: initials
+          contributorInitials: initials,
+          projectDomain: 'Contribution' // Sera mis à jour quand on aura l'info du domaine
         });
         
         console.log('✓ Created contribution transaction with name:', contributorName, 'and initials:', initials);
@@ -563,7 +796,8 @@ export class Fonds implements OnInit {
         paymentMethodDetail: 'Virement Admin',
         recipientNumber: 'Admin M3Fund',
         transactionReason: `Encaissement de fonds depuis l'administration pour un montant de ${disbursementAmount.toLocaleString('fr-FR')} FCFA`,
-        sourceType: 'ADMIN'
+        sourceType: 'ADMIN',
+        projectDomain: 'Encaissement Admin'
       });
     } else if (currentFund === lastRecordedFund) {
       console.log('No new disbursement detected');
@@ -622,7 +856,8 @@ export class Fonds implements OnInit {
             paymentMethodDetail: 'Virement Admin',
             recipientNumber: 'Admin M3Fund',
             transactionReason: `Encaissement de fonds depuis l'administration pour un montant de ${disbursementAmount.toLocaleString('fr-FR')} FCFA`,
-            sourceType: 'ADMIN'
+            sourceType: 'ADMIN',
+            projectDomain: 'Encaissement Admin'
           });
         }
       }

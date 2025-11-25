@@ -61,6 +61,10 @@ export class Notifications implements OnInit {
     this.notificationService.getAllNotifications().subscribe({
       next: (backendNotifications: NotificationResponse[]) => {
         this.notifications = this.transformBackendNotifications(backendNotifications);
+        
+        // Trier par date décroissante (les plus récentes en premier)
+        this.sortNotificationsByDate();
+        
         this.applyFilters();
         console.log('Notifications de la page chargées:', this.notifications);
       },
@@ -68,6 +72,7 @@ export class Notifications implements OnInit {
         console.error('Erreur lors du chargement des notifications:', error);
         // En cas d'erreur, utiliser les données mock
         this.notifications = this.generateMockNotifications();
+        this.sortNotificationsByDate();
         this.applyFilters();
       }
     });
@@ -244,6 +249,13 @@ export class Notifications implements OnInit {
 
     this.filteredNotifications = filtered;
     this.notificationService.updateUnreadCount(this.unreadCount);
+  }
+
+  private sortNotificationsByDate() {
+    this.notifications.sort((a, b) => {
+      // Trier par timestamp décroissant (les plus récentes en premier)
+      return b.timestamp.getTime() - a.timestamp.getTime();
+    });
   }
 
   selectFilter(filter: string) {

@@ -862,6 +862,43 @@
   transform: translateY(-2px);
 }
 
+/* Classes pour les catégories de domaine dans le modal */
+.transaction-modal-category {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.5rem;
+}
+
+.category-contribution {
+  background: linear-gradient(135deg, #06A664, #048854);
+  color: white;
+}
+
+.category-admin {
+  background: linear-gradient(135deg, #4a90e2, #357ABD);
+  color: white;
+}
+
+.category-investment {
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  color: white;
+}
+
+.category-volunteer {
+  background: linear-gradient(135deg, #9C27B0, #7B1FA2);
+  color: white;
+}
+
+.category-default {
+  background: linear-gradient(135deg, #666, #444);
+  color: white;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

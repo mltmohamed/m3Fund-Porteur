@@ -25,8 +25,8 @@
       >
     </div>
     <div class="filters">
-      <select [(ngModel)]="selectedStatus" (change)="onStatusChange()">
-        <option *ngFor="let option of statusOptions" [value]="option.value">
+      <select [(ngModel)]="selectedProject" (change)="onProjectChange()">
+        <option *ngFor="let option of projectOptions" [value]="option.value">
           {{ option.label }}
         </option>
       </select>
@@ -120,8 +120,8 @@
           <i class="fas fa-times"></i>
         </button>
         <h2 class="transaction-modal-title">{{ selectedTransaction.project.split(' ').slice(0, -1).join(' ') }}</h2>
-        <div class="transaction-modal-category" [class]="(selectedTransaction.projectDomain || 'sante').toLowerCase()">
-          {{ selectedTransaction.projectDomain || 'SANTE' }}
+        <div class="transaction-modal-category" *ngIf="selectedTransaction.projectDomain" [ngClass]="getCategoryClass(selectedTransaction.projectDomain)">
+          {{ selectedTransaction.projectDomain }}
         </div>
       </div>
 
