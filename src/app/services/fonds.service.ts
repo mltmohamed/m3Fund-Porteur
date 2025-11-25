@@ -46,6 +46,8 @@ export interface Transaction {
   transactionReason: string;
   projectDomain?: string;
   sourceType: 'CONTRIBUTION' | 'ADMIN';
+  contributorName?: string;
+  contributorInitials?: string;
 }
 
 @Injectable({

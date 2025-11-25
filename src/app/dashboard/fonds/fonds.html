@@ -76,18 +76,30 @@
   <div class="transactions-container" *ngIf="!loading && filteredTransactions.length > 0">
     <div class="transaction-item" *ngFor="let transaction of filteredTransactions">
       <div class="transaction-content">
+        <!-- Avatar avec initiales pour les contributions -->
+        <div class="transaction-avatar" *ngIf="transaction.contributorInitials">
+          <div class="avatar-circle">
+            {{ transaction.contributorInitials }}
+          </div>
+        </div>
+        
+        <!-- Icône pour les décaissements admin -->
+        <div class="transaction-avatar" *ngIf="!transaction.contributorInitials">
+          <div class="avatar-icon">
+            <i class="fas fa-university"></i>
+          </div>
+        </div>
+        
         <div class="payment-method">
           <span class="method-text">{{ transaction.paymentMethod }}</span>
         </div>
         
-        <div class="status-section">
-          <div class="status-icon" [class]="getStatusClass(transaction.status)">
-            <i [class]="getStatusIcon(transaction.status)"></i>
-          </div>
-        </div>
-        
         <div class="project-info">
           <span class="project-name">{{ transaction.project }}</span>
+        </div>
+        
+        <div class="amount-display">
+          <span class="amount-value">{{ transaction.amount }}</span>
         </div>
         
         <div class="transaction-actions">

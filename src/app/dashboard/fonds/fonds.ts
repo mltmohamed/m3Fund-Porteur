@@ -6,6 +6,7 @@ import { ProfileService } from '../../services/profile.service';
 import { ProfileResponse } from '../../interfaces/profile.interface';
 import { CampaignService } from '../../services/campaign.service';
 import { CampaignResponse } from '../../interfaces/campaign.interface';
+import { NotificationService, NotificationResponse } from '../../services/notification.service';
 
 @Component({
   selector: 'app-fonds',
@@ -136,7 +137,7 @@ export class Fonds implements OnInit {
     }
   ];
 
-  constructor(private fondsService: FondsService, private profileService: ProfileService, private campaignService: CampaignService) {}
+  constructor(private fondsService: FondsService, private profileService: ProfileService, private campaignService: CampaignService, private notificationService: NotificationService) {}
 
   ngOnInit() {
     this.loadUserFund();
@@ -154,11 +155,11 @@ export class Fonds implements OnInit {
         // Créer les transactions admin basées sur les changements du fund
         const adminTransactions = this.buildAdminDisbursementTransactions(profile);
         
-        // Charger les vraies campagnes pour extraire les contributions
-        this.campaignService.getMyCampaigns().subscribe({      
-          next: (campaigns) => {
-            // Transformer les campagnes en transactions contributions
-            const contributionTransactions = this.buildTransactionsFromCampaigns(campaigns);
+        // Charger les notifications pour extraire les contributions détaillées
+        this.notificationService.getAllNotifications().subscribe({
+          next: (notifications) => {
+            // Transformer les notifications en transactions contributions
+            const contributionTransactions = this.buildTransactionsFromNotifications(notifications);
             
             // Combiner les deux types de transactions
             this.transactions = [...contributionTransactions, ...adminTransactions];
@@ -168,8 +169,8 @@ export class Fonds implements OnInit {
             console.log('Transactions chargées (contributions + admin):', this.transactions);
           },
           error: (error) => {
-            console.error('Erreur lors du chargement des transactions:', error);
-            // Même si les campagnes échouent, afficher les transactions admin
+            console.error('Erreur lors du chargement des notifications:', error);
+            // Même si les notifications échouent, afficher les transactions admin
             this.transactions = adminTransactions;
             this.filteredTransactions = [...this.transactions];
             this.categorizeTransactions();
@@ -385,6 +386,84 @@ export class Fonds implements OnInit {
       }
     });
     
+    return transactions;
+  }
+
+  private buildTransactionsFromNotifications(notifications: NotificationResponse[]): Transaction[] {
+    const transactions: Transaction[] = [];
+    
+    console.log('=== PARSING CONTRIBUTION NOTIFICATIONS ===');
+    console.log('Total notifications:', notifications.length);
+    
+    notifications.forEach(notification => {
+      const content = notification.content || notification.message || '';
+      const title = notification.title || '';
+      const type = notification.type || '';
+      
+      console.log('---');
+      console.log('Notification:', { id: notification.id, title, type, content });
+      
+      // Vérifier si c'est une notification de contribution
+      if (type === 'NEW_CONTRIBUTION' || title.toLowerCase().includes('contribution')) {
+        console.log('✓ FOUND CONTRIBUTION NOTIFICATION');
+        
+        // Extraire le nom du contributeur - Pattern: "Prénom Nom a contribué"
+        // Essayer plusieurs patterns pour être plus flexible
+        let contributorMatch = content.match(/^([A-Za-zÀ-ÿ]+\s+[A-Za-zÀ-ÿ]+)\s+a\s+contribué/i);
+        if (!contributorMatch) {
+          // Pattern alternatif si le format est différent
+          contributorMatch = content.match(/([A-Za-zÀ-ÿ]+\s+[A-Za-zÀ-ÿ]+)/);
+        }
+        const contributorName = contributorMatch && contributorMatch[1] ? contributorMatch[1].trim() : 'Contributeur Anonyme';
+        console.log('Extracted contributor name:', contributorName);
+        console.log('Match result:', contributorMatch);
+        
+        // Calculer les initiales (première lettre du prénom + première lettre du nom)
+        const nameParts = contributorName.split(' ').filter(p => p.length > 0);
+        const initials = nameParts.length >= 2 
+          ? `${nameParts[0].charAt(0).toUpperCase()}${nameParts[nameParts.length - 1].charAt(0).toUpperCase()}`
+          : contributorName.substring(0, 2).toUpperCase();
+        console.log('Initials:', initials);
+        
+        // Extraire le montant - Pattern: "XXXX FCFA" ou "XXXX.X FCFA"
+        const amountMatch = content.match(/([\d,.]+)\s*FCFA/);
+        const amount = amountMatch ? parseFloat(amountMatch[1].replace(/[,\s]/g, '')) : 0;
+        console.log('Amount:', amount);
+        
+        // Extraire le nom du projet/campagne - Pattern: "dans votre projet XXX"
+        const projectMatch = content.match(/dans votre projet\s+([^.]+)/i);
+        const projectName = projectMatch ? projectMatch[1].trim() : 'Projet';
+        console.log('Project name:', projectName);
+        
+        // Utiliser la date de la notification
+        const date = new Date(notification.sentAt || notification.createdAt || new Date());
+        const formattedDate = date.toLocaleDateString('fr-FR');
+        const formattedTime = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        
+        transactions.push({
+          id: notification.id,
+          paymentMethod: `${contributorName} - ${amount.toLocaleString('fr-FR')} FCFA`,
+          status: 'success',
+          statusIcon: 'fas fa-check-circle',
+          project: `${projectName} - ${formattedDate} à ${formattedTime}`,
+          amount: `${amount.toLocaleString('fr-FR')} FCFA`,
+          date: formattedDate,
+          time: formattedTime,
+          transactionDate: formattedDate,
+          transactionStatus: 'Envoyé',
+          paymentMethodDetail: `Contribution de ${contributorName}`,
+          recipientNumber: contributorName,
+          transactionReason: content,
+          sourceType: 'CONTRIBUTION',
+          contributorName: contributorName,
+          contributorInitials: initials
+        });
+        
+        console.log('✓ Created contribution transaction with name:', contributorName, 'and initials:', initials);
+      }
+    });
+    
+    console.log('=== CONTRIBUTION TRANSACTIONS CREATED:', transactions.length, '===');
     return transactions;
   }
 
