@@ -12,36 +12,6 @@
     </div>
   </div>
 
-  <!-- Cartes des montants disponibles à décaisser par méthode -->
-  <div class="summary-cards">
-    <div class="summary-card">
-      <div class="card-icon">
-        <i class="fas fa-sim-card"></i>
-      </div>
-      <div class="card-content">
-        <div class="card-value">{{ availableOM }}</div>
-        <div class="card-title">Disponible à décaisser (Orange Money)</div>
-      </div>
-    </div>
-    <div class="summary-card">
-      <div class="card-icon">
-        <i class="fas fa-sim-card"></i>
-      </div>
-      <div class="card-content">
-        <div class="card-value">{{ availableMoov }}</div>
-        <div class="card-title">Disponible à décaisser (Moov Money)</div>
-      </div>
-    </div>
-    <div class="summary-card">
-      <div class="card-icon">
-        <i class="fas fa-credit-card"></i>
-      </div>
-      <div class="card-content">
-        <div class="card-value">{{ availableCard }}</div>
-        <div class="card-title">Disponible à décaisser (Carte Bancaire)</div>
-      </div>
-    </div>
-  </div>
 
   <!-- Barre de recherche et filtres -->
   <div class="search-filters">
@@ -65,84 +35,16 @@
           {{ option.label }}
         </option>
       </select>
-      
+      <select [(ngModel)]="selectedSourceType" (change)="onSourceTypeChange()">
+        <option *ngFor="let option of sourceTypeOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
     </div>
   </div>
 
-  <!-- Historique des fonds encaissés -->
-  <div class="transactions-container" *ngIf="!loading">
-    <h2 style="margin:0 0 1rem 0;">Historique encaissé</h2>
-    <div class="transaction-item" *ngFor="let transaction of transactionsSuccess">
-      <div class="transaction-content">
-        <div class="payment-method">
-          <span class="method-text">{{ transaction.paymentMethod }}</span>
-        </div>
-        <div class="status-section">
-          <div class="status-icon status-success">
-            <i class="fas fa-check-circle"></i>
-          </div>
-        </div>
-        <div class="project-info">
-          <span class="project-name">{{ transaction.project }}</span>
-        </div>
-        <div class="transaction-actions">
-          <button class="info-btn" (click)="openTransactionModal(transaction)">
-            <i class="fas fa-info"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Fonds en attente -->
-  <div class="transactions-container" *ngIf="!loading">
-    <h2 style="margin:2rem 0 1rem 0;">En attente</h2>
-    <div class="transaction-item" *ngFor="let transaction of transactionsPending">
-      <div class="transaction-content">
-        <div class="payment-method">
-          <span class="method-text">{{ transaction.paymentMethod }}</span>
-        </div>
-        <div class="status-section">
-          <div class="status-icon status-pending">
-            <i class="fas fa-hourglass-half"></i>
-          </div>
-        </div>
-        <div class="project-info">
-          <span class="project-name">{{ transaction.project }}</span>
-        </div>
-        <div class="transaction-actions">
-          <button class="info-btn" (click)="openTransactionModal(transaction)">
-            <i class="fas fa-info"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Fonds échoués -->
-  <div class="transactions-container" *ngIf="!loading">
-    <h2 style="margin:2rem 0 1rem 0;">Échoués</h2>
-    <div class="transaction-item" *ngFor="let transaction of transactionsFailed">
-      <div class="transaction-content">
-        <div class="payment-method">
-          <span class="method-text">{{ transaction.paymentMethod }}</span>
-        </div>
-        <div class="status-section">
-          <div class="status-icon status-failed">
-            <i class="fas fa-times"></i>
-          </div>
-        </div>
-        <div class="project-info">
-          <span class="project-name">{{ transaction.project }}</span>
-        </div>
-        <div class="transaction-actions">
-          <button class="info-btn" (click)="openTransactionModal(transaction)">
-            <i class="fas fa-info"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Indicateur de chargement -->
   <div class="loading-container" *ngIf="loading">

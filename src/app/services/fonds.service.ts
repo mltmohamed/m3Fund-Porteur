@@ -45,6 +45,7 @@ export interface Transaction {
   recipientNumber: string;
   transactionReason: string;
   projectDomain?: string;
+  sourceType: 'CONTRIBUTION' | 'ADMIN';
 }
 
 @Injectable({
@@ -158,7 +159,8 @@ export class FondsService {
         paymentMethodDetail,
         recipientNumber,
         transactionReason: transaction.projectDescription || `Contribution à ${transaction.campaignTitle}`,
-        projectDomain: this.getDomainLabel(transaction.projectDomain)
+        projectDomain: this.getDomainLabel(transaction.projectDomain),
+        sourceType: 'CONTRIBUTION'
       };
     });
   }
@@ -282,7 +284,8 @@ export class FondsService {
         transactionStatus,
         paymentMethodDetail,
         recipientNumber,
-        transactionReason: `Contribution à la campagne ${gift.campaignId}`
+        transactionReason: `Contribution à la campagne ${gift.campaignId}`,
+        sourceType: 'CONTRIBUTION'
       };
     });
   }

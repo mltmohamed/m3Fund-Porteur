@@ -17,6 +17,7 @@ export class Fonds implements OnInit {
   searchTerm: string = '';
   selectedStatus: string = '';
   selectedPeriod: string = '';
+  selectedSourceType: string = '';
   showTransactionModal: boolean = false;
   selectedTransaction: any = null;
   loading: boolean = false;
@@ -46,12 +47,12 @@ export class Fonds implements OnInit {
       amount: '250,000 FCFA',
       date: '09/10/2025',
       time: '14:30',
-      // Données détaillées pour le modal
       transactionDate: '13/10/2025',
       transactionStatus: 'Envoyé',
       paymentMethodDetail: 'Orange Money',
       recipientNumber: '+22372001272',
-      transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
+      transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.',
+      sourceType: 'CONTRIBUTION'
     },
     {
       id: 2,
@@ -62,12 +63,12 @@ export class Fonds implements OnInit {
       amount: '500,000 FCFA',
       date: '08/08/2025',
       time: '10:15',
-      // Données détaillées pour le modal
       transactionDate: '08/08/2025',
       transactionStatus: 'En attente',
       paymentMethodDetail: 'Carte Bancaire',
       recipientNumber: '*******9802',
-      transactionReason: 'Construction d\'une école avec dispositifs intégrés pour le suivi pédagogique administratif des élèves.'
+      transactionReason: 'Construction d\'une école avec dispositifs intégrés pour le suivi pédagogique administratif des élèves.',
+      sourceType: 'CONTRIBUTION'
     },
     {
       id: 3,
@@ -78,12 +79,12 @@ export class Fonds implements OnInit {
       amount: '100,000 FCFA',
       date: '21/10/2025',
       time: '16:45',
-      // Données détaillées pour le modal
       transactionDate: '21/10/2025',
       transactionStatus: 'Échoué',
       paymentMethodDetail: 'Orange Money',
       recipientNumber: '+22372001272',
-      transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
+      transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.',
+      sourceType: 'CONTRIBUTION'
     },
     {
       id: 4,
@@ -94,12 +95,44 @@ export class Fonds implements OnInit {
       amount: '75,000 FCFA',
       date: '09/10/2025',
       time: '11:20',
-      // Données détaillées pour le modal
       transactionDate: '09/10/2025',
       transactionStatus: 'Échoué',
       paymentMethodDetail: 'Orange Money',
       recipientNumber: '+22372001272',
-      transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.'
+      transactionReason: 'Conception d\'une application mobile pour consultations médicales à distance avec suivi des patients.',
+      sourceType: 'CONTRIBUTION'
+    },
+    {
+      id: 5,
+      paymentMethod: 'Virement Admin',
+      status: 'success',
+      statusIcon: 'fas fa-check-circle',
+      project: 'Décaissement Admin - Projet Agriculture 15/11/2025',
+      amount: '1,500,000 FCFA',
+      date: '15/11/2025',
+      time: '09:00',
+      transactionDate: '15/11/2025',
+      transactionStatus: 'Envoyé',
+      paymentMethodDetail: 'Virement Admin',
+      recipientNumber: 'Admin M3Fund',
+      transactionReason: 'Décaissement de fonds validé par l\'administration pour le projet agricole.',
+      sourceType: 'ADMIN'
+    },
+    {
+      id: 6,
+      paymentMethod: 'Virement Admin',
+      status: 'success',
+      statusIcon: 'fas fa-check-circle',
+      project: 'Décaissement Admin - Campagne Santé 20/11/2025',
+      amount: '800,000 FCFA',
+      date: '20/11/2025',
+      time: '14:00',
+      transactionDate: '20/11/2025',
+      transactionStatus: 'Envoyé',
+      paymentMethodDetail: 'Virement Admin',
+      recipientNumber: 'Admin M3Fund',
+      transactionReason: 'Encaissement de fonds depuis l\'admin suite à validation de campagne.',
+      sourceType: 'ADMIN'
     }
   ];
 
@@ -150,6 +183,12 @@ export class Fonds implements OnInit {
     { value: 'year', label: 'Cette année' }
   ];
 
+  sourceTypeOptions = [
+    { value: '', label: 'Tous les types' },
+    { value: 'CONTRIBUTION', label: 'Contributions' },
+    { value: 'ADMIN', label: 'Encaissé depuis Admin' }
+  ];
+
   onSearch() {
     this.applyFilters();
   }
@@ -159,6 +198,10 @@ export class Fonds implements OnInit {
   }
 
   onPeriodChange() {
+    this.applyFilters();
+  }
+
+  onSourceTypeChange() {
     this.applyFilters();
   }
 
@@ -178,6 +221,11 @@ export class Fonds implements OnInit {
     // Filtre par statut
     if (this.selectedStatus) {
       filtered = filtered.filter(transaction => transaction.status === this.selectedStatus);
+    }
+
+    // Filtre par type de source
+    if (this.selectedSourceType) {
+      filtered = filtered.filter(transaction => transaction.sourceType === this.selectedSourceType);
     }
 
     // Filtre par période
