@@ -148,13 +148,15 @@ export class Fonds implements OnInit {
     this.loading = true;
     this.error = '';
     
-    this.fondsService.getMyTransactions().subscribe({
-      next: (transactions) => {
-        this.transactions = this.fondsService.transformTransactionsData(transactions);
+    // Charger les vraies campagnes pour extraire les contributions
+    this.campaignService.getMyCampaigns().subscribe({      
+      next: (campaigns) => {
+        // Transformer les campagnes en transactions
+        this.transactions = this.buildTransactionsFromCampaigns(campaigns);
         this.filteredTransactions = [...this.transactions];
         this.categorizeTransactions();
         this.loading = false;
-        console.log('Transactions chargées:', this.transactions);
+        console.log('Transactions chargées depuis les campagnes:', this.transactions);
       },
       error: (error) => {
         console.error('Erreur lors du chargement des transactions:', error);
@@ -328,5 +330,39 @@ export class Fonds implements OnInit {
     this.transactionsSuccess = this.filteredTransactions.filter(t => t.status === 'success');
     this.transactionsPending = this.filteredTransactions.filter(t => t.status === 'pending');
     this.transactionsFailed = this.filteredTransactions.filter(t => t.status === 'failed');
+  }
+
+  private buildTransactionsFromCampaigns(campaigns: CampaignResponse[]): Transaction[] {
+    const transactions: Transaction[] = [];
+    
+    campaigns.forEach(campaign => {
+      // Si la campagne a des contributions (currentFund > 0), créer des transactions
+      if (campaign.currentFund && campaign.currentFund > 0) {
+        const date = new Date(campaign.startDate || campaign.createdAt || new Date());
+        const formattedDate = date.toLocaleDateString('fr-FR');
+        const formattedTime = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        
+        // Créer une transaction pour cette contribution
+        transactions.push({
+          id: campaign.id,
+          paymentMethod: 'Contribution',
+          status: 'success',
+          statusIcon: 'fas fa-check-circle',
+          project: `${campaign.title || 'Campagne'} ${formattedDate}`,
+          amount: `${(campaign.currentFund || 0).toLocaleString('fr-FR')} FCFA`,
+          date: formattedDate,
+          time: formattedTime,
+          transactionDate: formattedDate,
+          transactionStatus: 'Envoyé',
+          paymentMethodDetail: 'Contribution',
+          recipientNumber: 'Contributeurs',
+          transactionReason: campaign.description || `Contributions à la campagne ${campaign.title}`,
+          projectDomain: campaign.type || 'DONATION',
+          sourceType: 'CONTRIBUTION'
+        });
+      }
+    });
+    
+    return transactions;
   }
 }
