@@ -148,18 +148,37 @@ export class Fonds implements OnInit {
     this.loading = true;
     this.error = '';
     
-    // Charger les vraies campagnes pour extraire les contributions
-    this.campaignService.getMyCampaigns().subscribe({      
-      next: (campaigns) => {
-        // Transformer les campagnes en transactions
-        this.transactions = this.buildTransactionsFromCampaigns(campaigns);
-        this.filteredTransactions = [...this.transactions];
-        this.categorizeTransactions();
-        this.loading = false;
-        console.log('Transactions chargées depuis les campagnes:', this.transactions);
+    // Charger le profil utilisateur d'abord pour vérifier les nouveaux décaissements admin
+    this.profileService.getCurrentProfile().subscribe({
+      next: (profile: ProfileResponse) => {
+        // Créer les transactions admin basées sur les changements du fund
+        const adminTransactions = this.buildAdminDisbursementTransactions(profile);
+        
+        // Charger les vraies campagnes pour extraire les contributions
+        this.campaignService.getMyCampaigns().subscribe({      
+          next: (campaigns) => {
+            // Transformer les campagnes en transactions contributions
+            const contributionTransactions = this.buildTransactionsFromCampaigns(campaigns);
+            
+            // Combiner les deux types de transactions
+            this.transactions = [...contributionTransactions, ...adminTransactions];
+            this.filteredTransactions = [...this.transactions];
+            this.categorizeTransactions();
+            this.loading = false;
+            console.log('Transactions chargées (contributions + admin):', this.transactions);
+          },
+          error: (error) => {
+            console.error('Erreur lors du chargement des transactions:', error);
+            // Même si les campagnes échouent, afficher les transactions admin
+            this.transactions = adminTransactions;
+            this.filteredTransactions = [...this.transactions];
+            this.categorizeTransactions();
+            this.loading = false;
+          }
+        });
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des transactions:', error);
+        console.error('Erreur lors du chargement du profil:', error);
         this.error = 'Erreur lors du chargement des transactions';
         // Utiliser les données de test en cas d'erreur
         this.transactions = this.mockTransactions;
@@ -298,6 +317,9 @@ export class Fonds implements OnInit {
   private loadUserFund() {
     this.profileService.getCurrentProfile().subscribe({
       next: (profile: ProfileResponse) => {
+        console.log('=== USER PROFILE DATA ===');
+        console.log('Full profile:', profile);
+        console.log('Fund value:', profile.fund);
         this.totalFund = Number(profile.fund || 0);
         this.totalFundDisplay = `${this.totalFund.toLocaleString('fr-FR')} FCFA`;
       },
@@ -363,6 +385,171 @@ export class Fonds implements OnInit {
       }
     });
     
+    return transactions;
+  }
+
+  private buildAdminDisbursementTransactions(profile: ProfileResponse): Transaction[] {
+    const transactions: Transaction[] = [];
+    const currentFund = Number(profile.fund || 0);
+    
+    console.log('=== TRACKING ADMIN DISBURSEMENTS ===');
+    console.log('Current fund value:', currentFund);
+    
+    // Récupérer l'historique des fonds stocké dans localStorage
+    const fundHistoryKey = `fund_history_${profile.id || 'user'}`;
+    const storedHistory = localStorage.getItem(fundHistoryKey);
+    let fundHistory: Array<{amount: number, date: string}> = [];
+    
+    if (storedHistory) {
+      try {
+        fundHistory = JSON.parse(storedHistory);
+        console.log('Fund history from storage:', fundHistory);
+      } catch (e) {
+        console.error('Error parsing fund history:', e);
+        fundHistory = [];
+      }
+    }
+    
+    // Si aucun historique n'existe et que le fund est > 0, créer l'historique initial
+    if (fundHistory.length === 0 && currentFund > 0) {
+      console.log('No history found but fund > 0. Creating initial entry for existing fund.');
+      // Supposer que ce fund existe depuis hier (date approximative)
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      fundHistory = [
+        { amount: currentFund, date: yesterday.toISOString() }
+      ];
+      localStorage.setItem(fundHistoryKey, JSON.stringify(fundHistory));
+      
+      // Créer une transaction pour ce décaissement existant
+      const formattedDate = yesterday.toLocaleDateString('fr-FR');
+      const formattedTime = yesterday.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      
+      transactions.push({
+        id: Date.now(),
+        paymentMethod: 'Virement Admin',
+        status: 'success',
+        statusIcon: 'fas fa-check-circle',
+        project: `Décaissement Admin - ${formattedDate}`,
+        amount: `${currentFund.toLocaleString('fr-FR')} FCFA`,
+        date: formattedDate,
+        time: formattedTime,
+        transactionDate: formattedDate,
+        transactionStatus: 'Envoyé',
+        paymentMethodDetail: 'Virement Admin',
+        recipientNumber: 'Admin M3Fund',
+        transactionReason: `Encaissement de fonds depuis l'administration pour un montant de ${currentFund.toLocaleString('fr-FR')} FCFA`,
+        sourceType: 'ADMIN'
+      });
+      
+      console.log('✓ CREATED INITIAL DISBURSEMENT TRANSACTION for', currentFund, 'FCFA');
+      return transactions;
+    }
+    
+    // Vérifier si le fund a augmenté
+    const lastRecordedFund = fundHistory.length > 0 ? fundHistory[fundHistory.length - 1].amount : 0;
+    console.log('Last recorded fund:', lastRecordedFund);
+    
+    if (currentFund > lastRecordedFund) {
+      const disbursementAmount = currentFund - lastRecordedFund;
+      console.log('✓ NEW DISBURSEMENT DETECTED:', disbursementAmount, 'FCFA');
+      
+      // Ajouter le nouveau décaissement à l'historique
+      const newEntry = {
+        amount: currentFund,
+        date: new Date().toISOString()
+      };
+      fundHistory.push(newEntry);
+      
+      // Sauvegarder l'historique mis à jour
+      localStorage.setItem(fundHistoryKey, JSON.stringify(fundHistory));
+      
+      // Créer une transaction pour ce décaissement
+      const date = new Date();
+      const formattedDate = date.toLocaleDateString('fr-FR');
+      const formattedTime = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      
+      transactions.push({
+        id: Date.now(),
+        paymentMethod: 'Virement Admin',
+        status: 'success',
+        statusIcon: 'fas fa-check-circle',
+        project: `Décaissement Admin - ${formattedDate}`,
+        amount: `${disbursementAmount.toLocaleString('fr-FR')} FCFA`,
+        date: formattedDate,
+        time: formattedTime,
+        transactionDate: formattedDate,
+        transactionStatus: 'Envoyé',
+        paymentMethodDetail: 'Virement Admin',
+        recipientNumber: 'Admin M3Fund',
+        transactionReason: `Encaissement de fonds depuis l'administration pour un montant de ${disbursementAmount.toLocaleString('fr-FR')} FCFA`,
+        sourceType: 'ADMIN'
+      });
+    } else if (currentFund === lastRecordedFund) {
+      console.log('No new disbursement detected');
+    } else {
+      console.log('Fund decreased or reset - updating baseline');
+      // Si le fund a diminué, mettre à jour le baseline
+      fundHistory = [{ amount: currentFund, date: new Date().toISOString() }];
+      localStorage.setItem(fundHistoryKey, JSON.stringify(fundHistory));
+    }
+    
+    // Charger toutes les transactions admin de l'historique
+    fundHistory.forEach((entry, index) => {
+      if (index === 0 && fundHistory.length === 1) {
+        // Premier et seul entry - afficher comme décaissement initial
+        const date = new Date(entry.date);
+        const formattedDate = date.toLocaleDateString('fr-FR');
+        const formattedTime = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+        
+        transactions.push({
+          id: Date.now() + index,
+          paymentMethod: 'Virement Admin',
+          status: 'success',
+          statusIcon: 'fas fa-check-circle',
+          project: `Décaissement Admin - ${formattedDate}`,
+          amount: `${entry.amount.toLocaleString('fr-FR')} FCFA`,
+          date: formattedDate,
+          time: formattedTime,
+          transactionDate: formattedDate,
+          transactionStatus: 'Envoyé',
+          paymentMethodDetail: 'Virement Admin',
+          recipientNumber: 'Admin M3Fund',
+          transactionReason: `Encaissement de fonds depuis l'administration pour un montant de ${entry.amount.toLocaleString('fr-FR')} FCFA`,
+          sourceType: 'ADMIN'
+        });
+      } else if (index > 0) {
+        // Entrées suivantes - calculer la différence
+        const previousAmount = fundHistory[index - 1].amount;
+        const disbursementAmount = entry.amount - previousAmount;
+        
+        if (disbursementAmount > 0) {
+          const date = new Date(entry.date);
+          const formattedDate = date.toLocaleDateString('fr-FR');
+          const formattedTime = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+          
+          transactions.push({
+            id: Date.now() + index,
+            paymentMethod: 'Virement Admin',
+            status: 'success',
+            statusIcon: 'fas fa-check-circle',
+            project: `Décaissement Admin - ${formattedDate}`,
+            amount: `${disbursementAmount.toLocaleString('fr-FR')} FCFA`,
+            date: formattedDate,
+            time: formattedTime,
+            transactionDate: formattedDate,
+            transactionStatus: 'Envoyé',
+            paymentMethodDetail: 'Virement Admin',
+            recipientNumber: 'Admin M3Fund',
+            transactionReason: `Encaissement de fonds depuis l'administration pour un montant de ${disbursementAmount.toLocaleString('fr-FR')} FCFA`,
+            sourceType: 'ADMIN'
+          });
+        }
+      }
+    });
+    
+    console.log('=== ADMIN TRANSACTIONS CREATED:', transactions.length, '===');
     return transactions;
   }
 }
