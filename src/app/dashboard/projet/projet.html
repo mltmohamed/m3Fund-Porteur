@@ -352,4 +352,43 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal d'avertissement pour la modification d'un projet validé -->
+  <div class="modal-overlay" *ngIf="showValidationWarningModal" (click)="cancelEditValidatedProject()">
+    <div class="warning-modal-content" (click)="$event.stopPropagation()">
+      <!-- En-tête du modal -->
+      <div class="warning-modal-header">
+        <h2 class="warning-modal-title">Avertissement</h2>
+      </div>
+      
+      <!-- Contenu du modal -->
+      <div class="warning-modal-body">
+        <div class="warning-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <p class="warning-message">
+          Vous êtes sur le point de modifier un projet qui a déjà été validé. 
+          <strong>Cette action entraînera les conséquences suivantes :</strong>
+        </p>
+        <ul class="warning-consequences">
+          <li>Votre projet sera dévalidé et devra être réexaminé par l'équipe administrative</li>
+          <li>Toutes les campagnes associées à ce projet seront automatiquement clôturées</li>
+          <li>Vous devrez attendre une nouvelle validation avant de pouvoir relancer des campagnes</li>
+        </ul>
+        <p class="warning-confirmation">
+          Êtes-vous sûr de vouloir continuer ?
+        </p>
+      </div>
+      
+      <!-- Pied de page du modal -->
+      <div class="warning-modal-footer">
+        <button type="button" class="btn-secondary" (click)="cancelEditValidatedProject()">
+          Annuler
+        </button>
+        <button type="button" class="btn-primary" (click)="confirmEditValidatedProject()">
+          Continuer
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

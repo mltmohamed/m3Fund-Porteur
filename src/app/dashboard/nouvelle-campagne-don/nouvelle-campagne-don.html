@@ -1,4 +1,4 @@
-<div class="nouvelle-campagne-don-container">
+<div class="nouvelle-campagne-container">
   <div class="form-card">
     <h1 class="form-title">Créer une nouvelle campagne</h1>
     <p class="form-subtitle">Bienvenu ! Prêt à lancer votre campagne ? remplissez les champs ci-dessus.</p>
@@ -40,7 +40,6 @@
             </div>
           </div>
           
-          
           <div class="form-group">
             <label for="targetBudget">Budget cible</label>
             <input 
@@ -52,19 +51,20 @@
               placeholder="Budget cible"
             >
           </div>
+          
           <div class="form-group">
-            <label for="startDate">Date de debut</label>
-            <div class="date-input-container">
-              <i class="fas fa-calendar-alt"></i>
-              <input 
-                type="date" 
-                id="startDate" 
-                class="form-input date-input" 
-                [(ngModel)]="startDate"
-                name="startDate"
-              >
-            </div>
+            <label for="targetVolunteer">Nombre de bénévoles recherchés</label>
+            <input 
+              type="number" 
+              id="targetVolunteer" 
+              class="form-input" 
+              [(ngModel)]="targetVolunteer"
+              name="targetVolunteer"
+              placeholder="Nombre de bénévoles"
+              min="1"
+            >
           </div>
+          
           <div class="form-group">
             <label for="endDate">Date Fin</label>
             <div class="date-input-container">
@@ -79,36 +79,26 @@
               >
             </div>
           </div>
-          <!-- <div class="form-group">
-            <label for="targetVolunteer">Nombre de bénévoles recherchés</label>
-            <input 
-              type="number" 
-              id="targetVolunteer" 
-              class="form-input" 
-              [(ngModel)]="targetVolunteer"
-              name="targetVolunteer"
-              min="1"
-              placeholder="Nombre de bénévoles"
-            >
-          </div> -->
-          
-          
-          <!-- <div class="form-group">
-            <label for="userReceives">Ce que vous recevez apres déduction des frais</label>
-            <input 
-              type="text" 
-              id="userReceives" 
-              class="form-input readonly-input" 
-              [value]="userReceives"
-              readonly
-            >
-          </div> -->
         </div>
 
         <!-- Colonne droite -->
         <div class="form-column">
           <div class="form-group">
-            <label for="m3FundReceives">Ce que M3Fund reçoit</label>
+            <label for="startDate">Date de debut</label>
+            <div class="date-input-container">
+              <i class="fas fa-calendar-alt"></i>
+              <input 
+                type="date" 
+                id="startDate" 
+                class="form-input date-input" 
+                [(ngModel)]="startDate"
+                name="startDate"
+              >
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="m3FundReceives">Ce que M3Fund reçoit (5%)</label>
             <input 
               type="text" 
               id="m3FundReceives" 
@@ -119,7 +109,7 @@
           </div>
           
           <div class="form-group">
-            <label for="userReceives">Ce que vous recevez après déduction des frais</label>
+            <label for="userReceives">Ce que vous recevez apres déduction des frais</label>
             <input 
               type="text" 
               id="userReceives" 
@@ -127,6 +117,196 @@
               [value]="userReceives"
               readonly
             >
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Localisation -->
+      <div class="form-section">
+        <h3 class="section-title">Localisation</h3>
+        <div class="form-columns">
+          <div class="form-column">
+            <div class="form-group">
+              <label for="country">Pays *</label>
+              <input 
+                type="text" 
+                id="country" 
+                class="form-input" 
+                [(ngModel)]="country"
+                name="country"
+                placeholder="Pays"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="town">Ville *</label>
+              <input 
+                type="text" 
+                id="town" 
+                class="form-input" 
+                [(ngModel)]="town"
+                name="town"
+                placeholder="Ville"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="region">Région</label>
+              <input 
+                type="text" 
+                id="region" 
+                class="form-input" 
+                [(ngModel)]="region"
+                name="region"
+                placeholder="Région"
+              >
+            </div>
+          </div>
+          
+          <div class="form-column">
+            <div class="form-group">
+              <label for="street">Adresse</label>
+              <input 
+                type="text" 
+                id="street" 
+                class="form-input" 
+                [(ngModel)]="street"
+                name="street"
+                placeholder="Adresse"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input 
+                type="number" 
+                id="longitude" 
+                class="form-input" 
+                [(ngModel)]="longitude"
+                name="longitude"
+                placeholder="Longitude"
+                step="any"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input 
+                type="number" 
+                id="latitude" 
+                class="form-input" 
+                [(ngModel)]="latitude"
+                name="latitude"
+                placeholder="Latitude"
+                step="any"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Récompenses -->
+      <div class="form-section">
+        <h3 class="section-title">Récompenses</h3>
+        <div class="rewards-section">
+          <!-- Formulaire d'ajout de récompense -->
+          <div class="reward-form">
+            <div class="form-columns">
+              <div class="form-column">
+                <div class="form-group">
+                  <label for="rewardName">Nom de la récompense</label>
+                  <input 
+                    type="text" 
+                    id="rewardName" 
+                    class="form-input" 
+                    [(ngModel)]="currentReward.name"
+                    name="rewardName"
+                    placeholder="Nom de la récompense"
+                  >
+                </div>
+                
+                <div class="form-group">
+                  <label for="rewardDescription">Description</label>
+                  <textarea 
+                    id="rewardDescription" 
+                    class="form-textarea" 
+                    rows="3"
+                    [(ngModel)]="currentReward.description"
+                    name="rewardDescription"
+                    placeholder="Description de la récompense"
+                  ></textarea>
+                </div>
+              </div>
+              
+              <div class="form-column">
+                <div class="form-group">
+                  <label for="rewardType">Type</label>
+                  <div class="select-container">
+                    <select 
+                      id="rewardType" 
+                      class="form-select" 
+                      [(ngModel)]="currentReward.type"
+                      name="rewardType"
+                    >
+                      <option *ngFor="let option of rewardTypeOptions" [value]="option.value">
+                        {{ option.label }}
+                      </option>
+                    </select>
+                    <i class="fas fa-chevron-down"></i>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="rewardQuantity">Quantité</label>
+                  <input 
+                    type="number" 
+                    id="rewardQuantity" 
+                    class="form-input" 
+                    [(ngModel)]="currentReward.quantity"
+                    name="rewardQuantity"
+                    placeholder="Quantité"
+                    min="1"
+                  >
+                </div>
+                
+                <div class="form-group">
+                  <label for="rewardUnlockAmount">Montant de déblocage (FCFA)</label>
+                  <input 
+                    type="number" 
+                    id="rewardUnlockAmount" 
+                    class="form-input" 
+                    [(ngModel)]="currentReward.unlockAmount"
+                    name="rewardUnlockAmount"
+                    placeholder="Montant de déblocage"
+                    min="1"
+                  >
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-submit">
+              <button type="button" class="add-reward-btn" (click)="addReward()">
+                Ajouter la récompense
+              </button>
+            </div>
+          </div>
+
+          <!-- Liste des récompenses ajoutées -->
+          <div class="rewards-list" *ngIf="rewards.length > 0">
+            <h4>Récompenses ajoutées</h4>
+            <div class="reward-item" *ngFor="let reward of rewards; let i = index">
+              <div class="reward-info">
+                <h5>{{ reward.name }} ({{ reward.type }})</h5>
+                <p>{{ reward.description }}</p>
+                <div class="reward-details">
+                  <span>Quantité: {{ reward.quantity }}</span>
+                  <span>Montant: {{ reward.unlockAmount | number }} FCFA</span>
+                </div>
+              </div>
+              <button type="button" class="remove-reward-btn" (click)="removeReward(i)">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -144,122 +324,20 @@
         ></textarea>
       </div>
 
-      <!-- Section des récompenses -->
-      <div class="form-group full-width">
-        <h3 style="margin-bottom: 1rem;">Récompenses pour les contributeurs</h3>
-        
-        <!-- Formulaire d'ajout de récompense -->
-        <div class="form-row">
-          <div class="form-column">
-            <div class="form-group">
-              <label for="rewardName">Nom de la récompense</label>
-              <input 
-                type="text" 
-                id="rewardName" 
-                class="form-input" 
-                [(ngModel)]="currentReward.name"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Ex: T-shirt du projet"
-              >
-            </div>
-            
-            <div class="form-group">
-              <label for="rewardType">Type de récompense</label>
-              <div class="select-container">
-                <select 
-                  id="rewardType" 
-                  class="form-select" 
-                  [(ngModel)]="currentReward.type"
-                  [ngModelOptions]="{standalone: true}"
-                >
-                  <option *ngFor="let option of rewardTypeOptions" [value]="option.value">
-                    {{ option.label }}
-                  </option>
-                </select>
-                <i class="fas fa-chevron-down"></i>
-              </div>
-            </div>
-            
-            <div class="form-group">
-              <label for="rewardQuantity">Quantité disponible</label>
-              <input 
-                type="number" 
-                id="rewardQuantity" 
-                class="form-input" 
-                [(ngModel)]="currentReward.quantity"
-                [ngModelOptions]="{standalone: true}"
-                min="1"
-                placeholder="Ex: 100"
-              >
-            </div>
-          </div>
-          
-          <div class="form-column">
-            <div class="form-group">
-              <label for="rewardDescription">Description</label>
-              <textarea 
-                id="rewardDescription" 
-                class="form-textarea" 
-                rows="3"
-                [(ngModel)]="currentReward.description"
-                [ngModelOptions]="{standalone: true}"
-                placeholder="Décrivez la récompense..."
-              ></textarea>
-            </div>
-            
-            <div class="form-group">
-              <label for="rewardUnlock">Montant de déblocage (FCFA)</label>
-              <input 
-                type="number" 
-                id="rewardUnlock" 
-                class="form-input" 
-                [(ngModel)]="currentReward.unlockAmount"
-                [ngModelOptions]="{standalone: true}"
-                min="1"
-                placeholder="Ex: 5000"
-              >
-            </div>
-            
-            <button type="button" class="submit-btn" (click)="addReward()" style="margin-top: 0.5rem;">
-              <i class="fas fa-plus"></i> Ajouter la récompense
-            </button>
-          </div>
-        </div>
-        
-        <!-- Liste des récompenses ajoutées -->
-        <div *ngIf="rewards.length > 0" style="margin-top: 1.5rem;">
-          <h4>Récompenses ajoutées ({{ rewards.length }})</h4>
-          <div *ngFor="let reward of rewards; let i = index" style="border: 1px solid #ddd; padding: 1rem; margin-top: 0.5rem; border-radius: 8px; background: #f9f9f9;">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-              <div style="flex: 1;">
-                <h5 style="margin: 0 0 0.5rem 0;">{{ reward.name }}</h5>
-                <p style="margin: 0 0 0.5rem 0; color: #666;">{{ reward.description }}</p>
-                <div style="display: flex; gap: 1rem; font-size: 0.9rem;">
-                  <span><strong>Type:</strong> {{ reward.type }}</span>
-                  <span><strong>Quantité:</strong> {{ reward.quantity }}</span>
-                  <span><strong>Montant:</strong> {{ reward.unlockAmount }} FCFA</span>
-                </div>
-              </div>
-              <button type="button" (click)="removeReward(i)" style="background: #dc3545; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-        
-        <div *ngIf="errorMessage" style="color: #dc3545; margin-top: 1rem; padding: 0.75rem; background: #f8d7da; border-radius: 4px;">
-          {{ errorMessage }}
-        </div>
-        
-        <div *ngIf="successMessage" style="color: #28a745; margin-top: 1rem; padding: 0.75rem; background: #d4edda; border-radius: 4px;">
-          {{ successMessage }}
-        </div>
+      <!-- Messages d'erreur et de succès -->
+      <div *ngIf="errorMessage" style="color: #dc3545; margin-top: 1rem; padding: 0.75rem; background: #f8d7da; border-radius: 4px;">
+        {{ errorMessage }}
+      </div>
+      
+      <div *ngIf="successMessage" style="color: #28a745; margin-top: 1rem; padding: 0.75rem; background: #d4edda; border-radius: 4px;">
+        {{ successMessage }}
       </div>
 
       <!-- Bouton de soumission -->
       <div class="form-submit">
         <button type="submit" class="submit-btn" [disabled]="isLoading || !isUserVerified">
-          Soumettre
+          <span *ngIf="!isLoading">Soumettre</span>
+          <span *ngIf="isLoading">Création en cours...</span>
         </button>
       </div>
     </form>

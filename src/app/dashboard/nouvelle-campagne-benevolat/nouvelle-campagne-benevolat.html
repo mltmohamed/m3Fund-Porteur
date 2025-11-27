@@ -1,4 +1,4 @@
-<div class="nouvelle-campagne-benevolat-container">
+<div class="nouvelle-campagne-container">
   <div class="form-card">
     <h1 class="form-title">Créer une nouvelle campagne</h1>
     <p class="form-subtitle">Bienvenu ! Prêt à lancer votre campagne ? remplissez les champs ci-dessus.</p>
@@ -19,62 +19,154 @@
     </div>
 
     <form class="campaign-form" (ngSubmit)="onSubmit()" [class.disabled]="!isUserVerified">
-      <div class="form-fields">
-        <div class="form-group">
-          <label for="selectedProject">Le projet concerné</label>
-          <div class="select-container">
-            <select 
-              id="selectedProject" 
-              class="form-select" 
-              [(ngModel)]="selectedProject"
-              name="selectedProject"
-            >
-              <option *ngFor="let option of projectOptions" [value]="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-            <i class="fas fa-chevron-down"></i>
+      <div class="form-columns">
+        <!-- Colonne gauche -->
+        <div class="form-column">
+          <div class="form-group">
+            <label for="selectedProject">Le projet concerné</label>
+            <div class="select-container">
+              <select 
+                id="selectedProject" 
+                class="form-select" 
+                [(ngModel)]="selectedProject"
+                name="selectedProject"
+                (change)="onProjectChange()"
+              >
+                <option *ngFor="let option of projectOptions" [value]="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+              <i class="fas fa-chevron-down"></i>
+            </div>
           </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="targetVolunteer">Nombre de bénévoles recherchés</label>
-          <input 
-            type="number" 
-            id="targetVolunteer" 
-            class="form-input" 
-            [(ngModel)]="targetVolunteer"
-            name="targetVolunteer"
-            min="1"
-            placeholder="Ex: 10"
-          >
-        </div>
-        
-        <div class="form-group">
-          <label for="startDate">Date de debut</label>
-          <div class="date-input-container">
-            <i class="fas fa-calendar-alt"></i>
+          
+          <div class="form-group">
+            <label for="targetVolunteer">Nombre de bénévoles recherchés</label>
             <input 
-              type="date" 
-              id="startDate" 
-              class="form-input date-input" 
-              [(ngModel)]="startDate"
-              name="startDate"
+              type="number" 
+              id="targetVolunteer" 
+              class="form-input" 
+              [(ngModel)]="targetVolunteer"
+              name="targetVolunteer"
+              placeholder="Nombre de bénévoles"
+              min="1"
             >
           </div>
         </div>
-        
-        <div class="form-group">
-          <label for="endDate">Date Fin</label>
-          <div class="date-input-container">
-            <i class="fas fa-calendar-alt"></i>
-            <input 
-              type="date" 
-              id="endDate" 
-              class="form-input date-input" 
-              [(ngModel)]="endDate"
-              name="endDate"
-            >
+
+        <!-- Colonne droite -->
+        <div class="form-column">
+          <div class="form-group">
+            <label for="startDate">Date de debut</label>
+            <div class="date-input-container">
+              <i class="fas fa-calendar-alt"></i>
+              <input 
+                type="date" 
+                id="startDate" 
+                class="form-input date-input" 
+                [(ngModel)]="startDate"
+                name="startDate"
+              >
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="endDate">Date Fin</label>
+            <div class="date-input-container">
+              <i class="fas fa-calendar-alt"></i>
+              <input 
+                type="date" 
+                id="endDate" 
+                class="form-input date-input" 
+                [(ngModel)]="endDate"
+                name="endDate"
+                [min]="getMinDate()"
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Localisation -->
+      <div class="form-section">
+        <h3 class="section-title">Localisation</h3>
+        <div class="form-columns">
+          <div class="form-column">
+            <div class="form-group">
+              <label for="country">Pays *</label>
+              <input 
+                type="text" 
+                id="country" 
+                class="form-input" 
+                [(ngModel)]="country"
+                name="country"
+                placeholder="Pays"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="town">Ville *</label>
+              <input 
+                type="text" 
+                id="town" 
+                class="form-input" 
+                [(ngModel)]="town"
+                name="town"
+                placeholder="Ville"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="region">Région</label>
+              <input 
+                type="text" 
+                id="region" 
+                class="form-input" 
+                [(ngModel)]="region"
+                name="region"
+                placeholder="Région"
+              >
+            </div>
+          </div>
+          
+          <div class="form-column">
+            <div class="form-group">
+              <label for="street">Adresse</label>
+              <input 
+                type="text" 
+                id="street" 
+                class="form-input" 
+                [(ngModel)]="street"
+                name="street"
+                placeholder="Adresse"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="longitude">Longitude</label>
+              <input 
+                type="number" 
+                id="longitude" 
+                class="form-input" 
+                [(ngModel)]="longitude"
+                name="longitude"
+                placeholder="Longitude"
+                step="any"
+              >
+            </div>
+            
+            <div class="form-group">
+              <label for="latitude">Latitude</label>
+              <input 
+                type="number" 
+                id="latitude" 
+                class="form-input" 
+                [(ngModel)]="latitude"
+                name="latitude"
+                placeholder="Latitude"
+                step="any"
+              >
+            </div>
           </div>
         </div>
       </div>

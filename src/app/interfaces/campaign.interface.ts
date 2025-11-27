@@ -42,6 +42,14 @@ export interface CampaignCreateRequest {
   shareOffered?: number;
   rewards?: RewardCreateRequest[];
   description?: string;
+  localization?: {
+    country: string;
+    town: string;
+    region?: string;
+    street?: string;
+    longitude: number;
+    latitude: number;
+  };
 }
 
 export interface RewardCreateRequest {

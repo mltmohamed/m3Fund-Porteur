@@ -21,6 +21,15 @@ export class NouvelleCampagneDon implements OnInit {
   startDate: string = '';
   endDate: string = '';
   campaignDescription: string = '';
+  
+  // Données de localisation
+  country: string = '';
+  town: string = '';
+  region: string = '';
+  street: string = '';
+  longitude: number = 0;
+  latitude: number = 0;
+  
   isLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -193,6 +202,12 @@ export class NouvelleCampagneDon implements OnInit {
       return;
     }
 
+    // Validation des champs de localisation
+    if (!this.country || !this.town) {
+      this.errorMessage = 'Veuillez saisir le pays et la ville';
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -204,7 +219,15 @@ export class NouvelleCampagneDon implements OnInit {
       type: 'DONATION',
       targetBudget: parseFloat(this.targetBudget.replace(/[^\d]/g, '')),
       rewards: this.rewards,
-      description: this.campaignDescription?.trim() || undefined
+      description: this.campaignDescription?.trim() || undefined,
+      localization: {
+        country: this.country,
+        town: this.town,
+        region: this.region || undefined,
+        street: this.street || undefined,
+        longitude: this.longitude,
+        latitude: this.latitude
+      }
     };
     
     console.log('Données de la campagne à envoyer:', campaignData);
@@ -253,5 +276,11 @@ export class NouvelleCampagneDon implements OnInit {
       quantity: 0,
       unlockAmount: 0
     };
+    this.country = '';
+    this.town = '';
+    this.region = '';
+    this.street = '';
+    this.longitude = 0;
+    this.latitude = 0;
   }
 }

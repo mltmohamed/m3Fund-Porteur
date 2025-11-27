@@ -1525,3 +1525,152 @@
     padding: 1rem;
   }
 }
+
+/* Modal d'avertissement */
+.warning-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: modalAppear 0.3s ease-out;
+}
+
+.warning-modal-header {
+  padding: 1.5rem 1.5rem 0;
+  text-align: center;
+  border-bottom: none;
+}
+
+.warning-modal-title {
+  color: #2D2D2D;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.warning-modal-body {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.warning-icon {
+  color: #FFA500;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.warning-message {
+  color: #2D2D2D;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+}
+
+.warning-consequences {
+  text-align: left;
+  background-color: #FFF8E1;
+  border-left: 4px solid #FFA500;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 0 4px 4px 0;
+}
+
+.warning-consequences li {
+  margin-bottom: 0.5rem;
+  color: #2D2D2D;
+  font-size: 0.9rem;
+}
+
+.warning-consequences li:last-child {
+  margin-bottom: 0;
+}
+
+.warning-confirmation {
+  font-weight: bold;
+  color: #2D2D2D;
+  margin-top: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.warning-modal-footer {
+  padding: 1rem 1.5rem 1.5rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary {
+  background-color: #06A664;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #058a52;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(6, 166, 100, 0.3);
+}
+
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive pour le modal d'avertissement */
+@media (max-width: 768px) {
+  .warning-modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .warning-modal-header {
+    padding: 1rem 1rem 0;
+  }
+  
+  .warning-modal-body {
+    padding: 1rem;
+  }
+  
+  .warning-modal-footer {
+    padding: 1rem;
+    flex-direction: column;
+  }
+  
+  .btn-secondary,
+  .btn-primary {
+    width: 100%;
+  }
+}

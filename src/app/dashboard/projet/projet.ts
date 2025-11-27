@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
@@ -14,27 +14,34 @@ import { forkJoin } from 'rxjs';
   templateUrl: './projet.html',
   styleUrl: './projet.css'
 })
-export class Projet implements OnInit {
-  searchTerm: string = '';
-  selectedStatus: string = '';
-  selectedSector: string = '';
-  showModal: boolean = false;
-  showEditModal: boolean = false;
-  selectedProject: Project | null = null;
-  selectedProjectRaw: ProjectResponse | null = null; // Stocker les données brutes du backend
-  backendProjectsMap: Map<number, ProjectResponse> = new Map(); // Map pour stocker les projets bruts par ID
-  backendCampaignsMap: Map<number, CampaignResponse[]> = new Map(); // Map pour stocker les campagnes par projectId
+export class Projet implements OnInit, OnDestroy {
+  // États de chargement et erreurs
   isLoading = false;
   errorMessage = '';
-
-  // Données des cartes de résumé
-  summaryCards: ProjectSummary[] = [];
-
-  // Données des projets
-  projects: Project[] = [];
   
-  // Stocker tous les projets chargés (non filtrés) pour le filtrage local
-  allProjects: Project[] = [];
+  // Données du dashboard
+  summaryCards: ProjectSummary[] = [];
+  projects: Project[] = [];
+  filteredProjects: Project[] = [];
+  hasProjects = false;
+  
+  // Données brutes du backend (pour accès rapide)
+  backendProjectsMap = new Map<number, ProjectResponse>();
+  backendCampaignsMap = new Map<number, CampaignResponse[]>();  // Fixed type to array
+  
+  // Filtres
+  searchTerm = '';
+  selectedStatus = '';
+  selectedSector = '';
+  
+  // Modals
+  showModal = false;
+  showEditModal = false;
+  showValidationWarningModal = false;  // Nouvelle propriété pour le modal d'avertissement
+  
+  // Projets sélectionnés
+  selectedProject: Project | null = null;
+  selectedProjectRaw: ProjectResponse | null = null;
 
   constructor(
     private projectService: ProjectService,
@@ -45,6 +52,10 @@ export class Projet implements OnInit {
   ngOnInit() {
     this.loadProjects();
     this.loadProjectSummary();
+  }
+
+  ngOnDestroy() {
+    // Nettoyer les données si nécessaire
   }
 
   // Charger les projets depuis le backend
@@ -58,14 +69,12 @@ export class Projet implements OnInit {
       campaigns: this.campaignService.getMyCampaigns() // Endpoint privé - seulement les campagnes du porteur
     }).subscribe({
       next: ({ projects: backendProjects, campaigns: backendCampaigns }) => {
-        // Stocker les projets bruts dans une map pour accès rapide
-        this.backendProjectsMap.clear();
+        // Stocker les projets dans une map pour accès rapide
         backendProjects.forEach(project => {
           this.backendProjectsMap.set(project.id, project);
         });
         
-        // Stocker les campagnes par projet dans une map pour accès rapide
-        this.backendCampaignsMap.clear();
+        // Stocker les campagnes dans une map par projectId pour accès rapide
         backendProjects.forEach(project => {
           const projectCampaigns = backendCampaigns.filter(
             campaign => {
@@ -150,7 +159,7 @@ export class Projet implements OnInit {
         });
         
         // Stocker tous les projets transformés (non filtrés)
-        this.allProjects = transformedProjects;
+        this.projects = transformedProjects;
         
         // Appliquer les filtres actuels
         this.applyFilters();
@@ -246,7 +255,7 @@ export class Projet implements OnInit {
       statusDetail: 'VALIDÉ',
       collaboratorCount: '0',
       campaignCount: '01',
-      projectSummary: 'Construction d\'une école avec dispositifs intégrés pour le suivi pédagogique administratif des élèves.',
+      projectSummary: 'Construction d\'une école avec dispositifs intégrés pour le suivi pédagogique et administratif des élèves.',
       targetBudget: '1,500,000,000 FCFA',
       shareOffered: '5%',
       netValue: '300,000,000,000 FCFA',
@@ -321,7 +330,7 @@ export class Projet implements OnInit {
 
   // Appliquer tous les filtres localement
   applyFilters() {
-    let filteredProjects = [...this.allProjects];
+    let filteredProjects = [...this.projects];
     
     // Filtre par recherche (nom, description, résumé)
     if (this.searchTerm.trim()) {
@@ -394,7 +403,8 @@ export class Projet implements OnInit {
     }
     
     // Mettre à jour la liste des projets affichés
-    this.projects = filteredProjects;
+    this.filteredProjects = filteredProjects;
+    this.hasProjects = filteredProjects.length > 0;
   }
 
   onSearch() {
@@ -567,11 +577,8 @@ export class Projet implements OnInit {
 
   // Vérifier si un projet peut être modifié
   canEditProject(project: Project): boolean {
-    // Un projet ne peut pas être modifié s'il est validé ou s'il est clôturé
-    const projectResponse = this.backendProjectsMap.get(project.id);
-    if (projectResponse && projectResponse.isValidated === true) {
-      return false;
-    }
+    // Un projet ne peut pas être modifié s'il est clôturé
+    // MAIS il peut être modifié même s'il est validé (avec avertissement)
     return !this.isProjectClosed(project);
   }
 
@@ -585,13 +592,30 @@ export class Projet implements OnInit {
       event.stopImmediatePropagation();
     }
     
-    // Vérifier si le projet peut être modifié
-    if (!this.canEditProject(project)) {
-      console.warn('Tentative de modification d\'un projet clôturé ou validé - bloquée');
-      this.errorMessage = 'Ce projet est validé et ne peut plus être modifié.';
+    // Vérifier si le projet est validé
+    const projectResponse = this.backendProjectsMap.get(project.id);
+    const isProjectValidated = projectResponse && projectResponse.isValidated === true;
+    
+    // Si le projet est validé, afficher le modal d'avertissement
+    if (isProjectValidated) {
+      this.showValidationWarningModal = true;
+      this.selectedProject = project;
       return;
     }
     
+    // Vérifier si le projet peut être modifié (s'il est clôturé)
+    if (this.isProjectClosed(project)) {
+      console.warn('Tentative de modification d\'un projet clôturé - bloquée');
+      this.errorMessage = 'Ce projet est clôturé et ne peut plus être modifié.';
+      return;
+    }
+    
+    // Ouvrir le modal d'édition normal
+    this.openEditModalInternal(project);
+  }
+  
+  // Nouvelle méthode pour ouvrir le modal d'édition interne
+  openEditModalInternal(project: Project) {
     // S'assurer que le modal s'ouvre immédiatement
     this.selectedProject = project;
     
@@ -616,6 +640,7 @@ export class Projet implements OnInit {
       
       // Pré-remplir le formulaire avec les données actuelles
       // Ne pas pré-remplir launchedAt si le projet est validé
+      const isProjectCurrentlyValidated = projectResponse.isValidated === true;
       this.editForm = {
         name: projectResponse.name || project.title,
         resume: projectResponse.resume || project.projectSummary || '',
@@ -623,7 +648,7 @@ export class Projet implements OnInit {
         domain: projectResponse.domain || '',
         objective: projectResponse.objective || '',
         websiteLink: projectResponse.websiteLink || '',
-        launchedAt: (projectResponse.isValidated ? '' : (projectResponse.launchedAt ? this.formatDateForInput(projectResponse.launchedAt) : '')),
+        launchedAt: (isProjectCurrentlyValidated ? '' : (projectResponse.launchedAt ? this.formatDateForInput(projectResponse.launchedAt) : '')),
         images: [],
         video: null,
         businessPlan: null
@@ -656,6 +681,20 @@ export class Projet implements OnInit {
       // Afficher un message informatif (mais pas une erreur)
       console.log('Formulaire pré-rempli avec les données disponibles du projet transformé');
     }
+  }
+  
+  // Nouvelle méthode pour gérer la confirmation de modification d'un projet validé
+  confirmEditValidatedProject() {
+    this.showValidationWarningModal = false;
+    if (this.selectedProject) {
+      this.openEditModalInternal(this.selectedProject);
+    }
+  }
+  
+  // Nouvelle méthode pour annuler la modification d'un projet validé
+  cancelEditValidatedProject() {
+    this.showValidationWarningModal = false;
+    this.selectedProject = null;
   }
   
   // Formater la date pour l'input de type date (format YYYY-MM-DD)

@@ -20,6 +20,15 @@ export class NouvelleCampagneBenevolat implements OnInit {
   startDate: string = '';
   endDate: string = '';
   campaignDescription: string = '';
+  
+  // Données de localisation
+  country: string = '';
+  town: string = '';
+  region: string = '';
+  street: string = '';
+  longitude: number = 0;
+  latitude: number = 0;
+  
   isLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -129,6 +138,12 @@ export class NouvelleCampagneBenevolat implements OnInit {
       return;
     }
 
+    // Validation des champs de localisation
+    if (!this.country || !this.town) {
+      this.errorMessage = 'Veuillez saisir le pays et la ville';
+      return;
+    }
+
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
@@ -139,7 +154,15 @@ export class NouvelleCampagneBenevolat implements OnInit {
       endAt: new Date(this.endDate).toISOString(),
       type: 'VOLUNTEERING',
       targetVolunteer: this.targetVolunteer,
-      description: this.campaignDescription?.trim() || undefined
+      description: this.campaignDescription?.trim() || undefined,
+      localization: {
+        country: this.country,
+        town: this.town,
+        region: this.region || undefined,
+        street: this.street || undefined,
+        longitude: this.longitude,
+        latitude: this.latitude
+      }
     };
 
     // Créer la campagne
@@ -176,5 +199,11 @@ export class NouvelleCampagneBenevolat implements OnInit {
     this.startDate = '';
     this.endDate = '';
     this.campaignDescription = '';
+    this.country = '';
+    this.town = '';
+    this.region = '';
+    this.street = '';
+    this.longitude = 0;
+    this.latitude = 0;
   }
 }
