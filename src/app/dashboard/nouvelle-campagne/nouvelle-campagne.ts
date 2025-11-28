@@ -6,10 +6,11 @@ import { ProjectService } from '../../services/project.service';
 import { ProfileService } from '../../services/profile.service';
 import { CampaignCreateRequest, RewardCreateRequest } from '../../interfaces/campaign.interface';
 import { ProjectResponse } from '../../interfaces/project.interface';
+import { MapPickerComponent } from '../../components/map-picker/map-picker.component';
 
 @Component({
   selector: 'app-nouvelle-campagne',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MapPickerComponent],
   templateUrl: './nouvelle-campagne.html',
   styleUrl: './nouvelle-campagne.css'
 })
@@ -27,8 +28,8 @@ export class NouvelleCampagne implements OnInit {
   town: string = '';
   region: string = '';
   street: string = '';
-  longitude: number = 0;
-  latitude: number = 0;
+  longitude: number = -8.0;
+  latitude: number = 12.6;
   
   isLoading = false;
   errorMessage = '';
@@ -53,6 +54,7 @@ export class NouvelleCampagne implements OnInit {
   ) {}
 
   ngOnInit() {
+    console.log('NouvelleCampagne component initialized');
     this.loadUserProjects();
     // Vérifier le statut de vérification de l'utilisateur
     // this.checkUserVerificationStatus();
@@ -117,6 +119,17 @@ export class NouvelleCampagne implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
+  // Gérer la sélection de localisation depuis la carte
+  onLocationSelected(locationData: any) {
+    console.log('Location selected from map:', locationData);
+    this.country = locationData.country;
+    this.town = locationData.town;
+    this.region = locationData.region || '';
+    this.street = locationData.street || '';
+    this.longitude = locationData.longitude;
+    this.latitude = locationData.latitude;
+  }
+
   // Calculs automatiques
   get m3FundReceives(): string {
     const budget = parseFloat(this.targetBudget.replace(/[^\d]/g, '')) || 0;
@@ -162,7 +175,7 @@ export class NouvelleCampagne implements OnInit {
 
     // Validation des champs de localisation
     if (!this.country || !this.town) {
-      this.errorMessage = 'Veuillez saisir le pays et la ville';
+      this.errorMessage = 'Veuillez sélectionner un emplacement sur la carte';
       return;
     }
 
@@ -212,6 +225,10 @@ export class NouvelleCampagne implements OnInit {
     });
   }
 
+  clearError() {
+    this.errorMessage = '';
+  }
+
   resetForm() {
     this.selectedProject = '';
     this.targetBudget = '';
@@ -219,15 +236,15 @@ export class NouvelleCampagne implements OnInit {
     this.startDate = '';
     this.endDate = '';
     this.campaignDescription = '';
+    
+    // Réinitialiser les données de localisation
     this.country = '';
     this.town = '';
     this.region = '';
     this.street = '';
-    this.longitude = 0;
-    this.latitude = 0;
-  }
-
-  clearError() {
-    this.errorMessage = '';
+    this.longitude = -8.0;
+    this.latitude = 12.6;
+    
+    this.selectedProjectData = null;
   }
 }
