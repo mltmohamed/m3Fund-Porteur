@@ -209,30 +209,42 @@
           <div class="modal-label modal-label-bold">Description de la campagne</div>
           <div class="modal-value">{{ selectedCampaign.campaignDescription }}</div>
         </div>
+        
+        <!-- Localization Information -->
+        <div class="modal-row" *ngIf="selectedCampaign.localization">
+          <div class="modal-label modal-label-bold">Localisation</div>
+          <div class="modal-value">
+            <div>Pays: {{ selectedCampaign.localization.country }}</div>
+            <div>Ville: {{ selectedCampaign.localization.town }}</div>
+            <div *ngIf="selectedCampaign.localization.region">Région: {{ selectedCampaign.localization.region }}</div>
+            <div *ngIf="selectedCampaign.localization.street">Adresse: {{ selectedCampaign.localization.street }}</div>
+            <div>Coordonnées: {{ selectedCampaign.localization.latitude }}, {{ selectedCampaign.localization.longitude }}</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Modal de modification de la campagne -->
   <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
-    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign">
+    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign" style="display: flex; flex-direction: column; padding: 0 1rem;">
       <!-- En-tête du modal -->
-      <div class="edit-modal-header">
-        <button class="back-btn" (click)="closeEditModal()">
+      <div class="edit-modal-header" style="width: 100%; justify-content: flex-start; position: relative; text-align: left;">
+        <button class="back-btn" (click)="closeEditModal()" style="position: absolute; left: 1.5rem;">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <h2 class="edit-modal-title">Que voulez vous modifier ?</h2>
+        <h2 class="edit-modal-title" style="text-align: left; flex: 1; margin-left: 3rem;">Que voulez vous modifier ?</h2>
       </div>
 
-      <p class="edit-modal-subtitle">veuillez remplir les champs ci-dessous pour modification</p>
+      <p class="edit-modal-subtitle" style="text-align: left;">veuillez remplir les champs ci-dessous pour modification</p>
 
       <!-- Formulaire de modification -->
-      <form class="edit-form" (ngSubmit)="onSubmitEdit()">
-        <div class="form-columns">
-          <!-- Colonne gauche -->
-          <div class="form-column">
-            <div class="form-group">
-              <label for="description">Description de la campagne</label>
+      <form class="edit-form" (ngSubmit)="onSubmitEdit()" style="width: 100%; margin: 0 auto; display: flex; flex-direction: column;">
+        <div class="form-columns" style="width: 100%;">
+          <!-- Colonne unique centrée -->
+          <div class="form-column" style="width: 100%; align-items: flex-start;">
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label for="description" style="display: block; text-align: left;">Description de la campagne</label>
               <textarea
                 id="description"
                 class="form-textarea"
@@ -240,11 +252,12 @@
                 [(ngModel)]="editForm.description"
                 name="description"
                 [placeholder]="selectedCampaign.campaignDescription"
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
               ></textarea>
             </div>
 
-            <div class="form-group">
-              <label for="targetBudget">Budget cible (FCFA)</label>
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label for="targetBudget" style="display: block; text-align: left;">Montant cible (FCFA)</label>
               <input
                 type="number"
                 id="targetBudget"
@@ -253,70 +266,13 @@
                 name="targetBudget"
                 [placeholder]="selectedCampaign.targetBudget"
                 min="1"
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
               >
             </div>
-
-            <div class="form-group">
-              <label for="shareOffered">Part offerte (%)</label>
-              <input
-                type="number"
-                id="shareOffered"
-                class="form-input"
-                [(ngModel)]="editForm.shareOffered"
-                name="shareOffered"
-                [placeholder]="selectedCampaign.shareOffered"
-                min="0"
-                max="100"
-                step="0.1"
-              >
-            </div>
-          </div>
-
-          <!-- Colonne droite -->
-          <div class="form-column">
-            <div class="form-group">
-              <label>Ce que M3Fund reçoit</label>
-              <input
-                type="text"
-                class="form-input readonly-input"
-                [value]="m3FundReceives"
-                readonly
-              >
-            </div>
-
-            <div class="form-group">
-              <label>Ce que vous recevez</label>
-              <input
-                type="text"
-                class="form-input readonly-input"
-                [value]="userReceives"
-                readonly
-              >
-            </div>
-
-            <div class="form-group" *ngIf="!isCampaignValidated()">
-              <label for="startDate">Date de début</label>
-              <div class="date-input-container">
-                <i class="fas fa-calendar-alt"></i>
-                <input
-                  type="date"
-                  id="startDate"
-                  class="form-input date-input"
-                  [(ngModel)]="editForm.startDate"
-                  name="startDate"
-                  placeholder="Date de début"
-                  [min]="getMinStartDate()"
-                  (change)="validateCampaignStartDate()"
-                >
-              </div>
-              <div *ngIf="errorMessage && errorMessage.includes('date de début')" class="error-message" style="color: red; margin-top: 5px; font-size: 0.875rem;">
-                {{ errorMessage }}
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label for="endDate">Date de fin</label>
-              <div class="date-input-container">
+            
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label for="endDate" style="display: block; text-align: left;">Date de fin</label>
+              <div class="date-input-container" style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box;">
                 <i class="fas fa-calendar-alt"></i>
                 <input
                   type="date"
@@ -325,17 +281,123 @@
                   [(ngModel)]="editForm.endDate"
                   name="endDate"
                   placeholder="Date de fin"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; padding-left: 2.5rem; text-align: left;"
                 >
               </div>
-              <div *ngIf="errorMessage" class="error-message" style="color: red; margin-top: 5px; font-size: 0.875rem;">
-                {{ errorMessage }}
+            </div>
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label style="display: block; text-align: left;">Ce que M3Fund reçoit</label>
+              <input
+                type="text"
+                class="form-input readonly-input"
+                [value]="m3FundReceives"
+                readonly
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+              >
+            </div>
+
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label style="display: block; text-align: left;">Ce que vous recevez</label>
+              <input
+                type="text"
+                class="form-input readonly-input"
+                [value]="userReceives"
+                readonly
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+              >
+            </div>
+            
+            <!-- Section Localisation -->
+            <div class="form-section" style="width: 100%;">
+              <h3 class="form-section-title" style="text-align: left;">Localisation</h3>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="country" style="display: block; text-align: left;">Pays</label>
+                <input
+                  type="text"
+                  id="country"
+                  class="form-input"
+                  [(ngModel)]="editForm.country"
+                  name="country"
+                  placeholder="Pays"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="town" style="display: block; text-align: left;">Ville</label>
+                <input
+                  type="text"
+                  id="town"
+                  class="form-input"
+                  [(ngModel)]="editForm.town"
+                  name="town"
+                  placeholder="Ville"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="region" style="display: block; text-align: left;">Région</label>
+                <input
+                  type="text"
+                  id="region"
+                  class="form-input"
+                  [(ngModel)]="editForm.region"
+                  name="region"
+                  placeholder="Région"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="street" style="display: block; text-align: left;">Adresse</label>
+                <input
+                  type="text"
+                  id="street"
+                  class="form-input"
+                  [(ngModel)]="editForm.street"
+                  name="street"
+                  placeholder="Adresse"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-row" style="width: 100%;">
+                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-right: 2%;">
+                  <label for="longitude" style="display: block; text-align: left;">Longitude</label>
+                  <input
+                    type="number"
+                    id="longitude"
+                    class="form-input"
+                    [(ngModel)]="editForm.longitude"
+                    name="longitude"
+                    placeholder="Longitude"
+                    step="any"
+                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                  >
+                </div>
+                
+                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-left: 2%;">
+                  <label for="latitude" style="display: block; text-align: left;">Latitude</label>
+                  <input
+                    type="number"
+                    id="latitude"
+                    class="form-input"
+                    [(ngModel)]="editForm.latitude"
+                    name="latitude"
+                    placeholder="Latitude"
+                    step="any"
+                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                  >
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Bouton de soumission -->
-        <div class="form-submit">
+        <div class="form-submit" style="display: flex; justify-content: flex-start; width: 100%;">
           <button type="submit" class="submit-btn">
             Soumettre la modification
           </button>
@@ -346,24 +408,24 @@
 
   <!-- Modal de modification pour campagne de DON -->
   <div class="modal-overlay" *ngIf="showEditDonModal" (click)="closeEditDonModal()">
-    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign">
+    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign" style="display: flex; flex-direction: column; padding: 0 1rem;">
       <!-- En-tête du modal -->
-      <div class="edit-modal-header">
-        <button class="back-btn" (click)="closeEditDonModal()">
+      <div class="edit-modal-header" style="width: 100%; justify-content: flex-start; position: relative; text-align: left;">
+        <button class="back-btn" (click)="closeEditDonModal()" style="position: absolute; left: 1.5rem;">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <h2 class="edit-modal-title">Modifier la campagne de don</h2>
+        <h2 class="edit-modal-title" style="text-align: left; flex: 1; margin-left: 3rem;">Modifier la campagne de don</h2>
       </div>
 
-      <p class="edit-modal-subtitle">Modifiez les informations de votre campagne de don</p>
+      <p class="edit-modal-subtitle" style="text-align: left;">Modifiez les informations de votre campagne de don</p>
 
       <!-- Formulaire de modification pour DON -->
-      <form class="edit-form" (ngSubmit)="onSubmitEditDon()">
-        <div class="form-columns">
+      <form class="edit-form" (ngSubmit)="onSubmitEditDon()" style="width: 100%; margin: 0 auto; display: flex; flex-direction: column;">
+        <div class="form-columns" style="width: 100%;">
           <!-- Colonne gauche -->
-          <div class="form-column">
-            <div class="form-group">
-              <label for="description">Description de la campagne</label>
+          <div class="form-column" style="width: 100%; align-items: flex-start;">
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label for="description" style="display: block; text-align: left;">Description de la campagne</label>
               <textarea
                 id="description"
                 class="form-textarea"
@@ -371,11 +433,12 @@
                 [(ngModel)]="editForm.description"
                 name="description"
                 [placeholder]="selectedCampaign.campaignDescription"
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
               ></textarea>
             </div>
 
-            <div class="form-group">
-              <label for="targetBudget">Montant cible (FCFA)</label>
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label for="targetBudget" style="display: block; text-align: left;">Montant cible (FCFA)</label>
               <input
                 type="number"
                 id="targetBudget"
@@ -384,35 +447,13 @@
                 name="targetBudget"
                 [placeholder]="selectedCampaign.targetBudget"
                 min="1"
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
               >
             </div>
-          </div>
-
-          <!-- Colonne droite -->
-          <div class="form-column">
-            <div class="form-group">
-              <label>Ce que M3Fund reçoit</label>
-              <input
-                type="text"
-                class="form-input readonly-input"
-                [value]="m3FundReceives"
-                readonly
-              >
-            </div>
-
-            <div class="form-group">
-              <label>Ce que vous recevez</label>
-              <input
-                type="text"
-                class="form-input readonly-input"
-                [value]="userReceives"
-                readonly
-              >
-            </div>
-
-            <div class="form-group">
-              <label for="endDate">Date de fin</label>
-              <div class="date-input-container">
+            
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label for="endDate" style="display: block; text-align: left;">Date de fin</label>
+              <div class="date-input-container" style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box;">
                 <i class="fas fa-calendar-alt"></i>
                 <input
                   type="date"
@@ -421,14 +462,123 @@
                   [(ngModel)]="editForm.endDate"
                   name="endDate"
                   placeholder="Date de fin"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; padding-left: 2.5rem; text-align: left;"
                 >
+              </div>
+            </div>
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label style="display: block; text-align: left;">Ce que M3Fund reçoit</label>
+              <input
+                type="text"
+                class="form-input readonly-input"
+                [value]="m3FundReceives"
+                readonly
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+              >
+            </div>
+
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label style="display: block; text-align: left;">Ce que vous recevez</label>
+              <input
+                type="text"
+                class="form-input readonly-input"
+                [value]="userReceives"
+                readonly
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+              >
+            </div>
+            
+            <!-- Section Localisation -->
+            <div class="form-section" style="width: 100%;">
+              <h3 class="form-section-title" style="text-align: left;">Localisation</h3>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="country" style="display: block; text-align: left;">Pays</label>
+                <input
+                  type="text"
+                  id="country"
+                  class="form-input"
+                  [(ngModel)]="editForm.country"
+                  name="country"
+                  placeholder="Pays"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="town" style="display: block; text-align: left;">Ville</label>
+                <input
+                  type="text"
+                  id="town"
+                  class="form-input"
+                  [(ngModel)]="editForm.town"
+                  name="town"
+                  placeholder="Ville"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="region" style="display: block; text-align: left;">Région</label>
+                <input
+                  type="text"
+                  id="region"
+                  class="form-input"
+                  [(ngModel)]="editForm.region"
+                  name="region"
+                  placeholder="Région"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="street" style="display: block; text-align: left;">Adresse</label>
+                <input
+                  type="text"
+                  id="street"
+                  class="form-input"
+                  [(ngModel)]="editForm.street"
+                  name="street"
+                  placeholder="Adresse"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-row" style="width: 100%;">
+                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-right: 2%;">
+                  <label for="longitude" style="display: block; text-align: left;">Longitude</label>
+                  <input
+                    type="number"
+                    id="longitude"
+                    class="form-input"
+                    [(ngModel)]="editForm.longitude"
+                    name="longitude"
+                    placeholder="Longitude"
+                    step="any"
+                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                  >
+                </div>
+                
+                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-left: 2%;">
+                  <label for="latitude" style="display: block; text-align: left;">Latitude</label>
+                  <input
+                    type="number"
+                    id="latitude"
+                    class="form-input"
+                    [(ngModel)]="editForm.latitude"
+                    name="latitude"
+                    placeholder="Latitude"
+                    step="any"
+                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                  >
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Bouton de soumission -->
-        <div class="form-submit">
+        <div class="form-submit" style="display: flex; justify-content: flex-start; width: 100%;">
           <button type="submit" class="submit-btn">
             Soumettre la modification
           </button>
@@ -439,36 +589,24 @@
 
   <!-- Modal de modification pour campagne de BÉNÉVOLAT -->
   <div class="modal-overlay" *ngIf="showEditBenevolatModal" (click)="closeEditBenevolatModal()">
-    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign">
+    <div class="edit-modal-content" (click)="$event.stopPropagation()" *ngIf="selectedCampaign" style="display: flex; flex-direction: column; padding: 0 1rem;">
       <!-- En-tête du modal -->
-      <div class="edit-modal-header">
-        <button class="back-btn" (click)="closeEditBenevolatModal()">
+      <div class="edit-modal-header" style="width: 100%; justify-content: flex-start; position: relative; text-align: left;">
+        <button class="back-btn" (click)="closeEditBenevolatModal()" style="position: absolute; left: 1.5rem;">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <h2 class="edit-modal-title">Modifier la campagne de bénévolat</h2>
+        <h2 class="edit-modal-title" style="text-align: left; flex: 1; margin-left: 3rem;">Modifier la campagne de bénévolat</h2>
       </div>
 
-      <p class="edit-modal-subtitle">Modifiez les informations de votre campagne de bénévolat</p>
+      <p class="edit-modal-subtitle" style="text-align: left;">Modifiez les informations de votre campagne de bénévolat</p>
 
       <!-- Formulaire de modification pour BÉNÉVOLAT -->
-      <form class="edit-form" (ngSubmit)="onSubmitEditBenevolat()">
-        <div class="form-columns">
+      <form class="edit-form" (ngSubmit)="onSubmitEditBenevolat()" style="width: 100%; margin: 0 auto; display: flex; flex-direction: column;">
+        <div class="form-columns" style="width: 100%;">
           <!-- Colonne unique centrée -->
-          <div class="form-column">
-            <div class="form-group">
-              <label for="description">Description de la campagne</label>
-              <textarea
-                id="description"
-                class="form-textarea"
-                rows="3"
-                [(ngModel)]="editForm.description"
-                name="description"
-                [placeholder]="selectedCampaign.campaignDescription"
-              ></textarea>
-            </div>
-
-            <div class="form-group">
-              <label for="targetVolunteer">Nombre de bénévoles recherchés</label>
+          <div class="form-column" style="width: 100%; align-items: flex-start;">
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label for="targetVolunteer" style="display: block; text-align: left;">Nombre de bénévoles recherchés</label>
               <input
                 type="number"
                 id="targetVolunteer"
@@ -477,12 +615,13 @@
                 name="targetVolunteer"
                 min="1"
                 placeholder="Nombre de bénévoles"
+                style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
               >
             </div>
 
-            <div class="form-group">
-              <label for="endDate">Date de fin</label>
-              <div class="date-input-container">
+            <div class="form-group" style="text-align: left; width: 100%;">
+              <label for="endDate" style="display: block; text-align: left;">Date de fin</label>
+              <div class="date-input-container" style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box;">
                 <i class="fas fa-calendar-alt"></i>
                 <input
                   type="date"
@@ -491,14 +630,102 @@
                   [(ngModel)]="editForm.endDate"
                   name="endDate"
                   placeholder="Date de fin"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; padding-left: 2.5rem; text-align: left;"
                 >
+              </div>
+            </div>
+            
+            <!-- Section Localisation -->
+            <div class="form-section" style="width: 100%;">
+              <h3 class="form-section-title" style="text-align: left;">Localisation</h3>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="country" style="display: block; text-align: left;">Pays</label>
+                <input
+                  type="text"
+                  id="country"
+                  class="form-input"
+                  [(ngModel)]="editForm.country"
+                  name="country"
+                  placeholder="Pays"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="town" style="display: block; text-align: left;">Ville</label>
+                <input
+                  type="text"
+                  id="town"
+                  class="form-input"
+                  [(ngModel)]="editForm.town"
+                  name="town"
+                  placeholder="Ville"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="region" style="display: block; text-align: left;">Région</label>
+                <input
+                  type="text"
+                  id="region"
+                  class="form-input"
+                  [(ngModel)]="editForm.region"
+                  name="region"
+                  placeholder="Région"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-group" style="text-align: left; width: 100%;">
+                <label for="street" style="display: block; text-align: left;">Adresse</label>
+                <input
+                  type="text"
+                  id="street"
+                  class="form-input"
+                  [(ngModel)]="editForm.street"
+                  name="street"
+                  placeholder="Adresse"
+                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                >
+              </div>
+              
+              <div class="form-row" style="width: 100%;">
+                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-right: 2%;">
+                  <label for="longitude" style="display: block; text-align: left;">Longitude</label>
+                  <input
+                    type="number"
+                    id="longitude"
+                    class="form-input"
+                    [(ngModel)]="editForm.longitude"
+                    name="longitude"
+                    placeholder="Longitude"
+                    step="any"
+                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                  >
+                </div>
+                
+                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-left: 2%;">
+                  <label for="latitude" style="display: block; text-align: left;">Latitude</label>
+                  <input
+                    type="number"
+                    id="latitude"
+                    class="form-input"
+                    [(ngModel)]="editForm.latitude"
+                    name="latitude"
+                    placeholder="Latitude"
+                    step="any"
+                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
+                  >
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- Bouton de soumission -->
-        <div class="form-submit">
+        <div class="form-submit" style="display: flex; justify-content: flex-start; width: 100%;">
           <button type="submit" class="submit-btn">
             Soumettre la modification
           </button>
@@ -509,17 +736,17 @@
 
   <!-- Modal de sélection de type de campagne -->
   <div class="campaign-modal-overlay" *ngIf="showCampaignModal" (click)="closeCampaignModal()">
-    <div class="campaign-modal-content" (click)="$event.stopPropagation()">
+    <div class="campaign-modal-content" (click)="$event.stopPropagation()" style="display: flex; flex-direction: column; align-items: center; padding: 0 1rem;">
       <!-- En-tête du modal -->
-      <div class="campaign-modal-header">
-        <button class="back-btn" (click)="closeCampaignModal()">
+      <div class="campaign-modal-header" style="width: 100%; justify-content: center; position: relative;">
+        <button class="back-btn" (click)="closeCampaignModal()" style="position: absolute; left: 1.5rem;">
           <i class="fas fa-arrow-left"></i>
         </button>
-        <h2 class="campaign-modal-title">Quelle genre de campagne voulez vous faire ?</h2>
+        <h2 class="campaign-modal-title" style="text-align: center; flex: 1;">Quelle genre de campagne voulez vous faire ?</h2>
       </div>
 
       <!-- Options de campagne -->
-      <div class="campaign-options">
+      <div class="campaign-options" style="width: 100%; max-width: 500px; margin: 0 auto;">
         <div class="campaign-card" (click)="selectCampaignType('investissement')">
           <div class="campaign-icon">
             <i class="fas fa-chart-bar"></i>

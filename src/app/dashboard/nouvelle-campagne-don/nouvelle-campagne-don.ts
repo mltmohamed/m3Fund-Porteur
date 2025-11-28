@@ -17,7 +17,6 @@ export class NouvelleCampagneDon implements OnInit {
   // Données du formulaire
   selectedProject: string = '';
   targetBudget: string = '';
-  targetVolunteer: number = 0;
   startDate: string = '';
   endDate: string = '';
   campaignDescription: string = '';
@@ -264,7 +263,6 @@ export class NouvelleCampagneDon implements OnInit {
   resetForm() {
     this.selectedProject = '';
     this.targetBudget = '';
-    this.targetVolunteer = 0;
     this.startDate = '';
     this.endDate = '';
     this.campaignDescription = '';

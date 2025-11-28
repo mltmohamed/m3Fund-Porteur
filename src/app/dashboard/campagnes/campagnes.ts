@@ -47,7 +47,14 @@ export class Campagnes implements OnInit {
     shareOffered: null as number | null,
     targetVolunteer: null as number | null,
     startDate: '',
-    endDate: ''
+    endDate: '',
+    // Localization fields
+    country: '',
+    town: '',
+    region: '',
+    street: '',
+    longitude: null as number | null,
+    latitude: null as number | null
   };
   
   // Calculs en temps réel
@@ -116,6 +123,25 @@ export class Campagnes implements OnInit {
         // Assigner le nouveau tableau (pas modifier l'ancien)
         this.campaigns = [...transformedCampaigns];
         console.log('Campagnes transformées:', this.campaigns);
+        
+        // Log localization data for each campaign
+        this.campaigns.forEach((campaign, index) => {
+          if (campaign.localization) {
+            console.log(`Campaign ${index} localization:`, campaign.localization);
+          }
+        });
+        
+        // Si un modal de détail était ouvert, mettre à jour selectedCampaign avec les nouvelles données
+        if (this.showModal && this.selectedCampaign) {
+          const updatedCampaign = this.campaigns.find(c => c.id === this.selectedCampaign!.id);
+          if (updatedCampaign) {
+            console.log('Previous selected campaign localization:', this.selectedCampaign.localization);
+            console.log('New selected campaign localization:', updatedCampaign.localization);
+            this.selectedCampaign = updatedCampaign;
+            console.log('Updated selected campaign with new data:', updatedCampaign);
+          }
+        }
+        
         this.isLoading = false;
       },
       error: (error) => {
@@ -277,6 +303,14 @@ export class Campagnes implements OnInit {
           this.campaigns = backendCampaigns.map(campaign => 
             this.campaignService.transformCampaignData(campaign)
           );
+          
+          // Si un modal de détail était ouvert, mettre à jour selectedCampaign avec les nouvelles données
+          if (this.showModal && this.selectedCampaign) {
+            const updatedCampaign = this.campaigns.find(c => c.id === this.selectedCampaign!.id);
+            if (updatedCampaign) {
+              this.selectedCampaign = updatedCampaign;
+            }
+          }
         },
         error: (error) => {
           this.errorMessage = 'Erreur lors de la recherche';
@@ -296,6 +330,14 @@ export class Campagnes implements OnInit {
           this.campaigns = backendCampaigns.map(campaign => 
             this.campaignService.transformCampaignData(campaign)
           );
+          
+          // Si un modal de détail était ouvert, mettre à jour selectedCampaign avec les nouvelles données
+          if (this.showModal && this.selectedCampaign) {
+            const updatedCampaign = this.campaigns.find(c => c.id === this.selectedCampaign!.id);
+            if (updatedCampaign) {
+              this.selectedCampaign = updatedCampaign;
+            }
+          }
         },
         error: (error) => {
           this.errorMessage = 'Erreur lors du filtrage par projet';
@@ -314,6 +356,14 @@ export class Campagnes implements OnInit {
           this.campaigns = backendCampaigns.map(campaign => 
             this.campaignService.transformCampaignData(campaign)
           );
+          
+          // Si un modal de détail était ouvert, mettre à jour selectedCampaign avec les nouvelles données
+          if (this.showModal && this.selectedCampaign) {
+            const updatedCampaign = this.campaigns.find(c => c.id === this.selectedCampaign!.id);
+            if (updatedCampaign) {
+              this.selectedCampaign = updatedCampaign;
+            }
+          }
         },
         error: (error) => {
           this.errorMessage = 'Erreur lors du filtrage par statut';
@@ -338,7 +388,7 @@ export class Campagnes implements OnInit {
   openEditModal(campaign: Campaign, event?: Event) {
     console.log('=== openEditModal appelé ===', { campaignId: campaign.id, event });
     
-    // Empêcher la propagation de l'événement IMMÉDIATEMENT
+    // Empêcher la propagation de l’événement IMMÉDIATEMENT
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -387,7 +437,14 @@ export class Campagnes implements OnInit {
         startDate: (campaignState === 'IN_PROGRESS' || campaignState === 'FINISHED') 
           ? '' 
           : (launchedAt ? this.formatDateForInput(launchedAt) : ''),
-        endDate: endAt ? this.formatDateForInput(endAt) : ''
+        endDate: endAt ? this.formatDateForInput(endAt) : '',
+        // Localization fields
+        country: campaignResponse.localization?.country || '',
+        town: campaignResponse.localization?.town || '',
+        region: campaignResponse.localization?.region || '',
+        street: campaignResponse.localization?.street || '',
+        longitude: campaignResponse.localization?.longitude || null,
+        latitude: campaignResponse.localization?.latitude || null
       };
       
       // Récupérer le projet associé depuis la map
@@ -414,7 +471,14 @@ export class Campagnes implements OnInit {
         shareOffered: this.parseNumberFromString(campaign.shareOffered) || null,
         targetVolunteer: null,
         startDate: '',
-        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : ''
+        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : '',
+        // Localization fields
+        country: campaign.localization?.country || '',
+        town: campaign.localization?.town || '',
+        region: campaign.localization?.region || '',
+        street: campaign.localization?.street || '',
+        longitude: campaign.localization?.longitude || null,
+        latitude: campaign.localization?.latitude || null
       };
       
       this.selectedCampaignProject = null;
@@ -433,7 +497,14 @@ export class Campagnes implements OnInit {
       shareOffered: null,
       targetVolunteer: null,
       startDate: '',
-      endDate: ''
+      endDate: '',
+      // Localization fields
+      country: '',
+      town: '',
+      region: '',
+      street: '',
+      longitude: null,
+      latitude: null
     };
   }
 
@@ -486,6 +557,23 @@ export class Campagnes implements OnInit {
         updateData.endDate = date.toISOString().slice(0, 19);
       }
     }
+    
+    // Ajouter les données de localisation dans un objet imbriqué
+    // Always send all localization fields to ensure proper handling by backend
+    const localizationData: any = {
+      country: this.editForm.country ? this.editForm.country.trim() : '',
+      town: this.editForm.town ? this.editForm.town.trim() : '',
+      region: (this.editForm.region !== null && this.editForm.region !== undefined) ? this.editForm.region.trim() : '',
+      street: (this.editForm.street !== null && this.editForm.street !== undefined) ? this.editForm.street.trim() : '',
+      longitude: (this.editForm.longitude !== null && this.editForm.longitude !== undefined && !isNaN(this.editForm.longitude)) ? this.editForm.longitude : null,
+      latitude: (this.editForm.latitude !== null && this.editForm.latitude !== undefined && !isNaN(this.editForm.latitude)) ? this.editForm.latitude : null
+    };
+    
+    // Inclure les données de localisation
+    updateData.localization = localizationData;
+    
+    // Log the data being sent
+    console.log('Prepared update data:', updateData);
 
     this.isLoading = true;
     this.errorMessage = '';
@@ -499,9 +587,12 @@ export class Campagnes implements OnInit {
         this.showConfirmationModal = true;
         this.closeEditModal();
         this.isLoading = false;
-        // Recharger immédiatement
-        this.loadCampaigns();
-        this.loadCampaignSummary();
+        // Recharger immédiatement avec un petit délai pour s'assurer que le backend a traité la mise à jour
+        console.log('Reloading campaigns after successful update...');
+        setTimeout(() => {
+          this.loadCampaigns();
+          this.loadCampaignSummary();
+        }, 500);
         // Fermer le modal après 2 secondes
         setTimeout(() => {
           this.showConfirmationModal = false;
@@ -521,7 +612,7 @@ export class Campagnes implements OnInit {
   openEditDonModal(campaign: Campaign, event?: Event) {
     console.log('=== openEditDonModal appelé ===', { campaignId: campaign.id, event });
     
-    // Empêcher la propagation de l'événement IMMÉDIATEMENT
+    // Empêcher la propagation de l’événement IMMÉDIATEMENT
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -559,7 +650,14 @@ export class Campagnes implements OnInit {
         shareOffered: null, // Pas de parts pour les campagnes de don
         targetVolunteer: null,
         startDate: launchedAt ? this.formatDateForInput(launchedAt) : '',
-        endDate: endAt ? this.formatDateForInput(endAt) : ''
+        endDate: endAt ? this.formatDateForInput(endAt) : '',
+        // Localization fields
+        country: campaignResponse.localization?.country || '',
+        town: campaignResponse.localization?.town || '',
+        region: campaignResponse.localization?.region || '',
+        street: campaignResponse.localization?.street || '',
+        longitude: campaignResponse.localization?.longitude || null,
+        latitude: campaignResponse.localization?.latitude || null
       };
       
       // Récupérer le projet associé depuis la map
@@ -580,7 +678,14 @@ export class Campagnes implements OnInit {
         shareOffered: null,
         targetVolunteer: null,
         startDate: '',
-        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : ''
+        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : '',
+        // Localization fields
+        country: campaign.localization?.country || '',
+        town: campaign.localization?.town || '',
+        region: campaign.localization?.region || '',
+        street: campaign.localization?.street || '',
+        longitude: campaign.localization?.longitude || null,
+        latitude: campaign.localization?.latitude || null
       };
       
       this.selectedCampaignProject = null;
@@ -599,7 +704,14 @@ export class Campagnes implements OnInit {
       shareOffered: null,
       targetVolunteer: null,
       startDate: '',
-      endDate: ''
+      endDate: '',
+      // Localization fields
+      country: '',
+      town: '',
+      region: '',
+      street: '',
+      longitude: null,
+      latitude: null
     };
   }
 
@@ -648,6 +760,43 @@ export class Campagnes implements OnInit {
         updateData.endDate = date.toISOString().slice(0, 19);
       }
     }
+    
+    // Ajouter les données de localisation dans un objet imbriqué
+    const localizationData: any = {};
+    let hasLocalizationData = false;
+    
+    if (this.editForm.country) {
+      localizationData.country = this.editForm.country;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.town) {
+      localizationData.town = this.editForm.town;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.region !== null && this.editForm.region !== '') {
+      localizationData.region = this.editForm.region;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.street !== null && this.editForm.street !== '') {
+      localizationData.street = this.editForm.street;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.longitude !== null) {
+      localizationData.longitude = this.editForm.longitude;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.latitude !== null) {
+      localizationData.latitude = this.editForm.latitude;
+      hasLocalizationData = true;
+    }
+    
+    // Inclure les données de localisation seulement si au moins un champ est rempli
+    if (hasLocalizationData) {
+      updateData.localization = localizationData;
+    }
+    
+    // Log the data being sent
+    console.log('Prepared update data for donation campaign:', updateData);
 
     this.isLoading = true;
     this.errorMessage = '';
@@ -661,9 +810,12 @@ export class Campagnes implements OnInit {
         this.showConfirmationModal = true;
         this.closeEditDonModal();
         this.isLoading = false;
-        // Recharger immédiatement
-        this.loadCampaigns();
-        this.loadCampaignSummary();
+        // Recharger immédiatement avec un petit délai pour s'assurer que le backend a traité la mise à jour
+        console.log('Reloading campaigns after successful donation campaign update...');
+        setTimeout(() => {
+          this.loadCampaigns();
+          this.loadCampaignSummary();
+        }, 500);
         // Fermer le modal après 2 secondes
         setTimeout(() => {
           this.showConfirmationModal = false;
@@ -683,7 +835,7 @@ export class Campagnes implements OnInit {
   openEditBenevolatModal(campaign: Campaign, event?: Event) {
     console.log('=== openEditBenevolatModal appelé ===', { campaignId: campaign.id, event });
     
-    // Empêcher la propagation de l'événement IMMÉDIATEMENT
+    // Empêcher la propagation de l’événement IMMÉDIATEMENT
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -719,14 +871,21 @@ export class Campagnes implements OnInit {
       // Ne pas pré-remplir startDate si la campagne est validée (IN_PROGRESS ou FINISHED)
       // Les campagnes PENDING peuvent avoir leur startDate modifiée
       this.editForm = {
-        description: descriptionForForm || campaign.campaignDescription || '',
-        targetBudget: null, // Pas de budget pour les campagnes de bénévolat
+        description: '', // Ne pas inclure la description pour les campagnes de bénévolat
+        targetBudget: null,
         shareOffered: null,
         targetVolunteer: campaignResponse.targetVolunteer || null,
         startDate: (campaignState === 'IN_PROGRESS' || campaignState === 'FINISHED') 
           ? '' 
           : (launchedAt ? this.formatDateForInput(launchedAt) : ''),
-        endDate: endAt ? this.formatDateForInput(endAt) : ''
+        endDate: endAt ? this.formatDateForInput(endAt) : '',
+        // Localization fields
+        country: campaignResponse.localization?.country || '',
+        town: campaignResponse.localization?.town || '',
+        region: campaignResponse.localization?.region || '',
+        street: campaignResponse.localization?.street || '',
+        longitude: campaignResponse.localization?.longitude || null,
+        latitude: campaignResponse.localization?.latitude || null
       };
       
       // Récupérer le projet associé depuis la map
@@ -742,12 +901,19 @@ export class Campagnes implements OnInit {
       this.selectedCampaignRaw = null;
       
       this.editForm = {
-        description: campaign.campaignDescription || '',
+        description: '', // Ne pas inclure la description pour les campagnes de bénévolat
         targetBudget: null,
         shareOffered: null,
         targetVolunteer: null,
         startDate: '',
-        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : ''
+        endDate: campaign.endDate ? this.parseDateFromString(campaign.endDate) : '',
+        // Localization fields
+        country: campaign.localization?.country || '',
+        town: campaign.localization?.town || '',
+        region: campaign.localization?.region || '',
+        street: campaign.localization?.street || '',
+        longitude: campaign.localization?.longitude || null,
+        latitude: campaign.localization?.latitude || null
       };
       
       this.selectedCampaignProject = null;
@@ -761,12 +927,19 @@ export class Campagnes implements OnInit {
     this.selectedCampaignProject = null;
     this.errorMessage = '';
     this.editForm = {
-      description: '',
+      description: '', // Ne pas inclure la description pour les campagnes de bénévolat
       targetBudget: null,
       shareOffered: null,
       targetVolunteer: null,
       startDate: '',
-      endDate: ''
+      endDate: '',
+      // Localization fields
+      country: '',
+      town: '',
+      region: '',
+      street: '',
+      longitude: null,
+      latitude: null
     };
   }
 
@@ -793,10 +966,7 @@ export class Campagnes implements OnInit {
     };
 
     // Ajouter les champs modifiés
-    if (this.editForm.description && this.editForm.description.trim()) {
-      updateData.description = this.editForm.description.trim();
-    }
-    
+    // Ne pas inclure la description pour les campagnes de bénévolat
     if (this.editForm.targetVolunteer !== null && this.editForm.targetVolunteer > 0) {
       updateData.targetVolunteer = this.editForm.targetVolunteer;
     }
@@ -815,6 +985,43 @@ export class Campagnes implements OnInit {
         updateData.endDate = date.toISOString().slice(0, 19);
       }
     }
+    
+    // Ajouter les données de localisation dans un objet imbriqué
+    const localizationData: any = {};
+    let hasLocalizationData = false;
+    
+    if (this.editForm.country) {
+      localizationData.country = this.editForm.country;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.town) {
+      localizationData.town = this.editForm.town;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.region !== null && this.editForm.region !== '') {
+      localizationData.region = this.editForm.region;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.street !== null && this.editForm.street !== '') {
+      localizationData.street = this.editForm.street;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.longitude !== null) {
+      localizationData.longitude = this.editForm.longitude;
+      hasLocalizationData = true;
+    }
+    if (this.editForm.latitude !== null) {
+      localizationData.latitude = this.editForm.latitude;
+      hasLocalizationData = true;
+    }
+    
+    // Inclure les données de localisation seulement si au moins un champ est rempli
+    if (hasLocalizationData) {
+      updateData.localization = localizationData;
+    }
+    
+    // Log the data being sent
+    console.log('Prepared update data for volunteer campaign:', updateData);
 
     this.isLoading = true;
     this.errorMessage = '';
@@ -828,9 +1035,12 @@ export class Campagnes implements OnInit {
         this.showConfirmationModal = true;
         this.closeEditBenevolatModal();
         this.isLoading = false;
-        // Recharger immédiatement
-        this.loadCampaigns();
-        this.loadCampaignSummary();
+        // Recharger immédiatement avec un petit délai pour s'assurer que le backend a traité la mise à jour
+        console.log('Reloading campaigns after successful volunteer campaign update...');
+        setTimeout(() => {
+          this.loadCampaigns();
+          this.loadCampaignSummary();
+        }, 500);
         // Fermer le modal après 2 secondes
         setTimeout(() => {
           this.showConfirmationModal = false;
@@ -859,7 +1069,7 @@ export class Campagnes implements OnInit {
     console.log('Type de campagne sélectionné:', type);
     this.closeCampaignModal();
 
-    // Navigation vers la page appropriée selon le type en utilisant l'événement viewChange
+    // Navigation vers la page appropriée selon le type en utilisant l’événement viewChange
     if (type === 'investissement') {
       this.viewChange.emit('nouvelle-campagne');
     } else if (type === 'don') {
@@ -931,7 +1141,7 @@ export class Campagnes implements OnInit {
   private parseNumberFromString(value: string): number | null {
     if (!value) return null;
     try {
-      // Extraire les chiffres de la chaîne (supporte les décimales)
+      // Extraire les chiffres de la chaîene (supporte les décimales)
       const match = value.match(/(\d+(?:\.\d+)?)/);
       if (match) {
         return parseFloat(match[1]);

@@ -20,6 +20,15 @@ export interface Campaign {
   netValue: string;
   fundsRaised: string;
   campaignDescription: string;
+  // Localization information
+  localization?: {
+    country: string;
+    town: string;
+    region: string;
+    street: string;
+    longitude: number;
+    latitude: number;
+  };
 }
 
 export interface CampaignSummary {
@@ -68,6 +77,15 @@ export interface CampaignUpdateRequest {
   shareOffered?: number;
   startDate?: string;
   endDate?: string;
+  // Localization fields for update
+  localization?: {
+    country?: string;
+    town?: string;
+    region?: string;
+    street?: string;
+    longitude?: number;
+    latitude?: number;
+  };
 }
 
 export interface CampaignResponse {
@@ -90,6 +108,15 @@ export interface CampaignResponse {
   rewards?: any[];
   currentFund: number;
   numberOfVolunteer: number;
+  localization?: {
+    id: number;
+    country: string;
+    town: string;
+    region: string;
+    street: string;
+    longitude: number;
+    latitude: number;
+  };
   // Champs de compatibilité pour l'ancienne interface
   projectId?: number;
   title?: string;

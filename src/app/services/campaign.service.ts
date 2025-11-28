@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { 
   Campaign, 
   CampaignSummary, 
@@ -68,7 +68,66 @@ export class CampaignService {
     const headers : HttpHeaders = new HttpHeaders({
       "Authorization": `Bearer ${localStorage.getItem('access_token')}`
     });
-    return this.http.patch<CampaignResponse>(`${this.API_URL}/projects/campaigns/${campaignData.id}`, campaignData, {headers});
+    
+    // Log the data being sent
+    console.log('Sending campaign update data:', campaignData);
+    console.log('Update URL:', `${this.API_URL}/projects/campaigns/${campaignData.id}`);
+    console.log('Request method: PATCH');
+    
+    // Log the full request details
+    console.log('Full request details:', {
+      url: `${this.API_URL}/projects/campaigns/${campaignData.id}`,
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+        'Content-Type': 'application/json'
+      },
+      body: campaignData
+    });
+    
+    return this.http.patch<CampaignResponse>(`${this.API_URL}/projects/campaigns/${campaignData.id}`, campaignData, {headers}).pipe(
+      // Log the response
+      tap({
+        next: (response) => {
+          console.log('Received campaign update response:', response);
+          // Check if localization data is in the response
+          if (response.localization) {
+            console.log('Localization data in response:', response.localization);
+            // Compare with the sent data
+            if (campaignData.localization) {
+              console.log('Comparing sent vs received localization data:');
+              console.log('Sent:', campaignData.localization);
+              console.log('Received:', response.localization);
+              
+              // Check if data matches
+              const sentKeys = Object.keys(campaignData.localization);
+              const receivedKeys = Object.keys(response.localization);
+              const allKeys = [...new Set([...sentKeys, ...receivedKeys])];
+              
+              allKeys.forEach(key => {
+                if (campaignData.localization && response.localization) {
+                  const sentValue = campaignData.localization[key as keyof typeof campaignData.localization];
+                  const receivedValue = response.localization[key as keyof typeof response.localization];
+                  if (sentValue !== receivedValue) {
+                    console.warn(`Localization field ${key} mismatch: sent ${sentValue}, received ${receivedValue}`);
+                  }
+                }
+              });
+            }
+          } else {
+            console.log('No localization data in response');
+          }
+        },
+        error: (error) => {
+          console.error('Error updating campaign:', error);
+          if (error.error) {
+            console.error('Error details:', error.error);
+          }
+          // Log the full error response
+          console.error('Full error object:', JSON.stringify(error, null, 2));
+        }
+      })
+    );
   }
 
   // Supprimer une campagne
@@ -306,7 +365,16 @@ export class CampaignService {
       fundsRaised: `${fundsRaised.toLocaleString('fr-FR')} FCFA`,
       campaignDescription: descriptionSource && descriptionSource.trim().length > 0 
         ? descriptionSource.trim() 
-        : ''
+        : '',
+      // Add localization data if available
+      localization: backendCampaign.localization ? {
+        country: backendCampaign.localization.country,
+        town: backendCampaign.localization.town,
+        region: backendCampaign.localization.region,
+        street: backendCampaign.localization.street,
+        longitude: backendCampaign.localization.longitude,
+        latitude: backendCampaign.localization.latitude
+      } : undefined
     };
   }
   
