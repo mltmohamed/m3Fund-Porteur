@@ -120,88 +120,13 @@
         </div>
       </div>
 
-      <!-- Section Localisation -->
+      <!-- Section Localisation avec Map Picker -->
       <div class="form-section">
         <h3 class="section-title">Localisation</h3>
-        <div class="form-columns">
-          <div class="form-column">
-            <div class="form-group">
-              <label for="country">Pays *</label>
-              <input 
-                type="text" 
-                id="country" 
-                class="form-input" 
-                [(ngModel)]="country"
-                name="country"
-                placeholder="Pays"
-              >
-            </div>
-            
-            <div class="form-group">
-              <label for="town">Ville *</label>
-              <input 
-                type="text" 
-                id="town" 
-                class="form-input" 
-                [(ngModel)]="town"
-                name="town"
-                placeholder="Ville"
-              >
-            </div>
-            
-            <div class="form-group">
-              <label for="region">Région</label>
-              <input 
-                type="text" 
-                id="region" 
-                class="form-input" 
-                [(ngModel)]="region"
-                name="region"
-                placeholder="Région"
-              >
-            </div>
-          </div>
-          
-          <div class="form-column">
-            <div class="form-group">
-              <label for="street">Adresse</label>
-              <input 
-                type="text" 
-                id="street" 
-                class="form-input" 
-                [(ngModel)]="street"
-                name="street"
-                placeholder="Adresse"
-              >
-            </div>
-            
-            <div class="form-group">
-              <label for="longitude">Longitude</label>
-              <input 
-                type="number" 
-                id="longitude" 
-                class="form-input" 
-                [(ngModel)]="longitude"
-                name="longitude"
-                placeholder="Longitude"
-                step="any"
-              >
-            </div>
-            
-            <div class="form-group">
-              <label for="latitude">Latitude</label>
-              <input 
-                type="number" 
-                id="latitude" 
-                class="form-input" 
-                [(ngModel)]="latitude"
-                name="latitude"
-                placeholder="Latitude"
-                step="any"
-              >
-            </div>
-          </div>
-        </div>
+        <app-map-picker 
+          [initialLocation]="{ longitude: longitude, latitude: latitude }"
+          (locationSelected)="onLocationSelected($event)">
+        </app-map-picker>
       </div>
 
       <!-- Zone de description -->
