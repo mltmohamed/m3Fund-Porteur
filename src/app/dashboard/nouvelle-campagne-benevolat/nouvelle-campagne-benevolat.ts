@@ -119,6 +119,7 @@ export class NouvelleCampagneBenevolat implements OnInit {
 
   // Gérer la sélection de localisation depuis la carte
   onLocationSelected(locationData: any) {
+    console.log('Location selected from map:', locationData);
     this.country = locationData.country;
     this.town = locationData.town;
     this.region = locationData.region || '';

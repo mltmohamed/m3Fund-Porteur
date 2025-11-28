@@ -90,23 +90,46 @@ export class MapPickerComponent implements OnInit, AfterViewInit {
   }
 
   private updateLocation(longitude: number, latitude: number): void {
-    // In a real application, you would use a geocoding service to get the actual address
-    // For now, we'll just store the coordinates
-    this.selectedLocation = {
-      country: 'Mali',
-      town: 'Bamako',
-      region: 'District de Bamako',
-      street: '',
-      longitude: longitude,
-      latitude: latitude
-    };
+    console.log('Updating location:', longitude, latitude);
     
-    // Emit the location data to the parent component
-    this.locationSelected.emit(this.selectedLocation);
+    // Use reverse geocoding to get actual address information
+    this.reverseGeocode(longitude, latitude).then(addressInfo => {
+      this.selectedLocation = {
+        country: addressInfo.country || 'Mali',
+        town: addressInfo.town || 'Bamako',
+        region: addressInfo.region || 'District de Bamako',
+        street: addressInfo.street || '',
+        longitude: longitude,
+        latitude: latitude
+      };
+      
+      console.log('Selected location updated:', this.selectedLocation);
+      
+      // Emit the location data to the parent component
+      this.locationSelected.emit(this.selectedLocation);
+    }).catch(error => {
+      console.error('Error during reverse geocoding:', error);
+      // Fallback to default values if geocoding fails
+      this.selectedLocation = {
+        country: 'Mali',
+        town: 'Bamako',
+        region: 'District de Bamako',
+        street: '',
+        longitude: longitude,
+        latitude: latitude
+      };
+      
+      console.log('Selected location updated with fallback values:', this.selectedLocation);
+      
+      // Emit the location data to the parent component
+      this.locationSelected.emit(this.selectedLocation);
+    });
   }
 
   private initMap(): void {
     console.log('Initializing map with container:', this.mapContainer);
+    console.log('Initial location:', this.initialLocation);
+    
     if (!this.mapContainer) {
       console.error('Map container not found');
       return;
@@ -115,6 +138,18 @@ export class MapPickerComponent implements OnInit, AfterViewInit {
     try {
       // Fix Leaflet marker icons
       this.fixLeafletIcons();
+      
+      // Validate coordinates
+      if (isNaN(this.initialLocation.latitude) || isNaN(this.initialLocation.longitude)) {
+        console.warn('Invalid initial coordinates, using defaults');
+        this.initialLocation = { longitude: -8.0, latitude: 12.6 };
+      }
+      
+      // Ensure coordinates are within valid ranges
+      this.initialLocation.latitude = Math.max(-90, Math.min(90, this.initialLocation.latitude));
+      this.initialLocation.longitude = Math.max(-180, Math.min(180, this.initialLocation.longitude));
+      
+      console.log('Adjusted initial location:', this.initialLocation);
       
       // Create the map
       this.map = L.map(this.mapContainer.nativeElement).setView(
@@ -135,12 +170,14 @@ export class MapPickerComponent implements OnInit, AfterViewInit {
       // Update position when marker is dragged
       this.marker.on('dragend', (event: any) => {
         const position = this.marker.getLatLng();
+        console.log('Marker dragged to:', position);
         this.updateLocation(position.lng, position.lat);
       });
 
       // Update position when map is clicked
       this.map.on('click', (event: any) => {
         const latlng = event.latlng;
+        console.log('Map clicked at:', latlng);
         this.marker.setLatLng(latlng);
         this.updateLocation(latlng.lng, latlng.lat);
       });
@@ -155,12 +192,46 @@ export class MapPickerComponent implements OnInit, AfterViewInit {
   }
 
   private fixLeafletIcons(): void {
-    // Fix Leaflet marker icons by providing correct paths
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.mergeOptions({
-      iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
-      iconUrl: 'assets/leaflet/marker-icon.png',
-      shadowUrl: 'assets/leaflet/marker-shadow.png',
+    console.log('Fixing Leaflet icons');
+    try {
+      // Fix Leaflet marker icons by providing correct paths
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'assets/leaflet/marker-icon-2x.png',
+        iconUrl: 'assets/leaflet/marker-icon.png',
+        shadowUrl: 'assets/leaflet/marker-shadow.png',
+      });
+      console.log('Leaflet icons fixed successfully');
+    } catch (error) {
+      console.error('Error fixing Leaflet icons:', error);
+    }
+  }
+
+  private reverseGeocode(longitude: number, latitude: number): Promise<any> {
+    return new Promise((resolve, reject) => {
+      // Use OpenStreetMap Nominatim API for reverse geocoding
+      const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`;
+      
+      // Using fetch API to make the request
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          console.log('Reverse geocoding response:', data);
+          
+          const address = data.address || {};
+          const addressInfo = {
+            country: address.country || 'Mali',
+            town: address.city || address.town || address.village || 'Bamako',
+            region: address.state || address.county || 'District de Bamako',
+            street: address.road || address.pedestrian || ''
+          };
+          
+          resolve(addressInfo);
+        })
+        .catch(error => {
+          console.error('Error fetching reverse geocoding data:', error);
+          reject(error);
+        });
     });
   }
 }
