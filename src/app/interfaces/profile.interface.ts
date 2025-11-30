@@ -21,6 +21,9 @@ export interface ProfileUpdateRequest {
   address?: string;
   profilePhoto?: File;
   currentPassword?: string;
+  entityName?: string;  // Ajouté pour les organisations et associations
+  newPassword?: string;  // Ajouté pour le changement de mot de passe
+  confirmPassword?: string;  // Ajouté pour le changement de mot de passe
 }
 
 export interface PasswordChangeRequest {
@@ -38,7 +41,7 @@ export interface ProfileResponse {
   phone: string;
   address: string;
   profilePictureUrl?: string;  // Le backend retourne profilePictureUrl
-  userType: string;
+  type: string;  // Changé de userType à type pour correspondre au backend
   state?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
   createdAt: string;
   updatedAt: string;

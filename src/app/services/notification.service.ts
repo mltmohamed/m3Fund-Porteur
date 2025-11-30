@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { tap, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface NotificationResponse {
@@ -37,12 +37,20 @@ export class NotificationService {
 
   constructor(private http: HttpClient) {}
 
-  // Récupérer les notifications récentes (pour le header)
+  // Récupérer les notifications récentes (pour le header) - limité aux 3 dernières
   getRecentNotifications(): Observable<NotificationResponse[]> {
     return this.http.get<NotificationResponse[]>(`${this.apiUrl}/notifications`).pipe(
       tap((notifications: NotificationResponse[]) => {
         const unreadCount = notifications.filter((n: NotificationResponse) => !n.read).length;
         this.unreadCountSubject.next(unreadCount);
+      }),
+      // Trier par date décroissante et prendre les 3 premières
+      map((notifications: NotificationResponse[]) => {
+        return notifications.sort((a, b) => {
+          const dateA = new Date(a.sentAt || a.createdAt || '');
+          const dateB = new Date(b.sentAt || b.createdAt || '');
+          return dateB.getTime() - dateA.getTime();
+        }).slice(0, 3);
       })
     );
   }

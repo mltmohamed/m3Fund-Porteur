@@ -62,6 +62,12 @@ export class Header implements OnInit {
     this.notificationService.getRecentNotifications().subscribe({
       next: (notifications) => {
         this.notifications = this.notificationService.transformNotificationsForDisplay(notifications);
+        // Trier par date décroissante (les plus récentes en premier)
+        this.notifications.sort((a, b) => {
+          const dateA = new Date(a.time);
+          const dateB = new Date(b.time);
+          return dateB.getTime() - dateA.getTime();
+        });
         console.log('Notifications chargées:', this.notifications);
       },
       error: (error) => {
