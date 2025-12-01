@@ -6,10 +6,11 @@ import { ProjectService } from '../../services/project.service';
 import { Campaign, CampaignSummary, CampaignResponse } from '../../interfaces/campaign.interface';
 import { ProjectResponse } from '../../interfaces/project.interface';
 import { ConfirmationModal } from './confirmation-modal/confirmation-modal';
+import { MapPickerComponent } from '../../components/map-picker/map-picker.component';
 
 @Component({
   selector: 'app-campagnes',
-  imports: [CommonModule, FormsModule, ConfirmationModal],
+  imports: [CommonModule, FormsModule, ConfirmationModal, MapPickerComponent],
   templateUrl: './campagnes.html',
   styleUrl: './campagnes.css'
 })
@@ -56,6 +57,18 @@ export class Campagnes implements OnInit {
     longitude: null as number | null,
     latitude: null as number | null
   };
+
+  // Handle location selection from map picker
+  onLocationSelected(locationData: any) {
+    console.log('Location selected from map:', locationData);
+    this.editForm.country = locationData.country;
+    this.editForm.town = locationData.town;
+    this.editForm.region = locationData.region || '';
+    // Ensure street has a value, use town as fallback if street is empty
+    this.editForm.street = locationData.street || locationData.town || 'Adresse non spécifiée';
+    this.editForm.longitude = locationData.longitude;
+    this.editForm.latitude = locationData.latitude;
+  }
   
   // Calculs en temps réel
   get m3FundReceives(): string {
@@ -509,7 +522,20 @@ export class Campagnes implements OnInit {
   }
 
   onSubmitEdit() {
-    if (!this.selectedCampaign) return;
+    console.log('onSubmitEdit called');
+    console.log('Selected campaign:', this.selectedCampaign);
+    console.log('Edit form data:', this.editForm);
+    
+    // Check if form is valid
+    console.log('Form validation check:');
+    console.log('- selectedCampaign exists:', !!this.selectedCampaign);
+    console.log('- editForm.targetBudget:', this.editForm.targetBudget);
+    console.log('- editForm.endDate:', this.editForm.endDate);
+    
+    if (!this.selectedCampaign) {
+      console.log('Validation failed: No selected campaign');
+      return;
+    }
 
     // Valider la date de début de campagne avant la soumission (seulement si la campagne n'est pas validée)
     if (!this.isCampaignValidated() && this.editForm.startDate) {
@@ -564,7 +590,10 @@ export class Campagnes implements OnInit {
       country: this.editForm.country ? this.editForm.country.trim() : '',
       town: this.editForm.town ? this.editForm.town.trim() : '',
       region: (this.editForm.region !== null && this.editForm.region !== undefined) ? this.editForm.region.trim() : '',
-      street: (this.editForm.street !== null && this.editForm.street !== undefined) ? this.editForm.street.trim() : '',
+      // Ensure street is never null or empty - use town as fallback
+      street: (this.editForm.street !== null && this.editForm.street !== undefined && this.editForm.street.trim() !== '') 
+        ? this.editForm.street.trim() 
+        : (this.editForm.town ? this.editForm.town.trim() : 'Adresse non spécifiée'),
       longitude: (this.editForm.longitude !== null && this.editForm.longitude !== undefined && !isNaN(this.editForm.longitude)) ? this.editForm.longitude : null,
       latitude: (this.editForm.latitude !== null && this.editForm.latitude !== undefined && !isNaN(this.editForm.latitude)) ? this.editForm.latitude : null
     };
@@ -655,7 +684,8 @@ export class Campagnes implements OnInit {
         country: campaignResponse.localization?.country || '',
         town: campaignResponse.localization?.town || '',
         region: campaignResponse.localization?.region || '',
-        street: campaignResponse.localization?.street || '',
+        // Ensure street is never null or empty - use town as fallback
+        street: campaignResponse.localization?.street || campaignResponse.localization?.town || 'Adresse non spécifiée',
         longitude: campaignResponse.localization?.longitude || null,
         latitude: campaignResponse.localization?.latitude || null
       };
@@ -683,7 +713,8 @@ export class Campagnes implements OnInit {
         country: campaign.localization?.country || '',
         town: campaign.localization?.town || '',
         region: campaign.localization?.region || '',
-        street: campaign.localization?.street || '',
+        // Ensure street is never null or empty - use town as fallback
+        street: campaign.localization?.street || campaign.localization?.town || 'Adresse non spécifiée',
         longitude: campaign.localization?.longitude || null,
         latitude: campaign.localization?.latitude || null
       };
@@ -709,14 +740,28 @@ export class Campagnes implements OnInit {
       country: '',
       town: '',
       region: '',
-      street: '',
+      // Ensure street is never null or empty - use town as fallback
+      street: 'Adresse non spécifiée',
       longitude: null,
       latitude: null
     };
   }
 
   onSubmitEditDon() {
-    if (!this.selectedCampaign) return;
+    console.log('onSubmitEditDon called');
+    console.log('Selected campaign:', this.selectedCampaign);
+    console.log('Edit form data:', this.editForm);
+    
+    // Check if form is valid
+    console.log('Form validation check:');
+    console.log('- selectedCampaign exists:', !!this.selectedCampaign);
+    console.log('- editForm.targetBudget:', this.editForm.targetBudget);
+    console.log('- editForm.endDate:', this.editForm.endDate);
+    
+    if (!this.selectedCampaign) {
+      console.log('Validation failed: No selected campaign');
+      return;
+    }
 
     // Valider la date de début de campagne avant la soumission (seulement si la campagne n'est pas validée)
     if (!this.isCampaignValidated() && this.editForm.startDate) {
@@ -911,7 +956,8 @@ export class Campagnes implements OnInit {
         country: campaign.localization?.country || '',
         town: campaign.localization?.town || '',
         region: campaign.localization?.region || '',
-        street: campaign.localization?.street || '',
+        // Ensure street is never null or empty - use town as fallback
+        street: campaign.localization?.street || campaign.localization?.town || 'Adresse non spécifiée',
         longitude: campaign.localization?.longitude || null,
         latitude: campaign.localization?.latitude || null
       };
@@ -937,14 +983,28 @@ export class Campagnes implements OnInit {
       country: '',
       town: '',
       region: '',
-      street: '',
+      // Ensure street is never null or empty - use town as fallback
+      street: 'Adresse non spécifiée',
       longitude: null,
       latitude: null
     };
   }
 
   onSubmitEditBenevolat() {
-    if (!this.selectedCampaign) return;
+    console.log('onSubmitEditBenevolat called');
+    console.log('Selected campaign:', this.selectedCampaign);
+    console.log('Edit form data:', this.editForm);
+    
+    // Check if form is valid
+    console.log('Form validation check:');
+    console.log('- selectedCampaign exists:', !!this.selectedCampaign);
+    console.log('- editForm.targetVolunteer:', this.editForm.targetVolunteer);
+    console.log('- editForm.endDate:', this.editForm.endDate);
+    
+    if (!this.selectedCampaign) {
+      console.log('Validation failed: No selected campaign');
+      return;
+    }
 
     // Valider la date de début de campagne avant la soumission (seulement si la campagne n'est pas validée)
     if (!this.isCampaignValidated() && this.editForm.startDate) {

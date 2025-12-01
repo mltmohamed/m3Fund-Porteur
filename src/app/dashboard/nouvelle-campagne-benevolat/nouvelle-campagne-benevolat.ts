@@ -123,7 +123,8 @@ export class NouvelleCampagneBenevolat implements OnInit {
     this.country = locationData.country;
     this.town = locationData.town;
     this.region = locationData.region || '';
-    this.street = locationData.street || '';
+    // Ensure street has a value, use town as fallback if street is empty
+    this.street = locationData.street || locationData.town || 'Adresse non spécifiée';
     this.longitude = locationData.longitude;
     this.latitude = locationData.latitude;
   }
@@ -171,7 +172,8 @@ export class NouvelleCampagneBenevolat implements OnInit {
         country: this.country,
         town: this.town,
         region: this.region || undefined,
-        street: this.street || undefined,
+        // Ensure street is never null or empty
+        street: this.street || this.town || 'Adresse non spécifiée',
         longitude: this.longitude,
         latitude: this.latitude
       }
@@ -216,7 +218,8 @@ export class NouvelleCampagneBenevolat implements OnInit {
     this.country = '';
     this.town = '';
     this.region = '';
-    this.street = '';
+    // Ensure street has a value
+    this.street = 'Adresse non spécifiée';
     this.longitude = -8.0;
     this.latitude = 12.6;
     

@@ -307,98 +307,20 @@
               >
             </div>
             
-            <!-- Section Localisation -->
+            <!-- Section Localisation avec Map Picker -->
             <div class="form-section" style="width: 100%;">
               <h3 class="form-section-title" style="text-align: left;">Localisation</h3>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="country" style="display: block; text-align: left;">Pays</label>
-                <input
-                  type="text"
-                  id="country"
-                  class="form-input"
-                  [(ngModel)]="editForm.country"
-                  name="country"
-                  placeholder="Pays"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="town" style="display: block; text-align: left;">Ville</label>
-                <input
-                  type="text"
-                  id="town"
-                  class="form-input"
-                  [(ngModel)]="editForm.town"
-                  name="town"
-                  placeholder="Ville"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="region" style="display: block; text-align: left;">Région</label>
-                <input
-                  type="text"
-                  id="region"
-                  class="form-input"
-                  [(ngModel)]="editForm.region"
-                  name="region"
-                  placeholder="Région"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="street" style="display: block; text-align: left;">Adresse</label>
-                <input
-                  type="text"
-                  id="street"
-                  class="form-input"
-                  [(ngModel)]="editForm.street"
-                  name="street"
-                  placeholder="Adresse"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-row" style="width: 100%;">
-                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-right: 2%;">
-                  <label for="longitude" style="display: block; text-align: left;">Longitude</label>
-                  <input
-                    type="number"
-                    id="longitude"
-                    class="form-input"
-                    [(ngModel)]="editForm.longitude"
-                    name="longitude"
-                    placeholder="Longitude"
-                    step="any"
-                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                  >
-                </div>
-                
-                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-left: 2%;">
-                  <label for="latitude" style="display: block; text-align: left;">Latitude</label>
-                  <input
-                    type="number"
-                    id="latitude"
-                    class="form-input"
-                    [(ngModel)]="editForm.latitude"
-                    name="latitude"
-                    placeholder="Latitude"
-                    step="any"
-                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                  >
-                </div>
-              </div>
+              <app-map-picker 
+                [initialLocation]="{ longitude: editForm.longitude || -8.0, latitude: editForm.latitude || 12.6 }"
+                (locationSelected)="onLocationSelected($event)">
+              </app-map-picker>
             </div>
           </div>
         </div>
 
         <!-- Bouton de soumission -->
         <div class="form-submit" style="display: flex; justify-content: flex-start; width: 100%;">
-          <button type="submit" class="submit-btn">
+          <button type="submit" class="submit-btn" (click)="onSubmitEdit()">
             Soumettre la modification
           </button>
         </div>
@@ -488,98 +410,20 @@
               >
             </div>
             
-            <!-- Section Localisation -->
+            <!-- Section Localisation avec Map Picker -->
             <div class="form-section" style="width: 100%;">
               <h3 class="form-section-title" style="text-align: left;">Localisation</h3>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="country" style="display: block; text-align: left;">Pays</label>
-                <input
-                  type="text"
-                  id="country"
-                  class="form-input"
-                  [(ngModel)]="editForm.country"
-                  name="country"
-                  placeholder="Pays"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="town" style="display: block; text-align: left;">Ville</label>
-                <input
-                  type="text"
-                  id="town"
-                  class="form-input"
-                  [(ngModel)]="editForm.town"
-                  name="town"
-                  placeholder="Ville"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="region" style="display: block; text-align: left;">Région</label>
-                <input
-                  type="text"
-                  id="region"
-                  class="form-input"
-                  [(ngModel)]="editForm.region"
-                  name="region"
-                  placeholder="Région"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="street" style="display: block; text-align: left;">Adresse</label>
-                <input
-                  type="text"
-                  id="street"
-                  class="form-input"
-                  [(ngModel)]="editForm.street"
-                  name="street"
-                  placeholder="Adresse"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-row" style="width: 100%;">
-                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-right: 2%;">
-                  <label for="longitude" style="display: block; text-align: left;">Longitude</label>
-                  <input
-                    type="number"
-                    id="longitude"
-                    class="form-input"
-                    [(ngModel)]="editForm.longitude"
-                    name="longitude"
-                    placeholder="Longitude"
-                    step="any"
-                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                  >
-                </div>
-                
-                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-left: 2%;">
-                  <label for="latitude" style="display: block; text-align: left;">Latitude</label>
-                  <input
-                    type="number"
-                    id="latitude"
-                    class="form-input"
-                    [(ngModel)]="editForm.latitude"
-                    name="latitude"
-                    placeholder="Latitude"
-                    step="any"
-                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                  >
-                </div>
-              </div>
+              <app-map-picker 
+                [initialLocation]="{ longitude: editForm.longitude || -8.0, latitude: editForm.latitude || 12.6 }"
+                (locationSelected)="onLocationSelected($event)">
+              </app-map-picker>
             </div>
           </div>
         </div>
 
         <!-- Bouton de soumission -->
         <div class="form-submit" style="display: flex; justify-content: flex-start; width: 100%;">
-          <button type="submit" class="submit-btn">
+          <button type="submit" class="submit-btn" (click)="onSubmitEditDon()">
             Soumettre la modification
           </button>
         </div>
@@ -635,98 +479,20 @@
               </div>
             </div>
             
-            <!-- Section Localisation -->
+            <!-- Section Localisation avec Map Picker -->
             <div class="form-section" style="width: 100%;">
               <h3 class="form-section-title" style="text-align: left;">Localisation</h3>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="country" style="display: block; text-align: left;">Pays</label>
-                <input
-                  type="text"
-                  id="country"
-                  class="form-input"
-                  [(ngModel)]="editForm.country"
-                  name="country"
-                  placeholder="Pays"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="town" style="display: block; text-align: left;">Ville</label>
-                <input
-                  type="text"
-                  id="town"
-                  class="form-input"
-                  [(ngModel)]="editForm.town"
-                  name="town"
-                  placeholder="Ville"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="region" style="display: block; text-align: left;">Région</label>
-                <input
-                  type="text"
-                  id="region"
-                  class="form-input"
-                  [(ngModel)]="editForm.region"
-                  name="region"
-                  placeholder="Région"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-group" style="text-align: left; width: 100%;">
-                <label for="street" style="display: block; text-align: left;">Adresse</label>
-                <input
-                  type="text"
-                  id="street"
-                  class="form-input"
-                  [(ngModel)]="editForm.street"
-                  name="street"
-                  placeholder="Adresse"
-                  style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                >
-              </div>
-              
-              <div class="form-row" style="width: 100%;">
-                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-right: 2%;">
-                  <label for="longitude" style="display: block; text-align: left;">Longitude</label>
-                  <input
-                    type="number"
-                    id="longitude"
-                    class="form-input"
-                    [(ngModel)]="editForm.longitude"
-                    name="longitude"
-                    placeholder="Longitude"
-                    step="any"
-                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                  >
-                </div>
-                
-                <div class="form-group half-width" style="text-align: left; width: 48%; display: inline-block; margin-left: 2%;">
-                  <label for="latitude" style="display: block; text-align: left;">Latitude</label>
-                  <input
-                    type="number"
-                    id="latitude"
-                    class="form-input"
-                    [(ngModel)]="editForm.latitude"
-                    name="latitude"
-                    placeholder="Latitude"
-                    step="any"
-                    style="width: 100%; max-width: 100%; min-width: 100%; box-sizing: border-box; text-align: left;"
-                  >
-                </div>
-              </div>
+              <app-map-picker 
+                [initialLocation]="{ longitude: editForm.longitude || -8.0, latitude: editForm.latitude || 12.6 }"
+                (locationSelected)="onLocationSelected($event)">
+              </app-map-picker>
             </div>
           </div>
         </div>
 
         <!-- Bouton de soumission -->
         <div class="form-submit" style="display: flex; justify-content: flex-start; width: 100%;">
-          <button type="submit" class="submit-btn">
+          <button type="submit" class="submit-btn" (click)="onSubmitEditBenevolat()">
             Soumettre la modification
           </button>
         </div>
