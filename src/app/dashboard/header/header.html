@@ -84,3 +84,15 @@
   (confirm)="confirmLogout()"
   (cancel)="cancelLogout()"
 ></app-logout-modal>
+
+<!-- Modal de confirmation -->
+<app-confirmation-modal
+  [isVisible]="showConfirmationModal"
+  [isSuccess]="confirmationSuccess"
+  [message]="confirmationMessage"
+  [confirmMode]="isConfirmationMode"
+  [confirmTitle]="confirmationTitle"
+  [confirmProceedText]="confirmationProceedText"
+  (close)="closeConfirmationModal()"
+  (confirm)="onConfirmInvestment()"
+></app-confirmation-modal>

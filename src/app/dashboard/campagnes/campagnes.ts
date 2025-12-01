@@ -1131,7 +1131,8 @@ export class Campagnes implements OnInit {
 
     // Navigation vers la page appropriée selon le type en utilisant l’événement viewChange
     if (type === 'investissement') {
-      this.viewChange.emit('nouvelle-campagne');
+      // Show confirmation modal for investment campaign
+      this.showInvestmentConfirmation();
     } else if (type === 'don') {
       this.viewChange.emit('nouvelle-campagne-don');
     } else if (type === 'benevolat') {
@@ -1242,5 +1243,19 @@ export class Campagnes implements OnInit {
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  showInvestmentConfirmation() {
+    this.isConfirmationMode = true;
+    this.confirmationSuccess = true;
+    this.confirmationTitle = 'Conditions de création de campagne d\'investissement';
+    this.confirmationMessage = 'Les campagnes d\'investissement impliquent la vente de parts de votre entreprise. En continuant, vous acceptez que les investisseurs deviennent actionnaires de votre projet. Voulez-vous continuer ?';
+    this.confirmationProceedText = 'Accepter et continuer';
+    this.showConfirmationModal = true;
+  }
+
+  onConfirmInvestment() {
+    this.closeConfirmationModal();
+    this.viewChange.emit('nouvelle-campagne');
   }
 }

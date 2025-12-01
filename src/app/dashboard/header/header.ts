@@ -4,10 +4,11 @@ import { ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth';
 import { NotificationService, NotificationDisplay } from '../../services/notification.service';
 import { LogoutModal } from './logout-modal/logout-modal';
+import { ConfirmationModal } from '../../dashboard/campagnes/confirmation-modal/confirmation-modal';
 
 @Component({
   selector: 'app-header',
-  imports: [CommonModule, LogoutModal],
+  imports: [CommonModule, LogoutModal, ConfirmationModal],
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
@@ -16,6 +17,12 @@ export class Header implements OnInit {
   showNotifications = false;
   showCampaignModal = false;
   showLogoutModal = false;
+  showConfirmationModal = false;
+  isConfirmationMode = false;
+  confirmationSuccess = true;
+  confirmationTitle = '';
+  confirmationMessage = '';
+  confirmationProceedText = '';
   profileImageUrl: string = '';
   isLoading = false;
   unreadNotificationCount = 0;
@@ -166,12 +173,32 @@ export class Header implements OnInit {
 
     // Navigation vers la page appropriée selon le type
     if (type === 'investissement') {
-      this.viewChange.emit('nouvelle-campagne');
+      // Show confirmation modal for investment campaign
+      this.showInvestmentConfirmation();
     } else if (type === 'don') {
       this.viewChange.emit('nouvelle-campagne-don');
     } else if (type === 'benevolat') {
       this.viewChange.emit('nouvelle-campagne-benevolat');
     }
+  }
+
+  showInvestmentConfirmation() {
+    this.isConfirmationMode = true;
+    this.confirmationSuccess = true;
+    this.confirmationTitle = 'Conditions de création de campagne d\'investissement';
+    this.confirmationMessage = 'Les campagnes d\'investissement impliquent la vente de parts de votre entreprise. En continuant, vous acceptez que les investisseurs deviennent actionnaires de votre projet. Voulez-vous continuer ?';
+    this.confirmationProceedText = 'Accepter et continuer';
+    this.showConfirmationModal = true;
+  }
+
+  onConfirmInvestment() {
+    this.closeConfirmationModal();
+    this.viewChange.emit('nouvelle-campagne');
+  }
+
+  closeConfirmationModal() {
+    this.showConfirmationModal = false;
+    this.isConfirmationMode = false;
   }
 
   goToProfil() {
