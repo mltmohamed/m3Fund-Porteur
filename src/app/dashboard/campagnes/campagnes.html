@@ -548,6 +548,6 @@
     [confirmTitle]="confirmationTitle"
     [confirmProceedText]="confirmationProceedText"
     (close)="closeConfirmationModal()"
-    (confirm)="onConfirmClose()"
+    (confirm)="pendingCloseCampaign ? onConfirmClose() : onConfirmInvestment()"
   ></app-confirmation-modal>
 </div>
