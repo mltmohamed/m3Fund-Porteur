@@ -150,9 +150,12 @@
 
 /* Photo de profil */
 .profile-photo-container {
+  position: relative;
   display: flex;
   justify-content: center;
   margin-top: 10px;
+  width: min-content;
+  align-self: center;
 }
 
 .profile-photo {
@@ -174,7 +177,7 @@
 }
 
 .camera-btn {
-  position: absolute;
+  position: relative;
   bottom: 0;
   right: 0;
   background-color: #22c55e;
@@ -277,6 +280,10 @@
   .registration-container {
     padding: 20px;
     margin: 10px;
+  }
+
+  .main-title {
+    margin-top: 50px;
   }
   
   .logo-header {

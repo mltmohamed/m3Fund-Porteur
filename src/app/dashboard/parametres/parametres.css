@@ -735,7 +735,6 @@ input:checked + .toggle-slider:before {
   .section-title {
     font-size: 1.1rem;
   }
-}
   .parametres-container {
     flex-direction: column;
     padding: 1rem;
