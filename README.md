@@ -1,59 +1,45 @@
-# M3Fund
+# M3Fund – Plateforme de financement participatif
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.1.1.
+**M3Fund** est un projet de **financement participatif localisé** dédié au **Mali**.  
+Il permet de connecter **porteurs de projets**, **citoyens**, **investisseurs**, **donateurs** et **bénévoles** autour d’initiatives à impact local.
 
-## Development server
+🔗 **Accès plateforme porteurs de projets** : https://m3fund-p.web.app/
 
-To start a local development server, run:
+---
 
-```bash
-ng serve
-```
+## 🎯 Objectif du projet
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+M3Fund a pour but de :
+- Faciliter le **financement citoyen** (dons et investissements)
+- Soutenir les **entrepreneurs et associations locales**
+- Encourager l’**engagement communautaire** (bénévolat)
+- Garantir la **transparence et le suivi** des campagnes
 
-## Code scaffolding
+Les utilisateurs peuvent découvrir des projets proches de chez eux, les soutenir financièrement ou par leurs compétences, et suivre l’évolution des campagnes en temps réel.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+---
 
-```bash
-ng generate component component-name
-```
+## 🧩 Écosystème M3Fund
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Le projet M3Fund fait partie d’un **ensemble de trois applications complémentaires** :
 
-```bash
-ng generate --help
-```
+1. **Web – Porteur de projet**  
+   - Création et gestion des campagnes  
+   - Suivi des contributions et des investissements  
+   - Dépôt de documents et informations du projet  
 
-## Building
+2. **Web – Administration**  
+   - Validation et modération des projets  
+   - Gestion des utilisateurs et des paiements  
+   - Suivi global de la plateforme  
 
-To build the project run:
+3. **Mobile – Contributeur**  
+   - Découverte des projets locaux  
+   - Dons, investissements et bénévolat  
+   - Notifications et suivi des campagnes  
 
-```bash
-ng build
-```
+---
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🌍 M3Fund
 
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+> Une plateforme pensée pour financer localement et créer un impact durable au Mali.
